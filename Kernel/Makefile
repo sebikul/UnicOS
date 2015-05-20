@@ -1,7 +1,7 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(wildcard *.c)
+SOURCES=$(wildcard *.c) drivers/video.c drivers/keyboard.c
 OBJECTS=$(SOURCES:.c=.o)
 LOADERSRC=loader.asm
 

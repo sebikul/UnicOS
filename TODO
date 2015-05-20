@@ -1,8 +1,17 @@
 TODO
 
 Kernel
+iretq !!!!!!!!!!!!!!!!!!!	
 
+
+funcion para terminar una linea
+todo lo del driver de video
+
+toda la idt
 
 
 
 User
+libc printf putc 
+
+

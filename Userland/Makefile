@@ -1,6 +1,6 @@
 include Makefile.inc
 
-all: shellCodeModule shellDataModule
+all: syscalls shellCodeModule shellDataModule
 
 shellCodeModule:
 	cd ShellModule; make
@@ -12,5 +12,7 @@ clean:
 	cd ShellModule; make clean
 	rm -rf *.bin
 
+syscalls:
+	cd syscalls; make
 
 .PHONY: shellCodeModule all clean
