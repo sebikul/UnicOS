@@ -1,5 +1,5 @@
 
 
-void sys_write(int fd, int len, const char* s);
+void sys_write(int fd, char* s, int len);
 
-void sys_read(int fd, int len, char* s);
+void sys_read(int fd, char* s, int len);

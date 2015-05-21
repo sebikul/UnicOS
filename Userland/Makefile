@@ -16,4 +16,4 @@ clean:
 syscalls:
 	cd syscalls; make
 
-.PHONY: shellCodeModule all clean
+.PHONY: syscalls shellCodeModule all clean

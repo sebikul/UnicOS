@@ -1,6 +1,5 @@
-.intel_syntax noprefix
-.section .text
-.GLOBAL syscall
+section .text
+GLOBAL syscall
 
 
 syscall:
