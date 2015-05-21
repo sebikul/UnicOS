@@ -17,11 +17,11 @@ syscall:
 
 	int 	0x80
 
-	push 	r15
-	push 	r14
-	push	r13
-	push	r12
-	push	rbp
+	pop 	r15
+	pop 	r14
+	pop		r13
+	pop		r12
+	pop		rbp
 	pop		rsp
 	pop 	rbx
 

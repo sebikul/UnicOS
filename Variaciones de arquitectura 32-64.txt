@@ -1,0 +1,32 @@
+Hasta ahora trabajamos con la ABI de 32 bits de C y Assembler.
+
+Básicamente los conceptos son los mismos, lo único que cambia es el pasaje
+de parámetros.
+
+El pasaje de parámetros de realiza de la siguiente forma:
+	● Se cargan los argumentos en los registros
+	● Se llama a la función
+	● Los argumentos se copian al stack y se referencian desde ahí.
+
+Clasificación:
+	Los argumentos se clasifican de la siguiente forma:
+		● INTEGER: char, short, int, long, long long y punteros
+		● SSE: floats y doubles
+		● MEMORY: datos mayores a un quadword (8 bytes) y datos desalineados
+
+	Y se pasan de la siguiente forma:
+		Si el dato es INTEGER, se van ocupando los registros rdi , rsi , rdx , rcx , r8 y r9 en orden
+		Si el dato es SSE, se van ocupando los registros xmm0 a xmm7 en orden
+		Si el dato es MEMORY, se pasan por stack y devuelven por stack, de izquierda a derecha (igual que en 32 bits)
+
+	Para devolver los valores:
+		Si el dato es INTEGER, se utiliza rax y rdx
+		Si el dato es SSE, se retorna por xmm0 y xmm1
+
+	Los registros a preservar son:
+		● rbp
+		● rsp
+		● rbx
+		● r12
+		● r13
+		● r15

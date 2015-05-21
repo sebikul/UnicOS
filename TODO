@@ -1,17 +1,45 @@
-TODO
+TODO:
+
+*Complete TODO section..
+
 
 Kernel
 iretq !!!!!!!!!!!!!!!!!!!	
 
+	Drivers
+		Video
+			finishLine...
 
-funcion para terminar una linea
-todo lo del driver de video
+			console handler...
 
-toda la idt
+		Keyboard
+			getKey...
+
+	IDT
+		software
+			syscall handler -& validator- (generic-super case)
+
+		hardware
+			syscall keyboard
+			syscall RTC
+
+
 
 
 
 User
-libc printf putc 
+	write
+		printf putc
+
+	read
+		scanf getc
 
 
+
+
+
+
+Boring
+	Manual de usuario
+
+	Informe
