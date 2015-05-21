@@ -1,5 +1,6 @@
-
-GLOBAL syscall
+.intel_syntax noprefix
+.section .text
+.GLOBAL syscall
 
 
 syscall:
@@ -14,7 +15,7 @@ syscall:
 	push 	r14
 	push 	r15
 
-	int 	80h
+	int 	0x80
 
 	push 	r15
 	push 	r14

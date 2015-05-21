@@ -10,6 +10,7 @@ shellDataModule:
 
 clean:
 	cd ShellModule; make clean
+	cd syscalls; make clean
 	rm -rf *.bin
 
 syscalls:

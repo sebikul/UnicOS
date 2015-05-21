@@ -9,3 +9,4 @@
 
 #Object files
 *.o
+Userland/syscalls/lib/libsyscalls.a
