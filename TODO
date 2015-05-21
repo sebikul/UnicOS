@@ -6,6 +6,16 @@ TODO:
 Kernel
 iretq !!!!!!!!!!!!!!!!!!!	
 
+
+Interprete de comandos: que demuestren el funcionamiento del kernel. Deberá
+tomar dichos comandos por entrada estándar y mostrar el resultado de la
+ejecución por salida estándar. El interprete deberá interactuar con el sistema
+mediante un modelo de terminal.
+● Funciones:
+○ Una función que permita visualizar la hora del sistema.
+○ Una función que permita cambiar la hora del sistema.
+○ Una función de ayuda, que muestre los distintos programas disponibles.
+
 	Drivers
 		Video
 			finishLine...
@@ -43,3 +53,4 @@ Boring
 	Manual de usuario
 
 	Informe
+
