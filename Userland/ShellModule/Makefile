@@ -6,7 +6,7 @@ SOURCES=$(wildcard *.c)
 all: $(MODULE)
 
 $(MODULE): $(SOURCES)
-	$(GCC) $(GCCFLAGS) -T shellModule.ld $(SOURCES) ../syscalls/syscalls.o -o ../$(MODULE)
+	$(GCC) $(GCCFLAGS) -T shellModule.ld $(SOURCES) -I../syscalls/include -L../syscalls/lib  -lsyscalls -o ../$(MODULE)
 
 clean:
 	rm -rf *.o
