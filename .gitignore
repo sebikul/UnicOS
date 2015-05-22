@@ -1,6 +1,6 @@
 #Binary Files
 *.bin
-*.sys
+
 
 #The images
 *.img
