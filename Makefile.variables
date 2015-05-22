@@ -1,0 +1,20 @@
+
+ifndef GCC
+GCC=gcc
+endif
+
+ifndef GPP
+GPP=g++
+endif
+
+ifndef LD
+LD=ld
+endif
+
+ifndef AR
+AR=ar
+endif
+
+ifndef ASM
+ASM=nasm
+endif

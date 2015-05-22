@@ -1,3 +1,4 @@
+include ../../Makefile.variables
 include ../Makefile.inc
 
 MODULE=shellModule.bin

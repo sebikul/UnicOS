@@ -30,7 +30,7 @@ void sys_read(int fd, char* s, int len){
 void sys_rtc_time(int* hours, int* minutes, int* seconds){
 
 	//hay que ver como llamar al rtc y eso.... es medio raro http://stanislavs.org/helppc/cmos_ram.html
-	hours=syscall(SYS_CALL_RTC, RTC_HOURS); 
-	minutes=syscall(SYS_CALL_RTC, RTC_MINUTES);
-	seconds=syscall(SYS_CALL_RTC, RTC_SECONDS);
+	//hours=syscall(SYS_CALL_RTC, RTC_HOURS); 
+	//minutes=syscall(SYS_CALL_RTC, RTC_MINUTES);
+	//seconds=syscall(SYS_CALL_RTC, RTC_SECONDS);
 }

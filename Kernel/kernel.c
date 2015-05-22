@@ -15,8 +15,8 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const sampleCodeModuleAddress = (void*)0x40000;
-static void * const sampleDataModuleAddress = (void*)0x50000;
+static void * const shellCodeModuleAddress = (void*)0x40000;
+static void * const shellDataModuleAddress = (void*)0x50000;
 
 typedef int (*EntryPoint)();
 
@@ -43,8 +43,8 @@ void * initializeKernelBinary()
 	ncPrint("[Loading modules]");
 	ncNewline();
 	void * moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		sampleDataModuleAddress
+		shellCodeModuleAddress,
+		shellDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -80,22 +80,22 @@ int main()
 {	
 	ncPrint("[Kernel Main]");
 	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
+	ncPrint("  Shell code module at 0x");
+	ncPrintHex((uint64_t)shellCodeModuleAddress);
 	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	ncPrint("  Calling the shell code module returned: ");
+	ncPrintHex(((EntryPoint)shellCodeModuleAddress)());
 	ncNewline();
-	ncNewline();
-
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
 	ncNewline();
 
-	clear_screen();
+	ncPrint("  Shell data module at 0x");
+	ncPrintHex((uint64_t)shellDataModuleAddress);
+	ncNewline();
+	ncPrint("  Shell data module contents: ");
+	ncPrint((char*)shellDataModuleAddress);
+	ncNewline();
+
+	//clear_screen();
 
 	ncPrint("[Finished]");
 	return 0;

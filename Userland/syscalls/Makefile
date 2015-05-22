@@ -1,3 +1,4 @@
+include ../../Makefile.variables
 include ../Makefile.inc
 
 all: syscall_loader syscalls link
