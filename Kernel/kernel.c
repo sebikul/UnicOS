@@ -1,5 +1,9 @@
 #include <stdint.h>
-#include <string.h>
+
+#if ! MACOS
+	#include <string.h>
+#endif
+
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
