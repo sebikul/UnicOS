@@ -1,6 +1,6 @@
 //TOASK: con que profundidad hay que validar las entradas?
 
-#include "../syscalls/include/syscalls.h"
+#include "syscalls.h"
 #include "include/libc.h"
 
 void printf(char* arg){
