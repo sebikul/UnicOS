@@ -18,3 +18,5 @@ endif
 ifndef ASM
 ASM=nasm
 endif
+
+ASMFLAGS=-felf64

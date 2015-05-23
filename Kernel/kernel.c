@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #if ! MACOS
-	#include <string.h>
+#include <string.h>
 #endif
 
 #include <lib.h>
@@ -19,27 +19,25 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const shellCodeModuleAddress = (void*)0x40000;
-static void * const shellDataModuleAddress = (void*)0x50000;
+static void * const shellCodeModuleAddress = (void*)0x400000;
+static void * const shellDataModuleAddress = (void*)0x500000;
 
 typedef int (*EntryPoint)();
 
-void clearBSS(void * bssAddress, uint64_t bssSize)
-{
+void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
-{
+void * getStackBase() {
 	return (void*)(
-		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
-	);
+	           (uint64_t)&endOfKernel
+	           + PageSize * 8				//The size of the stack itself, 32KiB
+	           - sizeof(uint64_t)			//Begin at the top of the stack
+	       );
 }
 
-void * initializeKernelBinary()
-{
+void * initializeKernelBinary() {
+
 	ncPrint("[x64BareBones]");
 	ncNewline();
 	ncNewline();
@@ -80,8 +78,27 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-int main()
-{	
+int main() {
+
+	video_initialize();
+
+	video_clear_screen();
+
+
+	for (int i = 1; i <= 29; ++i) {
+		video_write_string("Imprimiendo linea: ");
+		video_write_string(itoa(i, 10));
+		video_write_nl();
+
+	}
+
+	video_write_nl();
+	video_write_line("Linea nueva");
+
+
+
+	return 0;
+
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Shell code module at 0x");

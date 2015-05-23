@@ -4,8 +4,8 @@ include Makefile.inc
 KERNEL=kernel.bin
 SOURCES=$(wildcard *.c) drivers/video.c drivers/keyboard.c
 OBJECTS=$(SOURCES:.c=.o)
-LOADERSRC=loader.asm
 
+LOADERSRC=loader.asm
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
 STATICLIBS=
 
