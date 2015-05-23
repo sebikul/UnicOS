@@ -44,7 +44,7 @@ void * initializeKernelBinary() {
 
 	video_clear_screen();
 
-	video_write_line("[x64BareBones]");
+	video_write_pline("[x64BareBones]");
 
 	video_write_string("  text: 0x");
 	video_write_hex((uint64_t)&text);
@@ -62,16 +62,19 @@ void * initializeKernelBinary() {
 	video_write_hex((uint64_t)&bss);
 	video_write_nl();
 
-	video_write_line("[Done]");
+	video_write_pline("[Done]");
 	video_write_nl();
-	video_write_nl();
+
+	load_kernel_modules();
+
+	video_write_pline("Kernel cargado.");
 
 	return getStackBase();
 }
 
 void load_kernel_modules() {
 
-	video_write_line("[Loading modules]");
+	video_write_pline("[Loading modules]");
 
 	void * moduleAddresses[] = {
 		shellCodeModuleAddress,
@@ -79,14 +82,23 @@ void load_kernel_modules() {
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	video_write_line("[Done]");
+	video_write_pline("[Done]");
 	video_write_nl();
 
 }
 
 int main() {
 
-	//load_kernel_modules();
+	video_write_line("Esta es una linea larga.");
+
+	video_write_nl();
+
+	video_write_line("hola\tchau");
+
+	video_write_line("Esta es una linea con un \nsalto de linea.");
+
+	video_write_line("Esta es una linea muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuy larga, y deberia estar indentada la segunda linea.");
+
 
 	return 0;
 

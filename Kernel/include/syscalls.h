@@ -1,5 +1,5 @@
-#define FD_READ 		0
-#define FD_WRITE 		1
+#define FD_STDERR 		0
+#define FD_STDOUT		1
 
 void sys_write(int fd, char* s, int len);
 

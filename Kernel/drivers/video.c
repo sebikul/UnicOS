@@ -16,14 +16,26 @@ void video_initialize() {
 
 
 //preguntar por que es necesario, y la variable no esta inicializada
-	 video_column=0;
-	 video_row=0;
+	video_column = 0;
+	video_row = 0;
 
 }
 
 //todo static
 void video_reset_color() {
 	current_color = build_color_value(COLOR_WHITE, COLOR_BLACK);
+}
+
+void video_set_color(vga_color fg, vga_color bg) {
+	current_color = build_color_value(fg, bg);
+}
+
+void video_set_full_color(uint16_t color) {
+	current_color = color;
+}
+
+uint16_t video_get_color() {
+	return current_color;
 }
 
 /**
@@ -102,14 +114,24 @@ void video_write_full_char(uint16_t c) {
 }
 
 //todo static
-void video_write_char(const char c) {
+//retorna si hay que indentar la proxima linea
+int video_write_char(const char c) {
+
+	switch (c) {
+	case '\n':
+		video_write_nl();
+		return 0;
+
+	case '\t':
+		video_write_string("    ");
+		return 1;
+
+	}
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t
 	uint16_t c_16 = c;
 	uint16_t color_16 = current_color;
-
-	//*(v += 2) = 'A';
 
 	video_write_full_char(c_16 | (color_16 << 8));
 
@@ -118,10 +140,15 @@ void video_write_char(const char c) {
 //todo static
 void video_write_string(const char * s) {
 
+	int indent;
+
 	while (*s != 0) {
-		video_write_char(*s);
+		indent = video_write_char(*s);
 		s++;
 
+		if (indent && video_column == 0) {
+			video_write_char('\t');
+		}
 	}
 
 }
@@ -131,12 +158,9 @@ void video_write_nl() {
 
 	int line_start = (video_column == 0);
 
-
-
 	while (video_column != 0 || line_start) {
-		//fixme
-		//video_write_char(' ');
-		video_write_char('.');
+
+		video_write_char(' ');
 		line_start = 0;
 	}
 
@@ -144,13 +168,26 @@ void video_write_nl() {
 
 void video_write_line(const char * s) {
 
+	if (video_column != 0) {
+		video_write_nl();
+	}
+
+	video_write_string(" >  ");
+
 	video_write_string(s);
 
-	video_write_nl();
+}
 
-	return;
+void video_write_pline(const char * s) {
+
+	if (video_column != 0) {
+		video_write_nl();
+	}
+
+	video_write_string(s);
 
 }
+
 
 void video_scroll() {
 

@@ -29,16 +29,20 @@ typedef enum vga_colors_list
 
 void video_initialize();
 void video_reset_color();
+uint16_t video_get_color();
+void video_set_full_color(uint16_t color);
+void video_set_color(vga_color fg, vga_color bg);
 uint8_t build_color_value(vga_color fg, vga_color bg);
 uint16_t video_get_full_char_at(int row, int col);
 uint16_t video_write_full_char_at(uint16_t c, int row, int col);
 void video_clear_screen();
 //void video_write_char_with_color(const char c, vga_color fg, vga_color bg);
 void video_write_full_char(uint16_t c);
-void video_write_char(const char c);
+int video_write_char(const char c);
 void video_write_string(const char * s);
 void video_write_nl();
 void video_write_line(const char * s);
+void video_write_pline(const char * s);
 void video_scroll();
 
 void video_write_dec(uint64_t value);

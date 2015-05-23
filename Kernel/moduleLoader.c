@@ -32,8 +32,7 @@ static void loadModule(uint8_t ** module, void * targetModuleAddress)
 	memcpy(targetModuleAddress, *module, moduleSize);
 	*module += moduleSize;
 
-	video_write_line("  [Done]");
-	ncNewline();
+	video_write_pline("  [Done]");
 }
 
 static uint32_t readUint32(uint8_t ** address)

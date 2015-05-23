@@ -2,8 +2,8 @@
 #define SYS_CALL_READ	3
 #define SYS_CALL_WRITE	4
 
-#define FD_READ 		0
-#define FD_WRITE 		1
+#define FD_STDERR 		0
+#define FD_STDOUT		1
 
 #define RTC_SEC_ALARM 		101
 #define RTC_MINUTES 		102

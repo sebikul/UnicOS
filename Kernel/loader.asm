@@ -8,7 +8,8 @@ extern 		initializeKernelBinary
 extern 		sys_write 
 extern 		sys_read
 extern 		exit
-extern		video_write_line
+extern		video_write_pline
+extern 		video_write_nl
 
 loader:
 
@@ -18,17 +19,19 @@ loader:
 		push 		rax
 
 		mov 		rdi, msg_init 				;Inicializando IDT
-		call 		video_write_line
+		call 		video_write_pline
+		call 		video_write_nl
+		call 		video_write_nl
 
 		call 		set_interrupt_handlers
 
-		;call		 main
+		call		 main
 
-		mov 		rdi, 4
-		mov 		rsi, 1
-		mov 		rdx, msg_test
-		mov 		rcx, msg_test_len
-		int 80h
+		; mov 		rdi, 4
+		; mov 		rsi, 0
+		; mov 		rdx, msg_test
+		; mov 		rcx, msg_test_len
+		; int 80h
 
 
 
