@@ -80,7 +80,7 @@ void * initializeKernelBinary() {
 
 int main() {
 
-	video_initialize();
+/*	video_initialize();
 
 	video_clear_screen();
 
@@ -97,7 +97,7 @@ int main() {
 
 
 
-	return 0;
+	return 0;*/
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

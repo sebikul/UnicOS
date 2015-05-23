@@ -5,8 +5,6 @@
 #define video_get_fg(color) (0x0F & color)
 #define video_get_bg(color) ((0xF0 & color) >> 4)
 
-//static uint16_t* video_cursor = SCREEN_START;
-
 static int video_row = 0;
 static int video_column = 0;
 
@@ -37,7 +35,7 @@ uint16_t video_get_full_char_at(int row, int col) {
 
 }
 
-uint16_t video_set_full_char_at(uint16_t c, int row, int col) {
+uint16_t video_write_full_char_at(uint16_t c, int row, int col) {
 
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
 
@@ -68,7 +66,7 @@ void video_clear_screen() {
 
 }
 
-//todo static
+/*//todo static
 void video_write_char_with_color(const char c, vga_color fg, vga_color bg) {
 
 	uint8_t color = build_color_value(fg, bg);
@@ -77,11 +75,11 @@ void video_write_char_with_color(const char c, vga_color fg, vga_color bg) {
 
 	video_write_full_char(scrpos);
 
-}
+}*/
 
 void video_write_full_char(uint16_t c) {
 
-	video_set_full_char_at(c, video_row, video_column);
+	video_write_full_char_at(c, video_row, video_column);
 
 	video_column++;
 
@@ -126,6 +124,8 @@ void video_write_nl() {
 	int line_start = (video_column == 0);
 
 	while (video_column != 0 || line_start) {
+		//fixme
+		//video_write_char(' ');
 		video_write_char('.');
 		line_start = 0;
 	}
@@ -138,13 +138,9 @@ void video_write_line(const char * s) {
 
 	video_write_nl();
 
-
-
 }
 
 void video_scroll() {
-
-	//video_reset_cursor();
 
 	for (int row = 1; row <= SCREEN_HEIGHT; row++) {
 
@@ -152,7 +148,7 @@ void video_scroll() {
 
 			uint16_t c = video_get_full_char_at(row, column);
 
-			video_set_full_char_at(c, row - 1, column);
+			video_write_full_char_at(c, row - 1, column);
 
 		}
 
