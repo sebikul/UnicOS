@@ -7,12 +7,18 @@
 
 static int video_row = 0;
 static int video_column = 0;
-
+static char buffer[128] = { 0 };
 
 static uint8_t current_color = 0;
 
 void video_initialize() {
 	video_reset_color();
+
+
+//preguntar por que es necesario, y la variable no esta inicializada
+	 video_column=0;
+	 video_row=0;
+
 }
 
 //todo static
@@ -83,7 +89,7 @@ void video_write_full_char(uint16_t c) {
 
 	video_column++;
 
-	if (video_column == SCREEN_WIDTH) {
+	if (video_column >= SCREEN_WIDTH) {
 		video_column = 0;
 		video_row++;
 	}
@@ -102,6 +108,8 @@ void video_write_char(const char c) {
 	//se necesitan guardar los valores en uint16_t
 	uint16_t c_16 = c;
 	uint16_t color_16 = current_color;
+
+	//*(v += 2) = 'A';
 
 	video_write_full_char(c_16 | (color_16 << 8));
 
@@ -123,6 +131,8 @@ void video_write_nl() {
 
 	int line_start = (video_column == 0);
 
+
+
 	while (video_column != 0 || line_start) {
 		//fixme
 		//video_write_char(' ');
@@ -137,6 +147,8 @@ void video_write_line(const char * s) {
 	video_write_string(s);
 
 	video_write_nl();
+
+	return;
 
 }
 
@@ -159,16 +171,56 @@ void video_scroll() {
 
 }
 
-char* itoa(int val, int base) {
+void video_write_dec(uint64_t value)
+{
+	video_write_base(value, 10);
+}
 
-	static char buf[32] = {0};
+void video_write_hex(uint64_t value)
+{
+	video_write_base(value, 16);
+}
 
-	int i = 30;
+void video_write_bin(uint64_t value)
+{
+	video_write_base(value, 2);
+}
 
-	for (; val && i ; --i, val /= base)
+void video_write_base(uint64_t value, uint32_t base)
+{
+	uintToBase(value, buffer, base);
+	video_write_string(buffer);
+}
 
-		buf[i] = "0123456789abcdef"[val % base];
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
+{
+	char *p = buffer;
+	char *p1, *p2;
+	uint32_t digits = 0;
 
-	return &buf[i + 1];
+	//Calculate characters for each digit
+	do
+	{
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	}
+	while (value /= base);
 
+	// Terminate string in buffer.
+	*p = 0;
+
+	//Reverse string in buffer.
+	p1 = buffer;
+	p2 = p - 1;
+	while (p1 < p2)
+	{
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
 }

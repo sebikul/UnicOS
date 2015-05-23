@@ -38,66 +38,76 @@ void * getStackBase() {
 
 void * initializeKernelBinary() {
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
-	ncNewline();
+	clearBSS(&bss, &endOfKernel - &bss);
 
-	ncPrint("[Loading modules]");
-	ncNewline();
+	video_initialize();
+
+	video_clear_screen();
+
+	video_write_line("[x64BareBones]");
+
+	video_write_string("  text: 0x");
+	video_write_hex((uint64_t)&text);
+	video_write_nl();
+
+	video_write_string("  rodata: 0x");
+	video_write_hex((uint64_t)&rodata);
+	video_write_nl();
+
+	video_write_string("  data: 0x");
+	video_write_hex((uint64_t)&data);
+	video_write_nl();
+
+	video_write_string("  bss: 0x");
+	video_write_hex((uint64_t)&bss);
+	video_write_nl();
+
+	video_write_line("[Done]");
+	video_write_nl();
+	video_write_nl();
+
+	return getStackBase();
+}
+
+void load_kernel_modules() {
+
+	video_write_line("[Loading modules]");
+
 	void * moduleAddresses[] = {
 		shellCodeModuleAddress,
 		shellDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	video_write_line("[Done]");
+	video_write_nl();
 
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
-
-	clearBSS(&bss, &endOfKernel - &bss);
-
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
-
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
-	return getStackBase();
 }
 
 int main() {
 
-/*	video_initialize();
+	//load_kernel_modules();
 
-	video_clear_screen();
+	return 0;
+
+	/*	video_initialize();
+
+		video_clear_screen();
 
 
-	for (int i = 1; i <= 29; ++i) {
-		video_write_string("Imprimiendo linea: ");
-		video_write_string(itoa(i, 10));
+		for (int i = 1; i <= 29; ++i) {
+			video_write_string("Imprimiendo linea: ");
+			video_write_string(itoa(i, 10));
+			video_write_nl();
+
+		}
+
 		video_write_nl();
-
-	}
-
-	video_write_nl();
-	video_write_line("Linea nueva");
+		video_write_line("Linea nueva");
 
 
 
-	return 0;*/
+		return 0;*/
 
 	ncPrint("[Kernel Main]");
 	ncNewline();

@@ -24,7 +24,7 @@ clean:
 print-%:
 	@echo $* = $($*)
 
-run: all
+run: clean all
 	./run.sh
 
 .PHONY: bootloader image collections kernel userland all clean

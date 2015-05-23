@@ -8,13 +8,31 @@ extern 		initializeKernelBinary
 extern 		sys_write 
 extern 		sys_read
 extern 		exit
+extern		video_write_line
 
 loader:
-		call 	set_interrupt_handlers
+
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
-		mov		rsp, rax			; Set up the stack with the returned address
+
+		mov			rsp, rax					; Set up the stack with the returned address
 		push 		rax
-		call		 main
+
+		mov 		rdi, msg_init 				;Inicializando IDT
+		call 		video_write_line
+
+		call 		set_interrupt_handlers
+
+		;call		 main
+
+		mov 		rdi, 4
+		mov 		rsi, 1
+		mov 		rdx, msg_test
+		mov 		rcx, msg_test_len
+		int 80h
+
+
+
+
 hang:
 		hlt						; halt machine should kernel return
 		jmp 		hang
@@ -24,6 +42,10 @@ IDTR64:								; Interrupt Descriptor Table Register
 		dw 		256*16-1			; limit of IDT (size minus one) (4096 bytes - 1)
 		dq 		0x0000000000000000		; linear address of IDT
 
+
+msg_init:		db "Inicializando IDT", 0
+msg_test:		db "Mensaje IDT de prueba", 0
+msg_test_len	equ $-msg_test
 
 ; create_gate
 ; rax = address of handler
@@ -50,6 +72,8 @@ set_interrupt_handlers:
 		call 		create_gate
 
 		lidt 		[IDTR64]			; load IDT register
+
+		ret
 
 align 16
 soft_interrupt:

@@ -40,4 +40,9 @@ void video_write_string(const char * s);
 void video_write_nl();
 void video_write_line(const char * s);
 void video_scroll();
-char* itoa(int val, int base);
+
+void video_write_dec(uint64_t value);
+void video_write_hex(uint64_t value);
+void video_write_bin(uint64_t value);
+void video_write_base(uint64_t value, uint32_t base);
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
