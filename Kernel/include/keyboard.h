@@ -1,13 +1,25 @@
 
 #define NULL 0
 
+#define TRUE 1
+#define FALSE 0
+
+typedef char bool;
+
 typedef struct {
 	char scancode;
 	char ascii;
-} scancodes;
+} scancode;
 
+//vamos a sacrificar mucho espacio para que el codigo sea mas legible. Se podrian usar mascaras
+typedef struct {
+	bool shift;
+	bool caps;
+} kstatus;
 
-scancodes keyboard_scancodes[256] = {
+kstatus keyboard_status = {FALSE, FALSE};
+
+scancode keyboard_scancodes[256] = {
 	{0x00 , NULL}, //empty,
 	{0x01 , NULL}, //esc
 	{0x02 , '1'},
