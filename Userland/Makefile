@@ -7,7 +7,7 @@ shellCodeModule:
 	cd ShellModule; make
 
 shellDataModule:
-	printf "This is sample data." >> shellModule.bin && dd if=/dev/zero bs=1 count=1 >> shellModule.bin
+	printf "This is sample data." >> shellDataModule.bin && dd if=/dev/zero bs=1 count=1 >> shellDataModule.bin
 
 clean:
 	cd ShellModule; make clean

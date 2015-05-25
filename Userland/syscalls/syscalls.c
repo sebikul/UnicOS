@@ -2,17 +2,17 @@
 
 #include "include/syscalls.h"
 
-extern void syscall(int,int,char*,int);
+extern void syscall(int, int, char*, int);
 
-void sys_write(int fd, char* s, int len){
+void sys_write(int fd, char* s, int len) {
 
-	syscall(SYS_CALL_WRITE,fd,s,len);
+	syscall(SYSCALL_WRITE, fd, s, len);
 
 }
 
-void sys_read(int fd, char* s, int len){
-	
-	syscall(SYS_CALL_READ,fd,s,len);
+void sys_read(int fd, char* s, int len) {
+
+	syscall(SYSCALL_READ, fd, s, len);
 
 }
 /*
@@ -27,10 +27,10 @@ void sys_read(int fd, char* s, int len){
 	 08  RTC month
 	 09  RTC year
 */
-void sys_rtc_time(int* hours, int* minutes, int* seconds){
+void sys_rtc_time(int* hours, int* minutes, int* seconds) {
 
 	//hay que ver como llamar al rtc y eso.... es medio raro http://stanislavs.org/helppc/cmos_ram.html
-	//hours=syscall(SYS_CALL_RTC, RTC_HOURS); 
+	//hours=syscall(SYS_CALL_RTC, RTC_HOURS);
 	//minutes=syscall(SYS_CALL_RTC, RTC_MINUTES);
 	//seconds=syscall(SYS_CALL_RTC, RTC_SECONDS);
 }

@@ -1,6 +1,6 @@
 #define SYS_CALL_RTC	2
-#define SYS_CALL_READ	3
-#define SYS_CALL_WRITE	4
+#define SYSCALL_READ	3
+#define SYSCALL_WRITE	4
 
 #define FD_STDERR 		0
 #define FD_STDOUT		1

@@ -1,7 +1,7 @@
 include ../../Makefile.variables
 include ../Makefile.inc
 
-MODULE=shellModule.bin
+MODULE=shellCodeModule.bin
 SOURCES=$(wildcard *.c)
 
 all: $(MODULE)
