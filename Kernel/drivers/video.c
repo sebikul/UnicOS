@@ -179,16 +179,21 @@ void video_indent_line() {
 
 void video_write_line(const char * s) {
 
-	if (video_column != 0) {
-		video_write_nl();
-	}
-
-	video_write_string(" >  ");
+	video_write_prompt();
 
 	video_write_string(s);
 
 	video_write_nl();
 
+}
+
+void video_write_prompt() {
+
+	if (video_column != 0) {
+		video_write_nl();
+	}
+
+	video_write_string(" root# ");
 }
 
 void video_write_pline(const char * s) {

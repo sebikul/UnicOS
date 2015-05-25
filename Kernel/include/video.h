@@ -44,8 +44,9 @@ void video_write_nl();
 void video_write_line(const char * s);
 void video_write_pline(const char * s);
 void video_scroll();
-;;void video_update_cursor();
+void video_update_cursor();
 void video_indent_line();
+void video_write_prompt();
 
 void video_write_dec(uint64_t value);
 void video_write_hex(uint64_t value);

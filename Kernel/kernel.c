@@ -142,9 +142,7 @@ int main() {
 
 	video_write_pline("[Finished]");
 
-
-	video_write_string("Una linea");
-
+	video_write_prompt();
 
 
 
