@@ -38,7 +38,7 @@ void video_write_full_char_at(uint16_t c, int row, int col);
 void video_clear_screen();
 //void video_write_char_with_color(const char c, vga_color fg, vga_color bg);
 void video_write_full_char(uint16_t c);
-int video_write_char(const char c);
+void video_write_char(const char c);
 void video_write_string(const char * s);
 void video_write_nl();
 void video_write_line(const char * s);

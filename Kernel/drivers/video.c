@@ -6,8 +6,8 @@
 #define video_get_fg(color) (0x0F & color)
 #define video_get_bg(color) ((0xF0 & color) >> 4)
 
-static int video_row = 0;
-static int video_column = 0;
+int video_row = 0;
+int video_column = 0;
 static char buffer[128] = { 0 };
 
 static uint8_t current_color = 0;
@@ -119,18 +119,7 @@ void video_write_full_char(uint16_t c) {
 
 //todo static
 //retorna si hay que indentar la proxima linea
-int video_write_char(const char c) {
-
-	switch (c) {
-	case '\n':
-		video_write_nl();
-		return 1;
-
-	case '\t':
-		video_write_string("    ");
-		return 1;
-
-	}
+void video_write_char(const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t
@@ -139,21 +128,34 @@ int video_write_char(const char c) {
 
 	video_write_full_char(c_16 | (color_16 << 8));
 
-	return 1;
+	return 0;
 }
 
 //todo static
 void video_write_string(const char * s) {
 
-	int indent;
-
 	while (*s != 0) {
-		indent = video_write_char(*s);
+
+		switch (*s) {
+		case '\n':
+			video_write_nl();
+			break;
+
+		case '\t':
+			video_write_string("    ");
+			break;
+
+		default:
+			video_write_char(*s);
+			break;
+		}
+
 		s++;
 
-		if (indent && video_column == 0) {
-			video_write_char('\t');
+		if (video_column == 0) {
+			video_indent_line();
 		}
+
 	}
 
 	video_update_cursor();
