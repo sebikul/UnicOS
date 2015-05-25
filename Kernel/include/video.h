@@ -7,8 +7,7 @@
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
 
-typedef enum vga_colors_list
-{
+typedef enum{
 	COLOR_BLACK = 0,
 	COLOR_BLUE = 1,
 	COLOR_GREEN = 2,
