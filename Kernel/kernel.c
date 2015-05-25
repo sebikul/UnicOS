@@ -24,6 +24,8 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 typedef int (*EntryPoint)();
 
+void load_kernel_modules();
+
 void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
@@ -63,7 +65,6 @@ void * initializeKernelBinary() {
 	video_write_nl();
 
 	video_write_pline("[Done]");
-	video_write_nl();
 
 	load_kernel_modules();
 
@@ -83,15 +84,12 @@ void load_kernel_modules() {
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	video_write_pline("[Done]");
-	video_write_nl();
 
 }
 
 int main() {
 
 	video_write_line("Esta es una linea larga.");
-
-	video_write_nl();
 
 	video_write_line("hola\tchau");
 
@@ -100,7 +98,7 @@ int main() {
 	video_write_line("Esta es una linea muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuy larga, y deberia estar indentada la segunda linea.");
 
 
-	return 0;
+	//return 0;
 
 	/*	video_initialize();
 
@@ -121,25 +119,34 @@ int main() {
 
 		return 0;*/
 
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	ncPrint("  Shell code module at 0x");
-	ncPrintHex((uint64_t)shellCodeModuleAddress);
-	ncNewline();
-	ncPrint("  Calling the shell code module returned: ");
-	ncPrintHex(((EntryPoint)shellCodeModuleAddress)());
-	ncNewline();
-	ncNewline();
+	video_write_pline("[Kernel Main]");
 
-	ncPrint("  Shell data module at 0x");
-	ncPrintHex((uint64_t)shellDataModuleAddress);
-	ncNewline();
-	ncPrint("  Shell data module contents: ");
-	ncPrint((char*)shellDataModuleAddress);
-	ncNewline();
+
+	video_write_string("  Shell code module at 0x");
+	video_write_hex((uint64_t)shellCodeModuleAddress);
+	video_write_nl();
+
+	video_write_string("  Calling the shell code module returned: ");
+	video_write_hex(((EntryPoint)shellCodeModuleAddress)());
+	video_write_nl();
+	video_write_nl();
+
+	video_write_string("  Shell data module at 0x");
+	video_write_hex((uint64_t)shellDataModuleAddress);
+	video_write_nl();
+	video_write_string("  Shell data module contents: ");
+	video_write_string((char*)shellDataModuleAddress);
+	video_write_nl();
 
 	//clear_screen();
 
-	ncPrint("[Finished]");
+	video_write_pline("[Finished]");
+
+
+	video_write_string("Una linea");
+
+
+
+
 	return 0;
 }

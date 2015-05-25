@@ -1,6 +1,7 @@
 
 #include "video.h"
 #include "naiveConsole.h"
+#include "io.h"
 
 #define video_get_fg(color) (0x0F & color)
 #define video_get_bg(color) ((0xF0 & color) >> 4)
@@ -10,6 +11,9 @@ static int video_column = 0;
 static char buffer[128] = { 0 };
 
 static uint8_t current_color = 0;
+
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
+
 
 void video_initialize() {
 	video_reset_color();
@@ -53,7 +57,7 @@ uint16_t video_get_full_char_at(int row, int col) {
 
 }
 
-uint16_t video_write_full_char_at(uint16_t c, int row, int col) {
+void video_write_full_char_at(uint16_t c, int row, int col) {
 
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
 
@@ -106,7 +110,7 @@ void video_write_full_char(uint16_t c) {
 		video_row++;
 	}
 
-	if (video_row == SCREEN_HEIGHT) {
+	if (video_row == SCREEN_HEIGHT - 1) {
 		video_scroll();
 	}
 
@@ -120,7 +124,7 @@ int video_write_char(const char c) {
 	switch (c) {
 	case '\n':
 		video_write_nl();
-		return 0;
+		return 1;
 
 	case '\t':
 		video_write_string("    ");
@@ -135,6 +139,7 @@ int video_write_char(const char c) {
 
 	video_write_full_char(c_16 | (color_16 << 8));
 
+	return 1;
 }
 
 //todo static
@@ -151,6 +156,8 @@ void video_write_string(const char * s) {
 		}
 	}
 
+	video_update_cursor();
+
 }
 
 //todo static
@@ -166,6 +173,10 @@ void video_write_nl() {
 
 }
 
+void video_indent_line() {
+	video_write_string(" >  ");
+}
+
 void video_write_line(const char * s) {
 
 	if (video_column != 0) {
@@ -176,6 +187,8 @@ void video_write_line(const char * s) {
 
 	video_write_string(s);
 
+	video_write_nl();
+
 }
 
 void video_write_pline(const char * s) {
@@ -185,6 +198,8 @@ void video_write_pline(const char * s) {
 	}
 
 	video_write_string(s);
+
+	video_write_nl();
 
 }
 
@@ -205,6 +220,20 @@ void video_scroll() {
 
 	video_column = 0;
 	video_row--;
+
+}
+
+
+void video_update_cursor() {
+
+	unsigned short position = (video_row * 80) + video_column;
+
+	// cursor LOW port to vga INDEX register
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (unsigned char)(position & 0xFF));
+	// cursor HIGH port to vga INDEX register
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (unsigned char )((position >> 8) & 0xFF));
 
 }
 

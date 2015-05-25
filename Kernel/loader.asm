@@ -15,20 +15,19 @@ loader:
 
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
-		mov			rsp, rax					; Set up the stack with the returned address
+		mov			rsp, 	rax					; Set up the stack with the returned address
 		push 		rax
 
 		mov 		rdi, msg_init 				;Inicializando IDT
 		call 		video_write_pline
 		call 		video_write_nl
-		call 		video_write_nl
 
 		call 		set_interrupt_handlers
 
-		call		 main
+		call		main
 
 		; mov 		rdi, 4
-		; mov 		rsi, 0
+		; mov 		rsi, 1
 		; mov 		rdx, msg_test
 		; mov 		rcx, msg_test_len
 		; int 80h
@@ -42,13 +41,13 @@ hang:
 
 
 IDTR64:								; Interrupt Descriptor Table Register
-		dw 		256*16-1			; limit of IDT (size minus one) (4096 bytes - 1)
-		dq 		0x0000000000000000		; linear address of IDT
+		dw 			256*16-1			; limit of IDT (size minus one) (4096 bytes - 1)
+		dq 			0x0000000000000000		; linear address of IDT
 
 
-msg_init:		db "Inicializando IDT", 0
-msg_test:		db "Mensaje IDT de prueba", 0
-msg_test_len	equ $-msg_test
+msg_init:			db "Inicializando IDT", 0
+msg_test:			db "Mensaje IDT de prueba", 0
+msg_test_len		equ $-msg_test
 
 ; create_gate
 ; rax = address of handler
@@ -83,21 +82,21 @@ soft_interrupt:
 		push 		rdi
 		push 		rax
 
-		cmp		rdi, 4
-		jz		int_sys_write
+		cmp			rdi, 	4
+		jz			int_sys_write
 
-		cmp		rdi, 3
-		jz 		int_sys_read
+		cmp			rdi, 	3
+		jz 			int_sys_read
 
-		jp 		soft_interrupt_done 		; La syscall no existe
+		jp 			soft_interrupt_done 		; La syscall no existe
 
 int_sys_write:
 		call 		sys_write_handler
-		jp 		soft_interrupt_done
+		jp 			soft_interrupt_done
 
 int_sys_read:
 		call 		sys_read_handler
-		jp 		soft_interrupt_done
+		jp 			soft_interrupt_done
 
 
 soft_interrupt_done:
@@ -112,10 +111,9 @@ prepare_params:
 		mov 		rdi,	rsi
 		mov 		rsi,	rdx
 		mov 		rdx,	rcx
-		mov		rcx,	r8
+		mov			rcx,	r8
 
 		ret
-
 
 sys_write_handler:
 		call 		prepare_params
@@ -124,7 +122,6 @@ sys_write_handler:
 
 sys_read_handler:
 		call 		prepare_params
-
 		call 		sys_read
 
 		ret
