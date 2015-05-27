@@ -1,18 +1,15 @@
-//TOASK: con que profundidad hay que validar las entradas?
 
 #include "syscalls.h"
 #include "include/libc.h"
 
 void printf(char* arg){
-	//TODO: VALIDAR ENTRADA
-	//TOASK: printf deberia manejar %d,%f,etc... ?
+	//TODO: ver stdarg.h <- argumentos variables 
 
-	sys_write(FD_WRITE,&c,strlen(arg));
+	sys_write(FD_WRITE,arg,strlen(arg));
 
 }
 
 void putChar(char c){
-	//TODO: VALIDAR ENTRADA
 
 	sys_write(FD_WRITE,&c,1);
 }
@@ -25,8 +22,8 @@ int strlen(char* str){
 }
 
 int getChar(char* c){
-	//TOASK: validar si hay caracteres? o lo valida kernel?
 	char test[1]=c;
+
 	sys_read(FD_READ,&c,1);
 	if (test==c)
 		return -1; //no pudo leer el caracter -diferenciar motivos?-
@@ -35,7 +32,7 @@ int getChar(char* c){
 }
 
 int scanf(char* c){
-	//TOASK: validar?
+
 	char str[80]={0};
 	int err=getc(&str);
 	int size=1;
@@ -75,17 +72,28 @@ void printTime(){
 void intToChar(int number,char* c){
 
 	int i=0;
+	int j=0;
+	int cnt=0;
 
 	if(number<0){
 		number=-number;
 		c[i++]='-';
 	}
-		
 
-	while (number<10 && i<10){
+	while (number>=10 ){
 		int dig=number%10;
 		number/=10;
 		c[i++]=dig+'0';
+		cnt++;
 	}
+	c[i]]=number+'0';
+
+	while(cnt>=j){
+		char aux;
+		aux=c[cnt];
+		c[cnt--]=c[j];
+		c[j++] = aux;
+	}
+
 
 }
