@@ -59,9 +59,9 @@ void printTime(){
 
 	sys_rtc_time(&timer[0], &timer[1], &timer[2]);	
 
-	timerc[0]=intToChar(timer[0]);//*timerc & *timerc+1 -> hours
-	timerc[2]=intToChar(timer[1]);//*timerc+2 & *timerc+3 -> minutes
-	timerc[4]=intToChar(timer[2]);//*timerc+4 & *timerc+5 -> seconds
+	intToChar(timer[0],timerc);//*timerc & *timerc+1 -> hours
+	intToChar(timer[1],timerc+2);//*timerc+2 & *timerc+3 -> minutes
+	intToChar(timer[2],timerc+4);//*timerc+4 & *timerc+5 -> seconds
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -72,9 +72,8 @@ void printTime(){
 
 }
 
-char* intToChar(int number){
+void intToChar(int number,char* c){
 
-	char c[10]={0};
 	int i=0;
 
 	if(number<0){
@@ -88,7 +87,5 @@ char* intToChar(int number){
 		number/=10;
 		c[i++]=dig+'0';
 	}
-
-	return c;
 
 }
