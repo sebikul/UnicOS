@@ -131,8 +131,6 @@ keyboard:
 		xor			eax, 	eax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
-		test 		al, 	0x80
-		jnz			keyboard_done
 
 		;mov 		[0x000B8000], 	al			; Dump the scancode to the screen
 

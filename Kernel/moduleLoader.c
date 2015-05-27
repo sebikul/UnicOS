@@ -20,19 +20,19 @@ static void loadModule(uint8_t ** module, void * targetModuleAddress)
 {
 	uint32_t moduleSize = readUint32(module);
 
-	video_write_string("  Will copy module at 0x");
-	video_write_hex((uint64_t)*module);
-	video_write_string(" to 0x");
-	video_write_hex((uint64_t)targetModuleAddress);
-	video_write_string(" (");
-	video_write_hex(moduleSize);
-	video_write_string(" bytes)");
-	video_write_nl();
+	// video_write_string("  Will copy module at 0x");
+	// video_write_hex((uint64_t)*module);
+	// video_write_string(" to 0x");
+	// video_write_hex((uint64_t)targetModuleAddress);
+	// video_write_string(" (");
+	// video_write_dec(moduleSize);
+	// video_write_string(" bytes)");
+	// video_write_nl();
 
 	memcpy(targetModuleAddress, *module, moduleSize);
 	*module += moduleSize;
 
-	video_write_pline("  [Done]");
+	//video_write_pline("  [Done]");
 }
 
 static uint32_t readUint32(uint8_t ** address)

@@ -40,6 +40,8 @@ void * getStackBase() {
 
 void * initializeKernelBinary() {
 
+	load_kernel_modules();
+
 	clearBSS(&bss, &endOfKernel - &bss);
 
 	video_initialize();
@@ -66,7 +68,13 @@ void * initializeKernelBinary() {
 
 	video_write_pline("[Done]");
 
-	load_kernel_modules();
+
+
+
+
+	video_write_string("Primer byte de rodata: ");
+	video_write_hex((uint64_t)( * (char*)0x401000));
+	video_write_nl();
 
 	video_write_pline("Kernel cargado.");
 
@@ -75,7 +83,7 @@ void * initializeKernelBinary() {
 
 void load_kernel_modules() {
 
-	video_write_pline("[Loading modules]");
+	//video_write_pline("[Loading modules]");
 
 	void * moduleAddresses[] = {
 		shellCodeModuleAddress,
@@ -83,7 +91,7 @@ void load_kernel_modules() {
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	video_write_pline("[Done]");
+	//video_write_pline("[Done]");
 
 }
 
@@ -97,28 +105,6 @@ int main() {
 
 	video_write_line("Esta es una linea muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuy larga, y deberia estar indentada la segunda linea.");
 
-
-	//return 0;
-
-	/*	video_initialize();
-
-		video_clear_screen();
-
-
-		for (int i = 1; i <= 29; ++i) {
-			video_write_string("Imprimiendo linea: ");
-			video_write_string(itoa(i, 10));
-			video_write_nl();
-
-		}
-
-		video_write_nl();
-		video_write_line("Linea nueva");
-
-
-
-		return 0;*/
-
 	video_write_pline("[Kernel Main]");
 
 
@@ -126,8 +112,10 @@ int main() {
 	video_write_hex((uint64_t)shellCodeModuleAddress);
 	video_write_nl();
 
+	uint64_t retval = ((EntryPoint)shellCodeModuleAddress)();
+
 	video_write_string("  Calling the shell code module returned: ");
-	video_write_hex(((EntryPoint)shellCodeModuleAddress)());
+	video_write_hex(retval);
 	video_write_nl();
 	video_write_nl();
 

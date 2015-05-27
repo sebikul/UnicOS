@@ -2,6 +2,8 @@
 #include <video.h>
 #include <keyboard.h>
 
+#define FIRST_BITE_ON(c) (0x80 | c)
+
 extern int video_column;
 
 void keyboard_irq_handler(uint64_t s) {
@@ -11,8 +13,8 @@ void keyboard_irq_handler(uint64_t s) {
 
 	if (t.ascii == NULL) {
 
-		switch (t.scancode) {
-		case 0x3a://right shift
+		switch (s) {
+		case 0x3a://caps
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
@@ -20,6 +22,17 @@ void keyboard_irq_handler(uint64_t s) {
 			video_write_nl();
 			video_write_prompt();
 			break;
+
+		case 0x2a:
+		case 0x36:
+			keyboard_status.caps = !keyboard_status.caps;
+			break;
+
+		case FIRST_BITE_ON(0x2a):
+		case 0xb6:
+			keyboard_status.caps = !keyboard_status.caps;
+			break;
+
 		}
 
 	} else {
