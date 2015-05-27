@@ -19,4 +19,8 @@ ifndef ASM
 ASM=nasm
 endif
 
+ifndef MACOS
+MACOS=0
+endif
+
 ASMFLAGS=-felf64
