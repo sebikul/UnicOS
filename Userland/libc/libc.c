@@ -54,24 +54,22 @@ int scanf(char* c){
 
 void printTime(){
 
-	int hours[2]={0};
-	int minutes[2]={0};
-	int seconds[2]={0};
+	int timer[3]={0};
+	char timerc[6]={0};
 
-	sys_rtc_time(hours, minutes, seconds);
+	sys_rtc_time(&timer[0], &timer[1], &timer[2]);	
 
-	char h[2]=intToChar(*hours);
-	char m[2]=intToChar(*minutes);
-	char s[2]=intToChar(*seconds);
+	timerc[0]=intToChar(timer[0]);//*timerc & *timerc+1 -> hours
+	timerc[2]=intToChar(timer[1]);//*timerc+2 & *timerc+3 -> minutes
+	timerc[4]=intToChar(timer[2]);//*timerc+4 & *timerc+5 -> seconds
 
-	putChar(h[0]);
-	putChar(h[1]);
-	putChar(":");
-	putChar(m[0]);
-	putChar(m[1]);
-	putChar(":");
-	putChar(s[0]);
-	putChar(s[1]);
+	for (int i = 0; i < 6; i++)
+	{
+		putChar(timerc[i]);
+		if(i%2!=0 && i!=5)
+			putChar(":");
+	}
+
 }
 
 char* intToChar(int number){
