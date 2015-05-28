@@ -48,7 +48,7 @@ void * initializeKernelBinary() {
 
 	video_clear_screen();
 
-	video_write_pline("[x64BareBones]");
+	video_write_line("[x64BareBones]");
 
 	video_write_string("  text: 0x");
 	video_write_hex((uint64_t)&text);
@@ -66,9 +66,9 @@ void * initializeKernelBinary() {
 	video_write_hex((uint64_t)&bss);
 	video_write_nl();
 
-	video_write_pline("[Done]");
+	video_write_line("[Done]");
 
-	video_write_pline("Kernel cargado.");
+	video_write_line("Kernel cargado.");
 
 	return getStackBase();
 }
@@ -89,13 +89,13 @@ void load_kernel_modules() {
 
 int main() {
 
-	video_write_pline("[Kernel Main]");
+	video_write_line("[Kernel Main]");
 
 	video_write_string("  Shell code module at 0x");
 	video_write_hex((uint64_t)shellCodeModuleAddress);
 	video_write_nl();
 
-	video_write_pline("Calling shell module...");
+	video_write_line("Calling shell module...");
 	video_write_nl();
 	((EntryPoint)shellCodeModuleAddress)();
 

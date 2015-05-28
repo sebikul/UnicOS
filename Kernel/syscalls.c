@@ -68,7 +68,6 @@ int sys_read(int fd, char* s, int len) {
 
 		}
 
-
 		keyboard_rpos++;
 
 		if (keyboard_rpos == KEYBOARD_BUFFER_SIZE - 1) {

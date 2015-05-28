@@ -15,7 +15,10 @@ int keyboard_wpos = 0;
 bool keyboard_buffer_loop = FALSE;
 
 
-kstatus keyboard_status = {FALSE};
+kstatus keyboard_status = {FALSE,//caps
+                           FALSE,//ctrl
+                           FALSE//alt
+                          };
 
 scancode keyboard_scancodes[256] = {
 	{0x00 , NULL}, //empty,
@@ -121,7 +124,7 @@ static bool keyboard_buffer_write(char c) {
 		if (keyboard_wpos == KEYBOARD_BUFFER_SIZE - 1) {
 			keyboard_buffer_loop = TRUE;
 			keyboard_wpos = 0;
-		} 
+		}
 
 		return TRUE;
 
@@ -129,7 +132,27 @@ static bool keyboard_buffer_write(char c) {
 
 		return FALSE;
 	}
+}
 
+static void keyboard_buffer_delete() {
+
+//todo siempre estoy incrementando rpos!!!!!!
+	if (keyboard_rpos == keyboard_wpos) {
+		return;
+	}
+
+	if (video_column == 0) {
+		video_column = SCREEN_WIDTH - 1;
+		video_row--;
+	} else {
+		video_column--;
+	}
+
+	keyboard_wpos--;
+
+	video_write_char_at(' ', video_row, video_column);
+
+	video_update_cursor();
 
 
 }
@@ -139,9 +162,9 @@ static void keyboard_write_char(char c) {
 	if (keyboard_buffer_write(c)) {
 		video_write_char(c);
 
-		if (video_column == 0) {
-			video_indent_line();
-		}
+		// if (video_column == 0) {
+		// 	video_indent_line();
+		// }
 	}
 
 	// video_write_string("Buff rpos :");
@@ -158,6 +181,10 @@ void keyboard_irq_handler(uint64_t s) {
 
 	scancode t = keyboard_scancodes[s];
 
+	// video_write_string("Scancode: ");
+	// video_write_hex((uint64_t)t.scancode);
+	// video_write_nl();
+
 	if (t.ascii == NULL) {
 
 		switch (s) {
@@ -169,6 +196,10 @@ void keyboard_irq_handler(uint64_t s) {
 			keyboard_buffer_write('\n');
 			//video_write_nl();
 			//video_write_prompt();
+			break;
+
+		case 0x0E://backspace
+			keyboard_buffer_delete();
 			break;
 
 		case 0x2a:

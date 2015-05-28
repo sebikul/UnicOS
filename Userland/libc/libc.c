@@ -1,4 +1,7 @@
 
+#ifndef HLIBC_H
+#define HLIBC_H
+
 #include <syscalls.h>
 #include <libc.h>
 
@@ -64,12 +67,37 @@ int scanf(char* c, int len) {
 		c++;
 		size++;
 
-		printf(c);
+		//printf(c);
 	}
 
 	*c = 0;
 
 	return size;
+}
+
+int strcmp(char* s1, char* s2) {
+
+	for (; *s1!= 0 || *s2 != 0; s1++, s2++) {
+		if (*s1 != *s2) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+
+}
+
+char* strcpy(char* src, char* dest) {
+
+	while (*src != 0) {
+		*dest = *src;
+		src++;
+		dest++;
+	}
+
+	*dest = 0;
+
+	return dest;
 }
 
 void printTime() {
@@ -121,3 +149,5 @@ char* intToChar(int number, char* c) {
 	return c;
 
 }
+
+#endif

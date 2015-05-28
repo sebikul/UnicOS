@@ -51,13 +51,13 @@ uint8_t build_color_value(vga_color fg, vga_color bg) {
 
 }
 
-static uint16_t video_get_full_char_at(int row, int col) {
+uint16_t video_get_full_char_at(int row, int col) {
 
 	return SCREEN_START[row * SCREEN_WIDTH + col];
 
 }
 
-static void video_write_full_char_at(uint16_t c, int row, int col) {
+void video_write_full_char_at(uint16_t c, int row, int col) {
 
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
 
@@ -117,8 +117,17 @@ static void video_write_full_char(uint16_t c) {
 
 }
 
+void video_write_char_at(const char c, int row, int col) {
+
+	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
+	//se necesitan guardar los valores en uint16_t
+	uint16_t c_16 = c;
+	uint16_t color_16 = current_color;
+
+	video_write_full_char_at(c, row, col);
+}
+
 //todo static
-//retorna si hay que indentar la proxima linea
 void video_write_char(const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
@@ -136,8 +145,8 @@ void video_write_string(const char * s) {
 
 		switch (*s) {
 		case '\n':
-			//video_write_nl();
-			video_write_prompt();
+			video_write_nl();
+			//video_write_prompt();
 			break;
 
 		case '\t':
@@ -151,9 +160,9 @@ void video_write_string(const char * s) {
 
 		s++;
 
-		if (video_column == 0) {
-			video_indent_line();
-		}
+		// if (video_column == 0) {
+		// 	video_indent_line();
+		// }
 
 	}
 
@@ -174,31 +183,14 @@ void video_write_nl() {
 
 }
 
-void video_indent_line() {
-	video_write_string(" >  ");
-}
+// void video_indent_line() {
+// 	video_write_string(" >  ");
+// }
 
 void video_write_line(const char * s) {
 
-	video_write_prompt();
-
-	video_write_string(s);
-
-	video_write_nl();
-
-}
-
-void video_write_prompt() {
-
-	if (video_column != 0) {
-		video_write_nl();
-	}
-
-	video_write_string(" root# ");
-}
-
-void video_write_pline(const char * s) {
-
+	//video_write_prompt();
+	//
 	if (video_column != 0) {
 		video_write_nl();
 	}
@@ -208,6 +200,27 @@ void video_write_pline(const char * s) {
 	video_write_nl();
 
 }
+
+// void video_write_prompt() {
+
+// 	if (video_column != 0) {
+// 		video_write_nl();
+// 	}
+
+// 	video_write_string(" root# ");
+// }
+
+// void video_write_pline(const char * s) {
+
+// 	if (video_column != 0) {
+// 		video_write_nl();
+// 	}
+
+// 	video_write_string(s);
+
+// 	video_write_nl();
+
+// }
 
 
 void video_scroll() {
