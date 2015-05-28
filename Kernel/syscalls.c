@@ -37,7 +37,8 @@ void sys_write(int fd, char* s, int len) {
 
 
 }
-
+//aseguramos que len no sea mayor al tamaño maximo del buffer
+//aseguramos el buen manejo del flag de loop 
 
 int sys_read(int fd, char* s, int len) {
 
@@ -78,7 +79,8 @@ int sys_read(int fd, char* s, int len) {
 	}
 
 	if (eof) {
-		return EOF;
+		return EOF; //ojo con esto, sys read SIEMPRE deberia retornar la cantidad de caracteres que leyo, 
+					//sin importar la condicion de corte eso deberia analizarlo el receptor del buffer.
 	}
 
 	return read;
