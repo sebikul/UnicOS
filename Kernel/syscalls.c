@@ -4,6 +4,8 @@
 
 #include <keyboard.h>
 
+#define EOF 	-1
+
 extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
 extern int keyboard_rpos;
 extern int keyboard_wpos;
@@ -65,6 +67,7 @@ int sys_read(int fd, char* s, int len) {
 
 		}
 
+
 		keyboard_rpos++;
 
 		if (keyboard_rpos == KEYBOARD_BUFFER_SIZE - 1) {
@@ -72,6 +75,10 @@ int sys_read(int fd, char* s, int len) {
 			keyboard_rpos = 0;
 		}
 
+	}
+
+	if (eof) {
+		return EOF;
 	}
 
 	return read;

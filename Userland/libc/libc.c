@@ -40,33 +40,34 @@ int strlen(char* str) {
 
 int getchar() {
 
-	static char buffer[256] = {0};
+	static char buffer[2] = {0};
 
+	char read = sys_read(FD_STDOUT, buffer, 1);
 
-	//printf("Llamando a getchar.");
+	if (read == EOF) {
+		return EOF;
+	}
 
-	// char test[1]={c};
-
-	int read = sys_read(FD_STDOUT, buffer, 6);
-
-	buffer[read] = 0;
-
-	printf(buffer);
-	// if (test==c)
-	// 	return -1; //no pudo leer el caracter -diferenciar motivos?-
-
-	// return 1;
+	return (int) buffer[0];
 }
 
-//len debe ser menor al buffer de teclado
 int scanf(char* c, int len) {
+
+	char tmp;
 
 	int size = 0;
 
-	while ((*c = getchar()) != EOF || size < len) {
+	while ((tmp = getchar()) != EOF && size < len) {
+
+		*c = tmp;
+
 		c++;
 		size++;
+
+		printf(c);
 	}
+
+	*c = 0;
 
 	return size;
 }

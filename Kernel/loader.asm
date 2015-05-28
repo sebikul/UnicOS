@@ -95,15 +95,15 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp			rdi, 	3
 		jz 			int_sys_read
 
-		jp 			soft_interrupt_done 		; La syscall no existe
+		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_write:
 		call 		sys_write_handler
-		jp 			soft_interrupt_done
+		jmp 		soft_interrupt_done
 
 int_sys_read:
 		call 		sys_read_handler
-		jp 			soft_interrupt_done
+		jmp 		soft_interrupt_done
 
 
 soft_interrupt_done:

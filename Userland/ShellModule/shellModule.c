@@ -18,12 +18,21 @@ void * memset(void * destiny, int32_t c, uint64_t length);
 
 int main() {
 
+	static char buffer[256] = {0};
+	int len;
+	char c;
+
 	memset(&bss, 0, &endOfBinary - &bss);
 
 	printf("Ejecutando ShellModule\n");
 
-	while (1)
-		getchar();
+	printf("Ingrese un texto: ");
+
+	len = scanf(buffer, 7);
+
+	printf("\nEl texto ingresado es: ");
+	printf(buffer);
+
 
 
 	//sys_write(FD_STDOUT, "Ejecutando ShellModule", 4);

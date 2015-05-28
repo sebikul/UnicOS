@@ -96,6 +96,7 @@ int main() {
 	video_write_nl();
 
 	video_write_pline("Calling shell module...");
+	video_write_nl();
 	((EntryPoint)shellCodeModuleAddress)();
 
 	return 0;
