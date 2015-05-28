@@ -138,21 +138,22 @@ static void keyboard_buffer_delete() {
 
 //todo siempre estoy incrementando rpos!!!!!!
 	if (keyboard_rpos == keyboard_wpos) {
-		return;
+		if (video_column == 0) {
+			video_column = SCREEN_WIDTH - 1;
+			video_row--;
+		} else {
+			video_column--;
+		}
+
+		keyboard_wpos--;
+		keyboard_rpos--;
+
+		video_write_char_at(' ', video_row, video_column);
+
+		video_update_cursor();
 	}
 
-	if (video_column == 0) {
-		video_column = SCREEN_WIDTH - 1;
-		video_row--;
-	} else {
-		video_column--;
-	}
 
-	keyboard_wpos--;
-
-	video_write_char_at(' ', video_row, video_column);
-
-	video_update_cursor();
 
 
 }
