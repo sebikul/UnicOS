@@ -68,14 +68,6 @@ void * initializeKernelBinary() {
 
 	video_write_pline("[Done]");
 
-
-
-
-
-	video_write_string("Primer byte de rodata: ");
-	video_write_hex((uint64_t)( * (char*)0x401000));
-	video_write_nl();
-
 	video_write_pline("Kernel cargado.");
 
 	return getStackBase();
@@ -97,42 +89,14 @@ void load_kernel_modules() {
 
 int main() {
 
-	video_write_line("Esta es una linea larga.");
-
-	video_write_line("hola\tchau");
-
-	video_write_line("Esta es una linea con un \nsalto de linea.");
-
-	video_write_line("Esta es una linea muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuy larga, y deberia estar indentada la segunda linea.");
-
 	video_write_pline("[Kernel Main]");
-
 
 	video_write_string("  Shell code module at 0x");
 	video_write_hex((uint64_t)shellCodeModuleAddress);
 	video_write_nl();
 
-	uint64_t retval = ((EntryPoint)shellCodeModuleAddress)();
-
-	video_write_string("  Calling the shell code module returned: ");
-	video_write_hex(retval);
-	video_write_nl();
-	video_write_nl();
-
-	video_write_string("  Shell data module at 0x");
-	video_write_hex((uint64_t)shellDataModuleAddress);
-	video_write_nl();
-	video_write_string("  Shell data module contents: ");
-	video_write_string((char*)shellDataModuleAddress);
-	video_write_nl();
-
-	//clear_screen();
-
-	video_write_pline("[Finished]");
-
-	video_write_prompt();
-
-
+	video_write_pline("Calling shell module...");
+	((EntryPoint)shellCodeModuleAddress)();
 
 	return 0;
 }

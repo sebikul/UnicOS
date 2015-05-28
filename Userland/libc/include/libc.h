@@ -1,14 +1,19 @@
 
+#define FD_STDERR 		0
+#define FD_STDOUT		1
+
+#define EOF 	-1
+
 void printf(char* arg);
 
-void putChar(char c);
+void putchar(char c);
 
 int strlen(char* str);
 
-int getChar(char* c);
+int getchar();
 
-int scanf(char* c);
+int scanf(char* c, int len);
 
-char* intToChar(int number);
+char* intToChar(int number, char* c) ;
 
 void printTime();

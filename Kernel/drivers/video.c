@@ -105,12 +105,12 @@ void video_write_full_char(uint16_t c) {
 
 	video_column++;
 
-	if (video_column >= SCREEN_WIDTH) {
+	if (video_column == SCREEN_WIDTH) {
 		video_column = 0;
 		video_row++;
 	}
 
-	if (video_row == SCREEN_HEIGHT - 1) {
+	if (video_row == SCREEN_HEIGHT) {
 		video_scroll();
 	}
 

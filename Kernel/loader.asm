@@ -87,7 +87,7 @@ set_interrupt_handlers:
 align 16
 soft_interrupt:									; Interrupciones de software, int 80h
 		push 		rdi
-		push 		rax
+		;push 		rax
 
 		cmp			rdi, 	4
 		jz			int_sys_write
@@ -107,6 +107,7 @@ int_sys_read:
 
 
 soft_interrupt_done:
+		push 		rax
 		mov 		al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 

@@ -2,7 +2,7 @@ include ../Makefile.variables
 include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(wildcard *.c) drivers/video.c drivers/keyboard.c
+SOURCES=drivers/keyboard.c $(wildcard *.c) drivers/video.c 
 OBJECTS=$(SOURCES:.c=.o)
 
 LOADERSRC=loader.asm
@@ -19,7 +19,7 @@ $(KERNEL): $(LOADEROBJECT) $(IODRIVEROBJECT) $(OBJECTS) $(STATICLIBS)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(IODRIVEROBJECT) $(OBJECTS) $(STATICLIBS)
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -DMACOS=$(MACOS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -DMACOS=$(MACOS) -I./include -I../headers -c $< -o $@
 
 $(LOADEROBJECT):
 	$(ASM) -felf64 $(LOADERSRC) -o $(LOADEROBJECT)

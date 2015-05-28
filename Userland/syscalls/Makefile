@@ -4,7 +4,7 @@ include ../Makefile.inc
 all: syscall_loader syscalls link
 
 syscalls:
-	$(GCC) $(GCCFLAGS) -c syscalls.c
+	$(GCC) $(GCCFLAGS) -I../../headers -c syscalls.c
 
 syscall_loader:
 	$(ASM) $(ASMFLAGS) syscall_loader.asm -o syscall_loader.o

@@ -1,99 +1,122 @@
 
-#include "syscalls.h"
-#include "include/libc.h"
+#include <syscalls.h>
+#include <libc.h>
 
-void printf(char* arg){
-	//TODO: ver stdarg.h <- argumentos variables 
+static void * mallocBuffer = (void*)0x600000;
 
-	sys_write(FD_WRITE,arg,strlen(arg));
+void* malloc(int len) {
+
+	mallocBuffer += len;
+
+	return mallocBuffer;
 
 }
 
-void putChar(char c){
+void free(void* m) {
 
-	sys_write(FD_WRITE,&c,1);
 }
 
-int strlen(char* str){
+
+void printf(char* arg) {
+	//TODO: ver stdarg.h <- argumentos variables
+
+	sys_write(FD_STDOUT, arg, strlen(arg));
+
+}
+
+void putchar(char c) {
+
+	sys_write(FD_STDOUT, &c, 1);
+}
+
+int strlen(char* str) {
 	int size;
-	for (size = 0; *str !='\0' ;size++, str++)
-
-	return size;
-}
-
-int getChar(char* c){
-	char test[1]=c;
-
-	sys_read(FD_READ,&c,1);
-	if (test==c)
-		return -1; //no pudo leer el caracter -diferenciar motivos?-
-
-	return 1;
-}
-
-int scanf(char* c){
-
-	char str[80]={0};
-	int err=getc(&str);
-	int size=1;
-	
-	while(str != EOF || err==-1 || size<80){
-		err=getc(&str+size);
+	for (size = 0; *str != '\0' ; str++) {
 		size++;
 	}
 
-	if(size==1 && err==-1)
-		return -1;
-
-	c=&str;
 	return size;
 }
 
-void printTime(){
+int getchar() {
 
-	int timer[3]={0};
-	char timerc[6]={0};
+	static char buffer[256] = {0};
 
-	sys_rtc_time(&timer[0], &timer[1], &timer[2]);	
 
-	intToChar(timer[0],timerc);//*timerc & *timerc+1 -> hours
-	intToChar(timer[1],timerc+2);//*timerc+2 & *timerc+3 -> minutes
-	intToChar(timer[2],timerc+4);//*timerc+4 & *timerc+5 -> seconds
+	//printf("Llamando a getchar.");
+
+	// char test[1]={c};
+
+	int read = sys_read(FD_STDOUT, buffer, 6);
+
+	buffer[read] = 0;
+
+	printf(buffer);
+	// if (test==c)
+	// 	return -1; //no pudo leer el caracter -diferenciar motivos?-
+
+	// return 1;
+}
+
+//len debe ser menor al buffer de teclado
+int scanf(char* c, int len) {
+
+	int size = 0;
+
+	while ((*c = getchar()) != EOF || size < len) {
+		c++;
+		size++;
+	}
+
+	return size;
+}
+
+void printTime() {
+
+	int timer[3] = {0};
+	char timerc[6] = {0};
+
+	sys_rtc_time(&timer[0], &timer[1], &timer[2]);
+
+	intToChar(timer[0], timerc); //*timerc & *timerc+1 -> hours
+	intToChar(timer[1], timerc + 2); //*timerc+2 & *timerc+3 -> minutes
+	intToChar(timer[2], timerc + 4); //*timerc+4 & *timerc+5 -> seconds
 
 	for (int i = 0; i < 6; i++)
 	{
-		putChar(timerc[i]);
-		if(i%2!=0 && i!=5)
-			putChar(":");
+		putchar(timerc[i]);
+		if (i % 2 != 0 && i != 5)
+			putchar(':');
 	}
 
 }
 
-void intToChar(int number,char* c){
+char* intToChar(int number, char* c) {
 
-	int i=0;
-	int j=0;
-	int cnt=0;
+	int i = 0;
+	int j = 0;
+	int cnt = 0;
 
-	if(number<0){
-		number=-number;
-		c[i++]='-';
+	if (number < 0) {
+		number = -number;
+		c[i++] = '-';
 	}
 
-	while (number>=10 ){
-		int dig=number%10;
-		number/=10;
-		c[i++]=dig+'0';
+	while (number >= 10 ) {
+		int dig = number % 10;
+		number /= 10;
+		c[i++] = dig + '0';
 		cnt++;
 	}
-	c[i]]=number+'0';
+	c[i] = number + '0';
 
-	while(cnt>=j){
+	while (cnt >= j) {
 		char aux;
-		aux=c[cnt];
-		c[cnt--]=c[j];
+		aux = c[cnt];
+		c[cnt--] = c[j];
 		c[j++] = aux;
 	}
 
+	return c;
 
 }

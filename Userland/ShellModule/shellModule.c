@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <syscalls.h>
+#include <libc.h>
 
 char * v = (char*)0xB8000 + 79 * 2;
 
@@ -19,7 +20,13 @@ int main() {
 
 	memset(&bss, 0, &endOfBinary - &bss);
 
-	sys_write(FD_STDOUT, "Ejecutando ShellModule", 4);
+	printf("Ejecutando ShellModule");
+
+	while (1)
+		getchar();
+
+
+	//sys_write(FD_STDOUT, "Ejecutando ShellModule", 4);
 
 	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)
