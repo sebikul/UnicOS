@@ -115,22 +115,22 @@ scancode keyboard_scancodes[256] = {
 static bool keyboard_buffer_write(char c) {
 
 	if (!(keyboard_buffer_loop && keyboard_wpos == keyboard_rpos) || (!keyboard_buffer_loop && keyboard_rpos == 0 && keyboard_wpos == 0)) {
-		keyboard_kbuffer[keyboard_wpos % KEYBOARD_BUFFER_SIZE] = c;
+		keyboard_kbuffer[keyboard_wpos] = c;
 		keyboard_wpos++;
 
 		if (keyboard_wpos == KEYBOARD_BUFFER_SIZE - 1) {
-			video_write_line("Encencdiendo flag");
 			keyboard_buffer_loop = TRUE;
 			keyboard_wpos = 0;
-		}
+		} 
 
 		return TRUE;
 
 	} else {
-		video_write_line("No entro.");
 
 		return FALSE;
 	}
+
+
 
 }
 
@@ -144,13 +144,13 @@ static void keyboard_write_char(char c) {
 		}
 	}
 
-	video_write_string("Buff rpos :");
-	video_write_dec((uint64_t)keyboard_rpos);
-	video_write_nl();
+	// video_write_string("Buff rpos :");
+	// video_write_dec((uint64_t)keyboard_rpos);
+	// video_write_nl();
 
-	video_write_string("Buff wpos :");
-	video_write_dec((uint64_t)keyboard_wpos);
-	video_write_nl();
+	// video_write_string("Buff wpos :");
+	// video_write_dec((uint64_t)keyboard_wpos);
+	// video_write_nl();
 
 }
 
@@ -167,8 +167,8 @@ void keyboard_irq_handler(uint64_t s) {
 
 		case 0x1c: //enter
 			keyboard_buffer_write('\n');
-			video_write_nl();
-			video_write_prompt();
+			//video_write_nl();
+			//video_write_prompt();
 			break;
 
 		case 0x2a:

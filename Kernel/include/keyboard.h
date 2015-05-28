@@ -7,7 +7,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define KEYBOARD_BUFFER_SIZE 16
+#define KEYBOARD_BUFFER_SIZE 128
 
 typedef char bool;
 

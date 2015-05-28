@@ -20,7 +20,7 @@ int main() {
 
 	memset(&bss, 0, &endOfBinary - &bss);
 
-	printf("Ejecutando ShellModule");
+	printf("Ejecutando ShellModule\n");
 
 	while (1)
 		getchar();

@@ -51,13 +51,13 @@ uint8_t build_color_value(vga_color fg, vga_color bg) {
 
 }
 
-uint16_t video_get_full_char_at(int row, int col) {
+static uint16_t video_get_full_char_at(int row, int col) {
 
 	return SCREEN_START[row * SCREEN_WIDTH + col];
 
 }
 
-void video_write_full_char_at(uint16_t c, int row, int col) {
+static void video_write_full_char_at(uint16_t c, int row, int col) {
 
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
 
@@ -99,7 +99,7 @@ void video_write_char_with_color(const char c, vga_color fg, vga_color bg) {
 
 }*/
 
-void video_write_full_char(uint16_t c) {
+static void video_write_full_char(uint16_t c) {
 
 	video_write_full_char_at(c, video_row, video_column);
 
@@ -127,8 +127,6 @@ void video_write_char(const char c) {
 	uint16_t color_16 = current_color;
 
 	video_write_full_char(c_16 | (color_16 << 8));
-
-	return 0;
 }
 
 //todo static
@@ -138,7 +136,8 @@ void video_write_string(const char * s) {
 
 		switch (*s) {
 		case '\n':
-			video_write_nl();
+			//video_write_nl();
+			video_write_prompt();
 			break;
 
 		case '\t':
