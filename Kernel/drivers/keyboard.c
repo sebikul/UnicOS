@@ -11,6 +11,7 @@ char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 
 int keyboard_rpos = 0;
 int keyboard_wpos = 0;
+int keyboard_deletes= 0;
 
 bool keyboard_buffer_loop = FALSE;
 
@@ -126,6 +127,9 @@ static bool keyboard_buffer_write(char c) {
 			keyboard_wpos = 0;
 		}
 
+		//si lo que escribi es un caracter...
+		keyboard_deletes++;
+
 		return TRUE;
 
 	} else {
@@ -137,6 +141,13 @@ static bool keyboard_buffer_write(char c) {
 static void keyboard_buffer_delete() {
 
 //todo siempre estoy incrementando rpos!!!!!!
+
+	/*
+	esto se ejecuta cuando consumis un delete en el buffer
+	habria que checkear que lo que esta antes de eso, osea lo que se quiere borrar
+	no sea ni un upper, shift u otro delete o tecla especial porque el buffer de teclado catchea todo
+	no es como el buffer que tiene la shell que tiene solo letras
+	*/
 	if (keyboard_rpos == keyboard_wpos) {
 		if (video_column == 0) {
 			video_column = SCREEN_WIDTH - 1;
