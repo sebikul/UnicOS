@@ -12,12 +12,16 @@ extern char endOfBinary;
 static int var1 = 0;
 static int var2 = 0;
 
+static char* cmd_list[] = {"echo","help","time","set time","backcolor","fontcolor","exit","clean","restart"};
+int cmd_count;
+
 void * memset(void * destiny, int32_t c, uint64_t length);
 
 int main() {
 
 	static char buffer[256] = {0};
 	int len;
+	int cmd_count=strlen(cmd_list);
 
 	memset(&bss, 0, &endOfBinary - &bss);
 
@@ -33,7 +37,6 @@ int main() {
 
 	}
 
-
 	//sys_write(FD_STDOUT, "Ejecutando ShellModule", 4);
 
 	//Test if BSS is properly set up
@@ -45,7 +48,8 @@ int main() {
 
 void command_dispatcher(char* command) {
 
-	char* args;
+	char* args; //estaria bueno consumir todo el buffer porque hay funciones que reciben mas de un parametro
+				//o podria pasar que hago backcolor red ÑADGUHASGJAGNHLK y cosas asi
 
 	char* c = command;
 	while (*c != ' ' && *c != 0) {
@@ -64,17 +68,87 @@ void command_dispatcher(char* command) {
 	// printf("Argumentos: <");
 	// printf(args);
 	// printf(">\n");
-
-
-
-	if (strcmp(command, "echo")) {
-		//printf("Ejecutando echo: \n");
-		command_echo(args);
-	}else{
-		printf("\nComando no encontrado: ");
-		printf(command);
+	bool cmd_flag=TRUE;
+	int cmd;
+	for (cmd; cmd < cmd_count && cmd_flag ; cmd++)
+	{
+		if(strcmp(command, cmd_list[cmd])){
+			cmd_flag=FALSE;
+		}	
 	}
 
+	switch(cmd){
+
+		case 0: //echo
+
+			command_echo(args);
+			break;
+
+		case 1: //help
+
+			command_help();
+			break;
+
+		case 2: //time
+
+			command_time();
+			break;
+
+		case 3: //set time
+
+			/*
+			int h=charToInt(arg[0]);
+			int m=charToInt(arg[1]);
+			int s=charToInt(arg[2]);
+
+			//que cada funcion valide sus parametros
+
+			command_settime(h,m,s);
+			*/
+
+			break;
+
+		case 4: //backcolor
+
+			/*
+			int color=charToInt(arg[0]);
+			command_backcolor(color);
+			*/
+
+			break;
+
+		case 5: //fontcolor
+
+			/*
+			int color=charToInt(arg[0]);
+			command_fontcolor(color);
+			*/
+			break;
+
+		case 6: //exit
+
+			command_exit();
+			break;
+
+		case 7: //clean
+
+			command_clean();
+			break;
+
+		case 8: //restart
+
+			command_restart();
+			break;
+
+		//other functions....
+
+		default:
+
+			printf("\nComando no encontrado: ");
+			printf(command);
+
+
+	}
 
 }
 
