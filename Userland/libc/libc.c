@@ -75,18 +75,31 @@ int scanf(char* c, int len) {
 	return size;
 }
 
+
+//Verificado
 int strcmp(char* s1, char* s2) {
 
-	for (; *s1!= 0 || *s2 != 0; s1++, s2++) {
-		if (*s1 != *s2) {
+	while(*str!='\0' || *str2 != '\0'){
+		if(*str!=*str2){
 			return FALSE;
 		}
+		str++;
+		str2++;
 	}
 
-	return TRUE;
+
+	if(*str=='\0' && *str2 == '\0'){
+		return TRUE;
+
+	}
+
+	return FALSE;
+
 
 }
 
+
+// Verificado
 char* strcpy(char* src, char* dest) {
 
 	while (*src != 0) {
@@ -100,6 +113,8 @@ char* strcpy(char* src, char* dest) {
 	return dest;
 }
 
+
+//Anda todo.. lo que no pude probar es sys_rtc_time y el putchar  lo demas anda!
 void printTime() {
 
 	int timer[3] = {0};
@@ -120,7 +135,8 @@ void printTime() {
 
 }
 
-char* intToChar(int number, char* c) {
+//Verificado
+void intToChar(int number, char* c) {
 
 	int i = 0;
 	int j = 0;
@@ -146,7 +162,7 @@ char* intToChar(int number, char* c) {
 		c[j++] = aux;
 	}
 
-	return c;
+
 
 }
 
