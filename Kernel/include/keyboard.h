@@ -7,7 +7,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define KEYBOARD_BUFFER_SIZE 128
+#define KEYBOARD_BUFFER_SIZE 16
 
 typedef char bool;
 
@@ -24,6 +24,7 @@ typedef struct {
 } kstatus;
 
 int keyboard_wait_for_buffer(int len);
+char keyboard_get_char_from_buffer();
 
 #endif
 

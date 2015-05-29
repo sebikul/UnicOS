@@ -6,10 +6,6 @@
 
 #define EOF 	-1
 
-extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
-extern int keyboard_written;
-extern int keyboard_wpos;
-
 void sys_write(int fd, char* s, int len) {
 
 	uint16_t colorbk;
@@ -43,26 +39,30 @@ int sys_read(int fd, char* s, int len) {
 
 	int read = 0;
 
-	int pos = keyboard_wpos;
 	int i = 0;
 
 	//video_write_line("Esperando al buffer: ");
 
 	read = keyboard_wait_for_buffer(len);
 
-	while (/*keyboard_kbuffer[pos] != '\n' &&*/ i <= read) {
-		s[i] = keyboard_kbuffer[pos];
-		//video_write_char(s[i]);
+	//video_write_line("Procesando buffer del teclado...");
 
-		keyboard_wpos++;
-		pos = (keyboard_wpos + i) % KEYBOARD_BUFFER_SIZE;
+	while (i < read) {
+		s[i] = keyboard_get_char_from_buffer();
+
+		// video_write_string("Leyendo caracter del buffer: ");
+		// video_write_char(s[i]);
+		// video_write_string(" en la posicion: ");
+		// video_write_dec((uint64_t)i);
+		// video_write_string(" / ");
+		// video_write_dec((uint64_t)read);
+		// video_write_nl();
 
 		i++;
 
-
 	}
 
-	s[i+1] = 0;
+	s[i] = 0;
 
 	// for (int i = 0 int pos = keyboard_wpos; i < read; i++, keyboard_wpos++) {
 
@@ -74,9 +74,9 @@ int sys_read(int fd, char* s, int len) {
 
 
 
-	video_write_string("Cadena ingresada: ");
-	video_write_string(s);
-	video_write_nl();
+	// video_write_string("Cadena ingresada: ");
+	// video_write_string(s);
+	// video_write_nl();
 
 	return read;
 

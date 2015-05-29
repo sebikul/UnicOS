@@ -13,7 +13,7 @@ char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 int keyboard_wpos = 0;
 int keyboard_written = 0;
 
-//bool keyboard_buffer_loop = FALSE;
+static bool read_eof = FALSE;
 
 kstatus keyboard_status = {FALSE,//caps
                            FALSE,//ctrl
@@ -108,32 +108,8 @@ scancode keyboard_scancodes[256] = {
 	{0x57, NULL},//f11
 	{0x58, NULL}//f12
 };
-// extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
-// extern int keyboard_rpos;
-// extern int keyboard_wpos;
-// extern bool keyboard_buffer_loop;
 
 static bool keyboard_buffer_write(char c) {
-
-	// if (!(keyboard_buffer_loop && keyboard_wpos == keyboard_rpos) || (!keyboard_buffer_loop && keyboard_rpos == 0 && keyboard_wpos == 0)) {
-	// 	keyboard_kbuffer[keyboard_wpos] = c;
-	// 	keyboard_wpos++;
-	// 	keyboard_written++;
-
-	// 	if (keyboard_wpos == KEYBOARD_BUFFER_SIZE) {
-	// 		keyboard_buffer_loop = TRUE;
-	// 		keyboard_wpos = 0;
-	// 	}
-
-	// 	//si lo que escribi es un caracter...
-	// 	//keyboard_deletes++;
-
-	// 	return TRUE;
-
-	// } else {
-
-	// 	return FALSE;
-	// }
 
 	int pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
 
@@ -142,41 +118,8 @@ static bool keyboard_buffer_write(char c) {
 		return FALSE;
 	}
 
-
-
 	keyboard_kbuffer[pos] = c;
 	keyboard_written++;
-
-	if (c == '\n') {
-
-		pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
-		video_write_string("Keyboard write buffer position: ");
-		video_write_dec((uint64_t)pos);
-		video_write_nl();
-
-		video_write_string("Characters written: ");
-		video_write_dec((uint64_t)keyboard_written);
-		video_write_nl();
-
-		video_write_string("Keyboard read buffer position: ");
-		video_write_dec((uint64_t)keyboard_wpos);
-		video_write_nl();
-	}
-
-//debug
-//	pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
-
-	// video_write_string("Keyboard write buffer position: ");
-	// video_write_dec((uint64_t)pos);
-	// video_write_nl();
-
-	// video_write_string("Characters written: ");
-	// video_write_dec((uint64_t)keyboard_written);
-	// video_write_nl();
-
-	// video_write_string("Keyboard read buffer position: ");
-	// video_write_dec((uint64_t)keyboard_wpos);
-	// video_write_nl();
 
 	return TRUE;
 }
@@ -197,12 +140,6 @@ static void keyboard_buffer_delete() {
 
 	keyboard_written--;
 
-	// keyboard_rpos--;
-
-	// if (keyboard_rpos == 0) {
-	// 	keyboard_rpos = KEYBOARD_BUFFER_SIZE - 1;
-	// }
-
 	video_write_char_at(' ', video_row, video_column);
 
 	video_update_cursor();
@@ -214,27 +151,27 @@ static void keyboard_buffer_delete() {
 int keyboard_wait_for_buffer(int len) {
 
 	keyboard_written = 0;
+	read_eof = FALSE;
 
 	int pos;
 
 	do {
 		pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
-	} while (keyboard_written < len && keyboard_kbuffer[pos] != '\n') ;
-
-
-	video_write_nl();
-
-	video_write_string("Characters written: ");
-	video_write_dec((uint64_t)keyboard_written);
-	video_write_nl();
-
-	video_write_string("Characters expecting: ");
-	video_write_dec((uint64_t)len);
-	video_write_nl();
-
-	video_write_line("Devolviendo del wait.");
+	} while (keyboard_written < len && !read_eof) ;
 
 	return keyboard_written;
+
+}
+
+char keyboard_get_char_from_buffer() {
+
+	char ret = keyboard_kbuffer[keyboard_wpos];
+
+	keyboard_wpos++;
+
+	keyboard_wpos = keyboard_wpos % KEYBOARD_BUFFER_SIZE;
+
+	return ret;
 
 }
 
@@ -242,29 +179,13 @@ static void keyboard_write_char(char c) {
 
 	if (keyboard_buffer_write(c)) {
 		video_write_char(c);
-
-		// if (video_column == 0) {
-		// 	video_indent_line();
-		// }
 	}
-
-	// video_write_string("Buff rpos :");
-	// video_write_dec((uint64_t)keyboard_rpos);
-	// video_write_nl();
-
-	// video_write_string("Buff wpos :");
-	// video_write_dec((uint64_t)keyboard_wpos);
-	// video_write_nl();
 
 }
 
 void keyboard_irq_handler(uint64_t s) {
 
 	scancode t = keyboard_scancodes[s];
-
-	// video_write_string("Scancode: ");
-	// video_write_hex((uint64_t)t.scancode);
-	// video_write_nl();
 
 	if (t.ascii == NULL) {
 
@@ -274,9 +195,7 @@ void keyboard_irq_handler(uint64_t s) {
 			break;
 
 		case 0x1c: //enter
-			keyboard_buffer_write('\n');
-			//video_write_nl();
-			//video_write_prompt();
+			read_eof = TRUE;
 			break;
 
 		case 0x0E://backspace
