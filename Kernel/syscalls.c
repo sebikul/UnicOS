@@ -50,14 +50,13 @@ int sys_read(int fd, char* s, int len) {
 
 	read = keyboard_wait_for_buffer(len);
 
-	while (/*keyboard_kbuffer[pos] != '\n' &&*/ i < read) {
+	while (/*keyboard_kbuffer[pos] != '\n' &&*/ i <= read) {
 		s[i] = keyboard_kbuffer[pos];
 		//video_write_char(s[i]);
 
 		keyboard_wpos++;
 		pos = (keyboard_wpos + i) % KEYBOARD_BUFFER_SIZE;
 
-		s++;
 		i++;
 
 
@@ -65,9 +64,19 @@ int sys_read(int fd, char* s, int len) {
 
 	s[i+1] = 0;
 
-	// video_write_string("Cadena ingresada: ");
-	// video_write_string(s);
-	// video_write_nl();
+	// for (int i = 0 int pos = keyboard_wpos; i < read; i++, keyboard_wpos++) {
+
+	// 	pos = (keyboard_wpos + i) % KEYBOARD_BUFFER_SIZE;
+
+	// 	s[i] = keyboard_kbuffer[pos];
+
+	// }
+
+
+
+	video_write_string("Cadena ingresada: ");
+	video_write_string(s);
+	video_write_nl();
 
 	return read;
 

@@ -142,11 +142,29 @@ static bool keyboard_buffer_write(char c) {
 		return FALSE;
 	}
 
+
+
 	keyboard_kbuffer[pos] = c;
 	keyboard_written++;
 
+	if (c == '\n') {
+
+		pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
+		video_write_string("Keyboard write buffer position: ");
+		video_write_dec((uint64_t)pos);
+		video_write_nl();
+
+		video_write_string("Characters written: ");
+		video_write_dec((uint64_t)keyboard_written);
+		video_write_nl();
+
+		video_write_string("Keyboard read buffer position: ");
+		video_write_dec((uint64_t)keyboard_wpos);
+		video_write_nl();
+	}
+
 //debug
-	pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
+//	pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
 
 	// video_write_string("Keyboard write buffer position: ");
 	// video_write_dec((uint64_t)pos);
@@ -204,17 +222,17 @@ int keyboard_wait_for_buffer(int len) {
 	} while (keyboard_written < len && keyboard_kbuffer[pos] != '\n') ;
 
 
-	// video_write_nl();
+	video_write_nl();
 
-	// video_write_string("Characters written: ");
-	// video_write_dec((uint64_t)keyboard_written);
-	// video_write_nl();
+	video_write_string("Characters written: ");
+	video_write_dec((uint64_t)keyboard_written);
+	video_write_nl();
 
-	// video_write_string("Characters expecting: ");
-	// video_write_dec((uint64_t)len);
-	// video_write_nl();
+	video_write_string("Characters expecting: ");
+	video_write_dec((uint64_t)len);
+	video_write_nl();
 
-	// video_write_line("Devolviendo del wait.");
+	video_write_line("Devolviendo del wait.");
 
 	return keyboard_written;
 

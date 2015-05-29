@@ -8,6 +8,7 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <video.h>
+#include <keyboard.h>
 
 
 extern uint8_t text;
@@ -16,6 +17,8 @@ extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
+
+extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
 
 static const uint64_t PageSize = 0x1000;
 
@@ -88,6 +91,10 @@ void load_kernel_modules() {
 }
 
 int main() {
+
+		video_write_string("Keyboard buffer at: 0x");
+	video_write_hex((uint64_t)&keyboard_kbuffer);
+	video_write_nl();
 
 	video_write_line("[Kernel Main]");
 
