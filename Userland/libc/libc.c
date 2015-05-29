@@ -33,7 +33,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 	// i: posicion en el fmt
 	// j: posicion en el str
-	while (fmt[i] != 0) {
+	while (fmt[i] != 0 && i < MAX_PRINTF_LEN - 1) {
 
 		if (fmt[i] == '%') {
 
@@ -52,8 +52,9 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 			} else {
 				// hay que procesar el siguiente caracter y actuar acorde
 
-				if (fmt[i] == 's') {
 
+				switch (fmt[i]) {
+				case 's': {
 					//lo que se desea es imprimir unca cadena
 					char* arg = va_arg(ap, char*);
 					int k = 0;
@@ -67,8 +68,44 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 					}
 
 					i++;
+					break;
+				}
+
+				case 'i': {
+
+					int arg = va_arg(ap, int);
+
+					char* number = intToChar(arg);
+
+					int k = 0;
+
+					//k: posicion en el argumento
+
+					while (number[k] != 0) {
+						str[j] = number[k];
+						j++;
+						k++;
+					}
+
+					i++;
+					break;
 
 				}
+
+				case 'c': {
+
+					char arg = (char)va_arg(ap, int);
+
+					str[j] = arg;
+					j++;
+					i++;
+					break;
+
+				}
+				}
+
+
+
 			}
 
 		} else if (fmt[i] != 0) {
@@ -92,7 +129,7 @@ void fprintf(FD fd, char* fmt, ...) {
 
 	va_list ap;
 	va_start(ap, fmt);
-	
+
 	vfprintf(fd, fmt, ap);
 
 	va_end(ap);
@@ -138,8 +175,6 @@ int getchar() {
 }
 
 int scanf(char* c, int len) {
-
-	char tmp;
 
 	char read = sys_read(FD_STDOUT, c, len);
 

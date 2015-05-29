@@ -16,9 +16,9 @@
 
 typedef char bool;
 
-void fprintf(FD fd, char* fmt, ...);
+void fprintf(FD fd, char* fmt, ...) __attribute__ ((format (printf, 2, 3)));;
 
-void printf(char* fmt, ...) ;
+void printf(char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
 void putchar(char c);
 

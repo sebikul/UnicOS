@@ -38,7 +38,8 @@ int main() {
 
 
 
-	fprintf(FD_STDERR, "Ejecutando ShellModule...\n");
+	fprintf(FD_STDERR, "Ejecutando ShellModule...numero que me gusta: %i.\n", 50);
+	printf("Este es un caracter %c, y este es un numero %i.\n", 'A',78);
 
 	while (1) {
 

@@ -29,8 +29,6 @@ void sys_write(FD fd, char* s, int len) {
 
 	}
 
-
-
 }
 //aseguramos que len no sea mayor al tamaño maximo del buffer
 //aseguramos el buen manejo del flag de loop
