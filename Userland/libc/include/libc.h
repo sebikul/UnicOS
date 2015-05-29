@@ -1,4 +1,9 @@
 
+#ifndef LIBC_H
+#define LIBC_H
+
+#include <syscalls.h>
+
 #define FD_STDERR 		0
 #define FD_STDOUT		1
 
@@ -10,6 +15,8 @@
 #define MAX_PRINTF_LEN 1024
 
 typedef char bool;
+
+void fprintf(FD fd, char* fmt, ...);
 
 void printf(char* fmt, ...) ;
 
@@ -28,3 +35,5 @@ void printTime();
 int strcmp(const char* s1, const char* s2);
 
 char* strcpy(char* src, char* dest);
+
+#endif

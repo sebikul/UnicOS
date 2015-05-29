@@ -20,10 +20,7 @@ void free(void* m) {
 
 }
 
-
-void printf(char* fmt, ...) {
-
-	va_list ap;
+static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 	char* str = malloc(MAX_PRINTF_LEN);
 	//char* pos;
@@ -31,7 +28,7 @@ void printf(char* fmt, ...) {
 	int j = 0;
 	//int fmtlen = strlen(fmt);
 
-	va_start(ap, fmt);
+	//va_start(ap, fmt);
 
 
 	// i: posicion en el fmt
@@ -45,6 +42,12 @@ void printf(char* fmt, ...) {
 				//lo que le sigue al % es el final de la cadena
 				str[j] = fmt[i];
 				break;
+
+			} else if (fmt[i] == '%') {
+
+				str[j] = fmt[i];
+				j++;
+				i++;
 
 			} else {
 				// hay que procesar el siguiente caracter y actuar acorde
@@ -79,7 +82,31 @@ void printf(char* fmt, ...) {
 
 	}
 
-	sys_write(FD_STDOUT, str, j);
+	//va_end(ap);
+
+	sys_write(fd, str, j);
+
+}
+
+void fprintf(FD fd, char* fmt, ...) {
+
+	va_list ap;
+	va_start(ap, fmt);
+	
+	vfprintf(fd, fmt, ap);
+
+	va_end(ap);
+
+}
+
+void printf(char* fmt, ...) {
+
+	va_list ap;
+	va_start(ap, fmt);
+
+	vfprintf(FD_STDOUT, fmt, ap);
+
+	va_end(ap);
 
 }
 

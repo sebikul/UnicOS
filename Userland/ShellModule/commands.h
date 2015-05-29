@@ -1,6 +1,6 @@
 
-#ifndef HCOMMANDS_H
-#define HCOMMANDS_H 
+#ifndef COMMANDS_H
+#define COMMANDS_H 
 
 void command_echo(char * in);
 void command_help();

@@ -1,14 +1,14 @@
 #include <syscalls.h>
 
-extern int syscall(int, int, char*, int);
+extern int syscall(int, FD, char*, int);
 
-void sys_write(int fd, char* s, int len) {
+void sys_write(FD fd, char* s, int len) {
 
 	syscall(SYSCALL_WRITE, fd, s, len);
 
 }
 
-int sys_read(int fd, char* s, int len) {
+int sys_read(FD fd, char* s, int len) {
 
 	return syscall(SYSCALL_READ, fd, s, len);
 

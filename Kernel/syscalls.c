@@ -6,7 +6,7 @@
 
 #define EOF 	-1
 
-void sys_write(int fd, char* s, int len) {
+void sys_write(FD fd, char* s, int len) {
 
 	uint16_t colorbk;
 
@@ -21,7 +21,7 @@ void sys_write(int fd, char* s, int len) {
 
 		video_set_color(COLOR_RED, COLOR_BLACK);
 
-		video_write_line(s);
+		video_write_string(s);
 
 		video_set_full_color(colorbk);
 		break;
@@ -35,7 +35,7 @@ void sys_write(int fd, char* s, int len) {
 //aseguramos que len no sea mayor al tamaño maximo del buffer
 //aseguramos el buen manejo del flag de loop
 
-int sys_read(int fd, char* s, int len) {
+int sys_read(FD fd, char* s, int len) {
 
 	int read = 0;
 
