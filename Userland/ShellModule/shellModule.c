@@ -38,7 +38,7 @@ int main() {
 
 
 
-	printf("Ejecutando ShellModule...\n");
+	printf("Ejecutando ShellModule, este es un %s variable. Este es un %s argumento", "argumento","segundo");
 
 	while (1) {
 

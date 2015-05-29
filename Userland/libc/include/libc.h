@@ -7,9 +7,11 @@
 #define TRUE 1
 #define FALSE 0
 
+#define MAX_PRINTF_LEN 1024
+
 typedef char bool;
 
-void printf(char* arg);
+void printf(char* fmt, ...) ;
 
 void putchar(char c);
 

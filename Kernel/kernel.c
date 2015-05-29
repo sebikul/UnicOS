@@ -92,8 +92,11 @@ void load_kernel_modules() {
 
 int main() {
 
-		video_write_string("Keyboard buffer at: 0x");
+	video_write_string("Keyboard buffer at: 0x");
 	video_write_hex((uint64_t)&keyboard_kbuffer);
+	video_write_nl();
+	video_write_string("Keyboard buffer size: ");
+	video_write_dec((uint64_t)KEYBOARD_BUFFER_SIZE);
 	video_write_nl();
 
 	video_write_line("[Kernel Main]");

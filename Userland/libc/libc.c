@@ -2,6 +2,7 @@
 #ifndef HLIBC_H
 #define HLIBC_H
 
+#include <stdarg.h>
 #include <syscalls.h>
 #include <libc.h>
 
@@ -20,10 +21,65 @@ void free(void* m) {
 }
 
 
-void printf(char* arg) {
-	//TODO: ver stdarg.h <- argumentos variables
+void printf(char* fmt, ...) {
 
-	sys_write(FD_STDOUT, arg, strlen(arg));
+	va_list ap;
+
+	char* str = malloc(MAX_PRINTF_LEN);
+	//char* pos;
+	int i = 0;
+	int j = 0;
+	//int fmtlen = strlen(fmt);
+
+	va_start(ap, fmt);
+
+
+	// i: posicion en el fmt
+	// j: posicion en el str
+	while (fmt[i] != 0) {
+
+		if (fmt[i] == '%') {
+
+			i++;
+			if (fmt[i] == 0) {
+				//lo que le sigue al % es el final de la cadena
+				str[j] = fmt[i];
+				break;
+
+			} else {
+				// hay que procesar el siguiente caracter y actuar acorde
+
+				if (fmt[i] == 's') {
+
+					//lo que se desea es imprimir unca cadena
+					char* arg = va_arg(ap, char*);
+					int k = 0;
+
+					//k: posicion en el argumento
+
+					while (arg[k] != 0) {
+						str[j] = arg[k];
+						j++;
+						k++;
+					}
+
+					i++;
+
+				}
+			}
+
+		} else if (fmt[i] != 0) {
+			str[j] = fmt[i];
+			j++;
+			i++;
+		} else {
+			str[j] = fmt[i];
+			break;
+		}
+
+	}
+
+	sys_write(FD_STDOUT, str, j);
 
 }
 
