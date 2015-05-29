@@ -12,18 +12,31 @@ extern char endOfBinary;
 static int var1 = 0;
 static int var2 = 0;
 
-static char* cmd_list[] = {"echo","help","time","set time","backcolor","fontcolor","exit","clean","restart"};
-int cmd_count;
+// static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
+// int cmd_count;
 
 void * memset(void * destiny, int32_t c, uint64_t length);
+void command_dispatcher(char* command);
 
 int main() {
 
 	static char buffer[256] = {0};
-	int len;
-	int cmd_count=strlen(cmd_list);
+	int len, cmd_count;
 
 	memset(&bss, 0, &endOfBinary - &bss);
+
+	// for (int i = 1;; i++) {
+	// 	if (*cmd_list[i] == 0) {
+	// 		cmd_count = i - 2;
+	// 		break;
+	// 	}
+	// }
+
+	// printf("# de comandos para ejecutar: ");
+	// printf(intToChar(cmd_count));
+	// printf("\n");
+
+
 
 	printf("Ejecutando ShellModule...\n");
 
@@ -49,7 +62,7 @@ int main() {
 void command_dispatcher(char* command) {
 
 	char* args; //estaria bueno consumir todo el buffer porque hay funciones que reciben mas de un parametro
-				//o podria pasar que hago backcolor red ÑADGUHASGJAGNHLK y cosas asi
+	//o podria pasar que hago backcolor red ÑADGUHASGJAGNHLK y cosas asi
 
 	char* c = command;
 	while (*c != ' ' && *c != 0) {
@@ -68,87 +81,96 @@ void command_dispatcher(char* command) {
 	// printf("Argumentos: <");
 	// printf(args);
 	// printf(">\n");
-	bool cmd_flag=TRUE;
-	int cmd;
-	for (cmd; cmd < cmd_count && cmd_flag ; cmd++)
-	{
-		if(strcmp(command, cmd_list[cmd])){
-			cmd_flag=FALSE;
-		}	
+
+
+	if (strcmp(command, "echo") == 0) {
+		//printf("Ejecutando echo: \n");
+		command_echo(args);
+	} else {
+		printf("\nComando no encontrado: ");
+		printf(command);
 	}
 
-	switch(cmd){
+	// int cmd = -1;
 
-		case 0: //echo
+	// for (; cmd < cmd_count; cmd++) {
+	// 	if (strcmp(command, cmd_list[cmd])) {
+	// 		break;
+	// 	}
+	// }
 
-			command_echo(args);
-			break;
+	// switch (cmd) {
 
-		case 1: //help
+	// case 1: //echo
+	// 	printf("\nEjecutando echo...\n");
+	// 	command_echo(args);
+	// 	break;
 
-			command_help();
-			break;
+	// case 2: //help
 
-		case 2: //time
+	// 	command_help();
+	// 	break;
 
-			command_time();
-			break;
+	// case 3: //time
 
-		case 3: //set time
+	// 	command_time();
+	// 	break;
 
-			/*
-			int h=charToInt(arg[0]);
-			int m=charToInt(arg[1]);
-			int s=charToInt(arg[2]);
-
-			//que cada funcion valide sus parametros
-
-			command_settime(h,m,s);
-			*/
-
-			break;
-
-		case 4: //backcolor
-
-			/*
-			int color=charToInt(arg[0]);
-			command_backcolor(color);
-			*/
-
-			break;
-
-		case 5: //fontcolor
-
-			/*
-			int color=charToInt(arg[0]);
-			command_fontcolor(color);
-			*/
-			break;
-
-		case 6: //exit
-
-			command_exit();
-			break;
-
-		case 7: //clean
-
-			command_clean();
-			break;
-
-		case 8: //restart
-
-			command_restart();
-			break;
-
-		//other functions....
-
-		default:
-
-			printf("\nComando no encontrado: ");
-			printf(command);
+	// case 4: //set time
 
 
-	}
+	// 	int h=charToInt(arg[0]);
+	// 	int m=charToInt(arg[1]);
+	// 	int s=charToInt(arg[2]);
+
+	// 	//que cada funcion valide sus parametros
+
+	// 	command_settime(h,m,s);
+
+
+	// 	break;
+
+	// case 5: //backcolor
+
+	// 	/*
+	// 	int color=charToInt(arg[0]);
+	// 	command_backcolor(color);
+	// 	*/
+
+	// 	break;
+
+	// case 6: //fontcolor
+
+	// 	/*
+	// 	int color=charToInt(arg[0]);
+	// 	command_fontcolor(color);
+	// 	*/
+	// 	break;
+
+	// case 7: //exit
+
+	// 	command_exit();
+	// 	break;
+
+	// case 8: //clean
+
+	// 	command_clean();
+	// 	break;
+
+	// case 9: //restart
+
+	// 	command_restart();
+	// 	break;
+
+	// //other functions....
+
+	// default:
+
+	// 	printf("\nComando no encontrado: ");
+	// 	printf(command);
+
+
+	// }
 
 }
 

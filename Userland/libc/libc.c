@@ -9,7 +9,7 @@ static void * mallocBuffer = (void*)0x600000;
 
 void* malloc(int len) {
 
-	mallocBuffer += len;
+	mallocBuffer += len * sizeof(void*);
 
 	return mallocBuffer;
 
@@ -58,44 +58,20 @@ int scanf(char* c, int len) {
 
 	char tmp;
 
-	int size = 0;
+	char read = sys_read(FD_STDOUT, c, len);
 
-	while ((tmp = getchar()) != EOF && size < len) {
-
-		*c = tmp;
-
-		c++;
-		size++;
-
-		//printf(c);
-	}
-
-	*c = 0;
-
-	return size;
+	return read;
 }
 
 
-//Verificado
-int strcmp(char* s1, char* s2) {
+int strcmp(const char* s1, const char* s2) {
 
-	while(*str!='\0' || *str2 != '\0'){
-		if(*str!=*str2){
-			return FALSE;
-		}
-		str++;
-		str2++;
+	while (*s1 && *s1 == *s2) {
+		s1++;
+		s2++;
 	}
 
-
-	if(*str=='\0' && *str2 == '\0'){
-		return TRUE;
-
-	}
-
-	return FALSE;
-
-
+	return *s1 - *s2;
 }
 
 
@@ -117,18 +93,19 @@ char* strcpy(char* src, char* dest) {
 //Anda todo.. lo que no pude probar es sys_rtc_time y el putchar  lo demas anda!
 void printTime() {
 
+	char* rtctime[3];
+
 	int timer[3] = {0};
-	char timerc[6] = {0};
 
 	sys_rtc_time(&timer[0], &timer[1], &timer[2]);
 
-	intToChar(timer[0], timerc); //*timerc & *timerc+1 -> hours
-	intToChar(timer[1], timerc + 2); //*timerc+2 & *timerc+3 -> minutes
-	intToChar(timer[2], timerc + 4); //*timerc+4 & *timerc+5 -> seconds
+	rtctime[0] = intToChar(timer[0]); //*timerc & *timerc+1 -> hours
+	rtctime[1] = intToChar(timer[1]); //*timerc+2 & *timerc+3 -> minutes
+	rtctime[2] = intToChar(timer[2]); //*timerc+4 & *timerc+5 -> seconds
 
 	for (int i = 0; i < 6; i++)
 	{
-		putchar(timerc[i]);
+		printf(rtctime[i]);
 		if (i % 2 != 0 && i != 5)
 			putchar(':');
 	}
@@ -136,11 +113,13 @@ void printTime() {
 }
 
 //Verificado
-void intToChar(int number, char* c) {
+char* intToChar(int number) {
 
 	int i = 0;
 	int j = 0;
 	int cnt = 0;
+
+	char* c = malloc(10);
 
 	if (number < 0) {
 		number = -number;
@@ -162,7 +141,7 @@ void intToChar(int number, char* c) {
 		c[j++] = aux;
 	}
 
-
+	return c;
 
 }
 

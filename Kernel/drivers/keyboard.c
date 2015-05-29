@@ -9,12 +9,11 @@ extern int video_row;
 
 char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 
-int keyboard_rpos = 0;
+//int keyboard_rpos = 0;
 int keyboard_wpos = 0;
-int keyboard_deletes= 0;
+int keyboard_written = 0;
 
-bool keyboard_buffer_loop = FALSE;
-
+//bool keyboard_buffer_loop = FALSE;
 
 kstatus keyboard_status = {FALSE,//caps
                            FALSE,//ctrl
@@ -108,8 +107,6 @@ scancode keyboard_scancodes[256] = {
 	{0x53, '.'},//keypad 0
 	{0x57, NULL},//f11
 	{0x58, NULL}//f12
-
-
 };
 // extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
 // extern int keyboard_rpos;
@@ -118,54 +115,108 @@ scancode keyboard_scancodes[256] = {
 
 static bool keyboard_buffer_write(char c) {
 
-	if (!(keyboard_buffer_loop && keyboard_wpos == keyboard_rpos) || (!keyboard_buffer_loop && keyboard_rpos == 0 && keyboard_wpos == 0)) {
-		keyboard_kbuffer[keyboard_wpos] = c;
-		keyboard_wpos++;
+	// if (!(keyboard_buffer_loop && keyboard_wpos == keyboard_rpos) || (!keyboard_buffer_loop && keyboard_rpos == 0 && keyboard_wpos == 0)) {
+	// 	keyboard_kbuffer[keyboard_wpos] = c;
+	// 	keyboard_wpos++;
+	// 	keyboard_written++;
 
-		if (keyboard_wpos == KEYBOARD_BUFFER_SIZE - 1) {
-			keyboard_buffer_loop = TRUE;
-			keyboard_wpos = 0;
-		}
+	// 	if (keyboard_wpos == KEYBOARD_BUFFER_SIZE) {
+	// 		keyboard_buffer_loop = TRUE;
+	// 		keyboard_wpos = 0;
+	// 	}
 
-		//si lo que escribi es un caracter...
-		keyboard_deletes++;
+	// 	//si lo que escribi es un caracter...
+	// 	//keyboard_deletes++;
 
-		return TRUE;
+	// 	return TRUE;
 
-	} else {
+	// } else {
 
+	// 	return FALSE;
+	// }
+
+	int pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
+
+	if (pos == keyboard_wpos && keyboard_written != 0) {
+		//buffer lleno
 		return FALSE;
 	}
+
+	keyboard_kbuffer[pos] = c;
+	keyboard_written++;
+
+//debug
+	pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
+
+	// video_write_string("Keyboard write buffer position: ");
+	// video_write_dec((uint64_t)pos);
+	// video_write_nl();
+
+	// video_write_string("Characters written: ");
+	// video_write_dec((uint64_t)keyboard_written);
+	// video_write_nl();
+
+	// video_write_string("Keyboard read buffer position: ");
+	// video_write_dec((uint64_t)keyboard_wpos);
+	// video_write_nl();
+
+	return TRUE;
 }
 
 static void keyboard_buffer_delete() {
 
-//todo siempre estoy incrementando rpos!!!!!!
 
-	/*
-	esto se ejecuta cuando consumis un delete en el buffer
-	habria que checkear que lo que esta antes de eso, osea lo que se quiere borrar
-	no sea ni un upper, shift u otro delete o tecla especial porque el buffer de teclado catchea todo
-	no es como el buffer que tiene la shell que tiene solo letras
-	*/
-	if (keyboard_rpos == keyboard_wpos) {
-		if (video_column == 0) {
-			video_column = SCREEN_WIDTH - 1;
-			video_row--;
-		} else {
-			video_column--;
-		}
-
-		keyboard_wpos--;
-		keyboard_rpos--;
-
-		video_write_char_at(' ', video_row, video_column);
-
-		video_update_cursor();
+	if (keyboard_written == 0) {
+		return;
 	}
 
+	if (video_column == 0) {
+		video_column = SCREEN_WIDTH - 1;
+		video_row--;
+	} else {
+		video_column--;
+	}
+
+	keyboard_written--;
+
+	// keyboard_rpos--;
+
+	// if (keyboard_rpos == 0) {
+	// 	keyboard_rpos = KEYBOARD_BUFFER_SIZE - 1;
+	// }
+
+	video_write_char_at(' ', video_row, video_column);
+
+	video_update_cursor();
 
 
+}
+
+
+int keyboard_wait_for_buffer(int len) {
+
+	keyboard_written = 0;
+
+	int pos;
+
+	do {
+		pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
+	} while (keyboard_written < len && keyboard_kbuffer[pos] != '\n') ;
+
+
+	// video_write_nl();
+
+	// video_write_string("Characters written: ");
+	// video_write_dec((uint64_t)keyboard_written);
+	// video_write_nl();
+
+	// video_write_string("Characters expecting: ");
+	// video_write_dec((uint64_t)len);
+	// video_write_nl();
+
+	// video_write_line("Devolviendo del wait.");
+
+	return keyboard_written;
 
 }
 

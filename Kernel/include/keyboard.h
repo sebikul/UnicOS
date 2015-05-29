@@ -23,6 +23,7 @@ typedef struct {
 	bool alt;
 } kstatus;
 
+int keyboard_wait_for_buffer(int len);
 
 #endif
 

@@ -11,4 +11,5 @@ void command_fontcolor(int color);
 void command_exit();
 void command_clean();
 void command_refresh();
+void command_restart();
 #endif
