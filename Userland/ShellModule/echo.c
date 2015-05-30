@@ -5,26 +5,11 @@
 
 void command_echo(char * in) {
 
-	printf("\n");
 	printf(in);
 
 }
 
-void command_help() {
 
-	printf("\n");
-	printf("Help:\n");
-	printf("Comandos disponibles:\n");
-	printf("1. Help: Brinda informacion acerca de las funciones disponibles para el usuario.\n");
-	printf("2. Time: Muestra la hora del sistema en pantalla.\n");
-	printf("3. Set time: Recibe la hora actual (horas, minutos, segundos) y actualiza la hora del sistema.\n");
-	printf("4. Backcolor: Recibe un color y cambia el color de fondo.\n");
-	printf("5. Fontcolor: Recibe un color y cambia el color de letra.\n");
-	printf("6. Refresh: Restaura la pantalla con sus colores por default.\n");
-	printf("7. Clean: Limpia la pantalla.");
-	printf("8. Exit: Finaliza el programa.\n");
-
-}
 void command_time() {
 
 	printf("\n");

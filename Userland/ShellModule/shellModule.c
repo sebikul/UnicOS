@@ -46,6 +46,7 @@ int main() {
 		printf("\n user@localhost $ ");
 
 		len = scanf(buffer, 100);
+		putchar('\n');
 
 		command_dispatcher(buffer);
 
@@ -87,9 +88,10 @@ void command_dispatcher(char* command) {
 	if (strcmp(command, "echo") == 0) {
 		//printf("Ejecutando echo: \n");
 		command_echo(args);
-	} else {
-		printf("\nComando no encontrado: ");
-		printf(command);
+	} else if(strcmp(command, "help") == 0){
+		command_help(args);
+	}else{
+		printf("\nComando no encontrado: %s", command);
 	}
 
 	// int cmd = -1;
