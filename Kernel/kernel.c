@@ -9,6 +9,7 @@
 #include <naiveConsole.h>
 #include <video.h>
 #include <keyboard.h>
+//#include <rtc.h>
 
 
 extern uint8_t text;
@@ -47,9 +48,11 @@ void * initializeKernelBinary() {
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-	video_initialize();
 
+	video_initialize();
 	video_clear_screen();
+
+	//rtc_init();
 
 	video_write_line("[x64BareBones]");
 

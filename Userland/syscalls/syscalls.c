@@ -3,7 +3,7 @@
 
 //extern int syscall(int, FD, char*, int);
 
-extern int syscall(uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4);
+extern int syscall(uint64_t callid, ...);
 //extern void syscall(int* hours, int* minutes, int* seconds);
 
 void sys_write(FD fd, char* s, int len) {
@@ -29,9 +29,9 @@ int sys_read(FD fd, char* s, int len) {
 	 08  RTC month
 	 09  RTC year
 */
-void sys_rtc_time(int* hours, int* minutes, int* seconds) {
+void sys_rtc_time(time_t* t) {
 
-	syscall((uint64_t)SYS_CALL_RTC, (uint64_t)hours, (uint64_t)minutes, (uint64_t)seconds);
+	syscall((uint64_t)SYS_CALL_RTC,(uint64_t)t);
 
 	//syscall
 	//syscall(SYS_CALL_RTC,hours,minutes,seconds);

@@ -7,6 +7,8 @@ static void* mallocBuffer = (void*)0x600000;
 
 static void* lastMalloc;
 
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
+
 void* malloc(int len) {
 
 	lastMalloc = mallocBuffer;
@@ -29,7 +31,7 @@ void* calloc(int len) {
 
 void free(void* m) {
 
-	if (m = lastMalloc) {
+	if (m == lastMalloc) {
 		mallocBuffer = m;
 	}
 
@@ -239,11 +241,11 @@ char* strcpy(char* src, char* dest) {
 //Anda todo.. lo que no pude probar es sys_rtc_time y el putchar  lo demas anda!
 void printTime() {
 
-	int horas, minutos, segundos;
+	time_t t;
 
-	sys_rtc_time(&horas, &minutos, &segundos);
+	sys_rtc_time(&t);
 
-	printf("El tiempo actual es: %i:%i:%i\n", BCD_to_DEC(horas), BCD_to_DEC(minutos), BCD_to_DEC(segundos));
+	printf("El tiempo actual es: %i:%i:%i\n", t.hour, t.minute, t.second);
 
 }
 
@@ -280,10 +282,67 @@ char* intToChar(int number) {
 
 }
 
-int BCD_to_DEC(int bcdval) {
-	int  decval, temp;
-	temp = (int)(bcdval / 16);
-	decval = bcdval - 16 * temp;
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
+{
+	char *p = buffer;
+	char *p1, *p2;
+	uint32_t digits = 0;
 
-	return decval;
+	//Calculate characters for each digit
+	do
+	{
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	}
+	while (value /= base);
+
+	// Terminate string in buffer.
+	*p = 0;
+
+	//Reverse string in buffer.
+	p1 = buffer;
+	p2 = p - 1;
+	while (p1 < p2)
+	{
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
 }
+
+
+static int pow(int base, int ex) {
+
+	if (ex < 0) {
+		return 1 / 0;
+	}
+
+	if (ex == 0) {
+		return 1;
+	}
+
+
+	return base * pow(base, ex - 1);
+}
+
+static int decfrombase(int entrada, int base) {
+
+	int decimal = 0, i = 0;
+
+	while (entrada != 0) {
+
+		decimal += (entrada % 10) * pow(base, i++);
+
+		entrada /= 10;
+
+	}
+
+	return decimal;
+
+}
+

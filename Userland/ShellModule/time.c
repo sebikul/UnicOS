@@ -1,8 +1,6 @@
 #include <libc.h>
 
 void command_time() {
-	
-	printf("Mostrando la hora\n");
 	printTime();
 }
 void command_settime(int hours, int minutes, int seconds) {

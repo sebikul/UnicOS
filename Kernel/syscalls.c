@@ -2,34 +2,13 @@
 #include <syscalls.h>
 #include <video.h>
 #include <keyboard.h>
-#include <io.h>
+#include <rtc.h>
 
 #define EOF 	-1
 
-void sys_time(int *hours, int* minutes, int* seconds) {
+void sys_time(time_t* t) {
 
-	video_write_line("Llamando a la interrupcion del rtc");
-
-	outb(0x70, 0);
-	*seconds = inb(0x71);
-
-	outb(0x70, 2);
-	*minutes = inb(0x71);
-
-	outb(0x70, 4);
-	*hours = inb(0x71);
-
-	video_write_string("Horas: ");
-	video_write_hex((uint64_t)*hours);
-	video_write_nl();
-
-	video_write_string("Minutos: ");
-	video_write_hex((uint64_t)*minutes);
-	video_write_nl();
-
-	video_write_string("Segundos: ");
-	video_write_hex((uint64_t)*seconds);
-	video_write_nl();
+	rtc_get_time(t);
 
 }
 
