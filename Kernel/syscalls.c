@@ -19,6 +19,18 @@ void sys_time(int *hours, int* minutes, int* seconds) {
 	outb(0x70, 4);
 	*hours = inb(0x71);
 
+	video_write_string("Horas: ");
+	video_write_hex((uint64_t)*hours);
+	video_write_nl();
+
+	video_write_string("Minutos: ");
+	video_write_hex((uint64_t)*minutes);
+	video_write_nl();
+
+	video_write_string("Segundos: ");
+	video_write_hex((uint64_t)*seconds);
+	video_write_nl();
+
 }
 
 void sys_write(FD fd, char* s, int len) {
