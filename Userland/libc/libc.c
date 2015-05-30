@@ -67,6 +67,9 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 		if (fmt[i] == '%') {
 
+			bool flag_zero = FALSE;
+			uint32_t width = 0;
+
 			i++;
 			if (fmt[i] == 0) {
 				//lo que le sigue al % es el final de la cadena
@@ -82,6 +85,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 			} else {
 				// hay que procesar el siguiente caracter y actuar acorde
 
+fmtparser:
 
 				switch (fmt[i]) {
 				case 's': {
@@ -109,6 +113,27 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 					int k = 0;
 
+					int numlen = strlen(number);
+
+					if (numlen < width) {
+
+						char chartowrite;
+						int numtowrite = width - numlen;
+
+						if (flag_zero) {
+							chartowrite = '0';
+
+						} else {
+							chartowrite = ' ';
+						}
+
+						for (int i = 0; i < numtowrite; i++) {
+							str[j] = chartowrite;
+							j++;
+						}
+
+					}
+
 					//k: posicion en el argumento
 
 					while (number[k] != 0) {
@@ -132,6 +157,30 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 					break;
 
 				}
+				case '0': {
+					if (!flag_zero) {
+						flag_zero = TRUE;
+						i++;
+						goto fmtparser;
+						break;
+					}
+				}
+
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9': {
+					width = fmt[i] - '0';
+					i++;
+					goto fmtparser;
+					break;
+				}
+
 				}
 
 
@@ -211,7 +260,6 @@ int scanf(char* c, int len) {
 	return read;
 }
 
-
 int strcmp(const char* s1, const char* s2) {
 
 	while (*s1 && *s1 == *s2) {
@@ -222,8 +270,6 @@ int strcmp(const char* s1, const char* s2) {
 	return *s1 - *s2;
 }
 
-
-// Verificado
 char* strcpy(char* src, char* dest) {
 
 	while (*src != 0) {
@@ -238,14 +284,13 @@ char* strcpy(char* src, char* dest) {
 }
 
 
-//Anda todo.. lo que no pude probar es sys_rtc_time y el putchar  lo demas anda!
-void printTime() {
+time_t* time() {
 
-	time_t t;
+	time_t* t = calloc(sizeof(time_t));
 
-	sys_rtc_time(&t);
+	sys_rtc_time(t);
 
-	printf("El tiempo actual es: %i:%i:%i\n", t.hour, t.minute, t.second);
+	return t;
 
 }
 
@@ -282,8 +327,7 @@ char* intToChar(int number) {
 
 }
 
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
-{
+static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
 	char *p1, *p2;
 	uint32_t digits = 0;

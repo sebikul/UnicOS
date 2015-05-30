@@ -41,6 +41,8 @@ int main() {
 	fprintf(FD_STDERR, "Ejecutando ShellModule...numero que me gusta: %i.\n", 50);
 	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
 
+	printf("Este numero deberia tener 5 digitos %05i. Y este 3: %03i\n", 453, 78);
+
 	while (1) {
 
 		printf("\nuser@localhost $ ");
