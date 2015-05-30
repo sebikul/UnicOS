@@ -39,13 +39,18 @@ int main() {
 
 
 	fprintf(FD_STDERR, "Ejecutando ShellModule...numero que me gusta: %i.\n", 50);
-	printf("Este es un caracter %c, y este es un numero %i.\n", 'A',78);
+	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
 
 	while (1) {
 
-		printf("\n user@localhost $ ");
+		printf("\nuser@localhost $ ");
 
 		len = scanf(buffer, 100);
+
+		if (len == 0) {
+			continue;
+		}
+
 		putchar('\n');
 
 		command_dispatcher(buffer);
@@ -90,10 +95,10 @@ void command_dispatcher(char* command) {
 	if (strcmp(command, "echo") == 0) {
 		//printf("Ejecutando echo: \n");
 		command_echo(args);
-	} else if(strcmp(command, "help") == 0){
+	} else if (strcmp(command, "help") == 0) {
 		command_help(args);
-	}else{
-		printf("\nComando no encontrado: %s", command);
+	} else {
+		printf("%s: Comando no encontrado", command);
 	}
 
 	// int cmd = -1;

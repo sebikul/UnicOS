@@ -6,23 +6,54 @@
 #include <syscalls.h>
 #include <libc.h>
 
-static void * mallocBuffer = (void*)0x600000;
+static void* mallocBuffer = (void*)0x600000;
+
+static void* lastMalloc;
 
 void* malloc(int len) {
 
+	lastMalloc = mallocBuffer;
+
 	mallocBuffer += len * sizeof(void*);
 
-	return mallocBuffer;
+	return lastMalloc;
 
 }
 
+void* calloc(int len) {
+	char* space = (char*)malloc(len);
+
+	for (int i = 0; i < len; i++) {
+		space[i] = (char)0;
+	}
+
+	return (void*)space;
+}
+
 void free(void* m) {
+
+	if (m = lastMalloc) {
+		mallocBuffer = m;
+	}
+
+}
+
+int strpos(char* s, char n) {
+
+	for (int pos = 0; s[pos] != 0; pos++) {
+		if (s[pos] == n) {
+			return pos;
+		}
+	}
+
+	return -1;
+
 
 }
 
 static void vfprintf(FD fd, char* fmt, va_list ap) {
 
-	char* str = malloc(MAX_PRINTF_LEN);
+	char* str = calloc(MAX_PRINTF_LEN);
 	//char* pos;
 	int i = 0;
 	int j = 0;
