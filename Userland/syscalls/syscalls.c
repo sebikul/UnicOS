@@ -1,17 +1,20 @@
 #include <syscalls.h>
+#include <stdint.h>
 
-extern int syscall(int, FD, char*, int);
+//extern int syscall(int, FD, char*, int);
+
+extern int syscall(uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4);
 //extern void syscall(int* hours, int* minutes, int* seconds);
 
 void sys_write(FD fd, char* s, int len) {
 
-	syscall(SYSCALL_WRITE, fd, s, len);
+	syscall((uint64_t)SYSCALL_WRITE, (uint64_t)fd, (uint64_t)s, (uint64_t)len);
 
 }
 
 int sys_read(FD fd, char* s, int len) {
 
-	return syscall(SYSCALL_READ, fd, s, len);
+	return syscall((uint64_t)SYSCALL_READ, (uint64_t)fd, (uint64_t)s, (uint64_t)len);
 
 }
 /*
@@ -27,6 +30,8 @@ int sys_read(FD fd, char* s, int len) {
 	 09  RTC year
 */
 void sys_rtc_time(int* hours, int* minutes, int* seconds) {
+
+	syscall((uint64_t)SYS_CALL_RTC, (uint64_t)hours, (uint64_t)minutes, (uint64_t)seconds);
 
 	//syscall
 	//syscall(SYS_CALL_RTC,hours,minutes,seconds);

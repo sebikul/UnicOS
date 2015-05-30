@@ -124,7 +124,7 @@ void video_write_char_at(const char c, int row, int col) {
 	uint16_t c_16 = c;
 	uint16_t color_16 = current_color;
 
-	video_write_full_char_at(c, row, col);
+	video_write_full_char_at(c_16 | (color_16 << 8), row, col);
 }
 
 //todo static

@@ -12,7 +12,7 @@ outb:
 
 inb:
 		mov 		rdx, 	rdi
-
+		xor 		rax,	rax
 		;int 01h
 
 		in  		al, 	dx

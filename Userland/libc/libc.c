@@ -1,7 +1,4 @@
 
-#ifndef HLIBC_H
-#define HLIBC_H
-
 #include <stdarg.h>
 #include <syscalls.h>
 #include <libc.h>
@@ -242,22 +239,11 @@ char* strcpy(char* src, char* dest) {
 //Anda todo.. lo que no pude probar es sys_rtc_time y el putchar  lo demas anda!
 void printTime() {
 
-	char* rtctime[3];
+	int horas, minutos, segundos;
 
-	int timer[3] = {0};
+	sys_rtc_time(&horas, &minutos, &segundos);
 
-	sys_rtc_time(&timer[0], &timer[1], &timer[2]);
-
-	rtctime[0] = intToChar(timer[0]); //*timerc & *timerc+1 -> hours
-	rtctime[1] = intToChar(timer[1]); //*timerc+2 & *timerc+3 -> minutes
-	rtctime[2] = intToChar(timer[2]); //*timerc+4 & *timerc+5 -> seconds
-
-	for (int i = 0; i < 6; i++)
-	{
-		printf(rtctime[i]);
-		if (i % 2 != 0 && i != 5)
-			putchar(':');
-	}
+	printf("El tiempo actual es: %i:%i:%i\n", BCD_to_DEC(horas), BCD_to_DEC(minutos), BCD_to_DEC(segundos));
 
 }
 
@@ -294,4 +280,10 @@ char* intToChar(int number) {
 
 }
 
-#endif
+int BCD_to_DEC(int bcdval) {
+	int  decval, temp;
+	temp = (int)(bcdval / 16);
+	decval = bcdval - 16 * temp;
+
+	return decval;
+}
