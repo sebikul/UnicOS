@@ -83,7 +83,9 @@ void command_dispatcher(char* command) {
 	// printf("Argumentos: <");
 	// printf(args);
 	// printf(">\n");
-
+	if(strcmp(command,"time")==0){
+		command_time();
+	}
 
 	if (strcmp(command, "echo") == 0) {
 		//printf("Ejecutando echo: \n");

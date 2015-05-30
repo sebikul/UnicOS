@@ -11,6 +11,7 @@ extern 		exit
 extern		video_write_line
 extern 		video_write_nl
 extern 		keyboard_irq_handler
+extern 		sys_time
 
 loader:
 
@@ -89,6 +90,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		push 		rdi
 		;push 		rax
 
+		cmp 		rdi,	2
+		jz			int_sys_time
+
 		cmp			rdi, 	4
 		jz			int_sys_write
 
@@ -97,6 +101,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
+int_sys_time:
+		call 		sys_time_handler
+		jmp			soft_interrupt_done
 int_sys_write:
 		call 		sys_write_handler
 		jmp 		soft_interrupt_done
@@ -104,6 +111,7 @@ int_sys_write:
 int_sys_read:
 		call 		sys_read_handler
 		jmp 		soft_interrupt_done
+
 
 
 soft_interrupt_done:
@@ -150,7 +158,24 @@ keyboard_done:
 		pop 		rdi
 		iretq
 
+sys_time_handler:
+		xor 	rax,rax
 
+		out 	0x70,al
+		in 		al,0x71
+		mov 	[rcx],rax
+
+		mov		al,0x02
+		out		0x70,al
+		in 		al,0x71
+		mov 	[rdx],rax
+
+		mov		al,0x04
+		out		0x70,al
+		in 		al,0x71
+		mov		[rsi],rax
+
+		ret
 sys_write_handler:
 		call 		prepare_params
 		call 		sys_write

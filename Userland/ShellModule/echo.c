@@ -1,6 +1,7 @@
 
 #include <libc.h>
 
+
 //DEBERIAMOS PONERLE COMANDOS.C O ALGO ASI, NO LE MODIFIQUE EL NOMBRE POR SI ALGUNO ESTABA TOCANDO EL ARCHIVO
 
 void command_echo(char * in) {
@@ -11,10 +12,11 @@ void command_echo(char * in) {
 
 
 void command_time() {
+	
 
 	printf("\n");
 	printf("Mostrando la hora");
-
+	printTime();
 }
 void command_settime(int hours, int minutes, int seconds) {
 

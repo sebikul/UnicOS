@@ -1,6 +1,7 @@
 #include <syscalls.h>
 
 extern int syscall(int, FD, char*, int);
+//extern void syscall(int* hours, int* minutes, int* seconds);
 
 void sys_write(FD fd, char* s, int len) {
 
@@ -28,7 +29,7 @@ int sys_read(FD fd, char* s, int len) {
 void sys_rtc_time(int* hours, int* minutes, int* seconds) {
 
 	//syscall
-
+	//syscall(SYS_CALL_RTC,hours,minutes,seconds);
 	//hay que ver como llamar al rtc y eso.... es medio raro http://stanislavs.org/helppc/cmos_ram.html
 	//hours=syscall(SYS_CALL_RTC, RTC_HOURS);
 	//minutes=syscall(SYS_CALL_RTC, RTC_MINUTES);

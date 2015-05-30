@@ -6,6 +6,10 @@
 
 #define EOF 	-1
 
+void sys_time(int *hours, int* minutes, int* seconds){
+	
+}
+
 void sys_write(FD fd, char* s, int len) {
 
 	uint16_t colorbk;
