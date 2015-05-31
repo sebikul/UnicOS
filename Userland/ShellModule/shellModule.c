@@ -95,8 +95,8 @@ void command_dispatcher(char* command) {
 
 		bool comillas = (*command == '"');
 
-		//printf("Parseando argumento: %i\n", argc);
-		//printf("Cadena que resta por procesar: %s\n", command);
+		printf("Parseando argumento: %i\n", argc);
+		printf("Cadena que resta por procesar: %s\n", command);
 
 		if (comillas)
 			command++;
@@ -109,9 +109,13 @@ void command_dispatcher(char* command) {
 			command++;
 		}
 
-		if (comillas && *command == '"'){
+		if (comillas && *command == '"') {
 			command++;
-			comillas==FALSE;
+			comillas == FALSE;
+		}
+
+		if (comillas) {
+			fprintf(FD_STDERR, "Comando mal formateado. Contiene comillas sin cerrar!\n");
 		}
 
 		//si al argumento le siguen espacios los limpiamos
@@ -123,11 +127,13 @@ void command_dispatcher(char* command) {
 
 	}
 
-	// printf("Comando a ejecutar: <%s>\n", argv[0]);
 
-	// for (int i = 1; i < argc; i++) {
-	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
-	// }
+
+	printf("Comando a ejecutar: <%s>\n", argv[0]);
+
+	for (int i = 1; i < argc; i++) {
+		printf("Argumento %i: <%s>\n", i, argv[i]);
+	}
 
 	if (strcmp(argv[0], "echo") == 0) {
 		//printf("Ejecutando echo: \n");
