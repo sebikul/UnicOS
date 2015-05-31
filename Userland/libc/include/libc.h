@@ -36,4 +36,6 @@ int strcmp(const char* s1, const char* s2);
 
 char* strcpy(char* src, char* dest);
 
+void * memset(void * destiny, int32_t c, uint64_t length);
+
 #endif

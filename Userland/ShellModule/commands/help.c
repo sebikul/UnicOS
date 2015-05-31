@@ -2,7 +2,7 @@
 #include <libc.h>
 
 
-void command_help(char * in) {
+void command_help(int argc, char** argv) {
 
 	printf("Comandos disponibles:\n");
 	printf("\thelp  : Muestra una lista de los comandos disponibles.\n");

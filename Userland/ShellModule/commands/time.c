@@ -1,6 +1,6 @@
 #include <libc.h>
 
-void command_time() {
+void command_time(int argc, char** argv) {
 
 	time_t* t=time();
 

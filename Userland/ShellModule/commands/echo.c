@@ -1,16 +1,27 @@
 
 #include <libc.h>
 
+static void command_echo_usage();
 
 //DEBERIAMOS PONERLE COMANDOS.C O ALGO ASI, NO LE MODIFIQUE EL NOMBRE POR SI ALGUNO ESTABA TOCANDO EL ARCHIVO
 
-void command_echo(char * in) {
+void command_echo(int argc, char** argv) {
 
-	printf(in);
+	if (argc == 1) {
+		command_echo_usage();
+	} else {
+		for (int i = 1; i < argc; i++) {
+			printf("%s ", argv[i]);
+		}
+	}
+
+
 
 }
 
+static void command_echo_usage() {
 
+}
 
 void command_backcolor(int color) {
 

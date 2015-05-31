@@ -4,7 +4,10 @@
 
 #include <commands.h>
 
-char * v = (char*)0xB8000 + 79 * 2;
+#define MAX_ARGS 				256
+#define CMD_BUFFER_SIZE 		2*MAX_ARGS
+
+#define LEFT_STRIP(str)			while (*(++command) == ' ')
 
 extern char bss;
 extern char endOfBinary;
@@ -15,12 +18,12 @@ static int var2 = 0;
 // static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
 // int cmd_count;
 
-void * memset(void * destiny, int32_t c, uint64_t length);
+
 void command_dispatcher(char* command);
 
 int main() {
 
-	static char buffer[256] = {0};
+	static char buffer[CMD_BUFFER_SIZE] = {0};
 	int len, cmd_count;
 
 	memset(&bss, 0, &endOfBinary - &bss);
@@ -47,7 +50,7 @@ int main() {
 
 		printf("\nuser@localhost $ ");
 
-		len = scanf(buffer, 100);
+		len = scanf(buffer, CMD_BUFFER_SIZE);
 
 		if (len == 0) {
 			continue;
@@ -70,37 +73,59 @@ int main() {
 
 void command_dispatcher(char* command) {
 
-	char* args; //estaria bueno consumir todo el buffer porque hay funciones que reciben mas de un parametro
-	//o podria pasar que hago backcolor red ÑADGUHASGJAGNHLK y cosas asi
+	int argc = 0;
+	char** argv = calloc(MAX_ARGS * sizeof(char*));
 
-	char* c = command;
-	while (*c != ' ' && *c != 0) {
-		c++;
+	//Vamos a sacarle todos los espacion al principio del comando
+	if (*command == ' ') {
+		printf("Limpiando espacios\n");
+		LEFT_STRIP(command);
 	}
 
-	if (*c == ' ') {
-		*c = 0;
-		args = c + 1;
+	printf("Parseando argumentos...\n");
+
+	while (*command != 0) {
+
+		//alocamos espacio para el argumento que estamos parseando
+		argv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
+
+
+		//copiamos el puntero a la cadena por comodidad, para poder modificarlo
+		char* pos = argv[argc];
+
+		//printf("Parseando argumento: %i\n", argc);
+		//printf("Cadena que resta por procesar: %s\n", command);
+
+		while (*command != ' ' && *command != 0) {
+			*pos = *command;
+			pos++;
+			command++;
+		}
+
+		//si al argumento le siguen espacios los limpiamos
+		if (*command == ' ') {
+			LEFT_STRIP(command);
+		}
+
+		argc++;
+
 	}
 
+	// printf("Comando a ejecutar: <%s>\n", argv[0]);
 
-	// printf("\nComando a ejecutar: <");
-	// printf(command);
-	// printf(">\n");
-	// printf("Argumentos: <");
-	// printf(args);
-	// printf(">\n");
+	// for (int i = 1; i < argc; i++) {
+	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
+	// }
 
-
-	if (strcmp(command, "echo") == 0) {
+	if (strcmp(argv[0], "echo") == 0) {
 		//printf("Ejecutando echo: \n");
-		command_echo(args);
-	} else if (strcmp(command, "help") == 0) {
-		command_help(args);
-	} else if (strcmp(command, "time") == 0) {
-		command_time();
+		command_echo(argc, argv);
+	} else if (strcmp(argv[0], "help") == 0) {
+		command_help(argc, argv);
+	} else if (strcmp(argv[0], "time") == 0) {
+		command_time(argc, argv);
 	} else {
-		printf("%s: Comando no encontrado", command);
+		printf("%s: Comando no encontrado", argv[0]);
 	}
 
 	// int cmd = -1;
@@ -186,12 +211,4 @@ void command_dispatcher(char* command) {
 
 }
 
-void * memset(void * destiation, int32_t c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
-	char * dst = (char*)destiation;
 
-	while (length--)
-		dst[length] = chr;
-
-	return destiation;
-}

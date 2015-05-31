@@ -2,7 +2,7 @@ include ../../Makefile.variables
 include ../Makefile.inc
 
 MODULE=shellCodeModule.bin
-SOURCES=shellModule.c echo.c help.c time.c
+SOURCES=shellModule.c $(wildcard commands/*.c)
 
 HEADERS=-I../../headers -I../libc/include -I./
 LIBRARIES=-L../syscalls/lib -L../libc/lib
