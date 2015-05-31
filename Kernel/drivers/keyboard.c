@@ -203,12 +203,12 @@ void keyboard_irq_handler(uint64_t s) {
 			break;
 
 		case 0x2a:
-		case 0x36:
+		case 0x36://shift
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
 		case FIRST_BITE_ON(0x2a):
-		case 0xb6:
+		case FIRST_BITE_ON(0x36)://shift
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
@@ -217,7 +217,18 @@ void keyboard_irq_handler(uint64_t s) {
 	} else {
 
 		if (keyboard_status.caps) {
-			keyboard_write_char(t.ascii - 'a' + 'A');
+
+			char ascii = t.ascii;
+
+			if (t.scancode == 0x28) {
+				ascii = '"';
+			} else {
+				ascii = ascii - 'a' + 'A';
+			}
+
+			keyboard_write_char(ascii );
+
+
 		} else {
 			keyboard_write_char(t.ascii);
 		}

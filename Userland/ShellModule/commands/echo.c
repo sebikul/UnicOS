@@ -21,6 +21,8 @@ void command_echo(int argc, char** argv) {
 
 static void command_echo_usage() {
 
+	printf("uso: echo <cadena que se desea imprimir>\n");
+
 }
 
 void command_backcolor(int color) {
