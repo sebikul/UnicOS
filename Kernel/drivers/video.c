@@ -88,7 +88,7 @@ void video_clear_screen() {
 
 }
 
-void video_clear_line(int row) {
+static void video_clear_line(int row) {
 
 	for (int i = 0; i < SCREEN_WIDTH; i++) {
 		video_write_char_at(' ', row, i);

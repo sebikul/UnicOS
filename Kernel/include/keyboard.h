@@ -2,6 +2,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H 
 
+#include <syscalls.h>
+
 #define NULL 0
 
 #define TRUE 1
@@ -23,8 +25,14 @@ typedef struct {
 	bool alt;
 } kstatus;
 
+typedef struct {
+	uint64_t scancode;
+	dka_handler handler;
+} dka_catch;
+
 int keyboard_wait_for_buffer(int len);
 char keyboard_get_char_from_buffer();
+void keyboard_catch(uint64_t scancode, dka_handler handler);
 
 #endif
 

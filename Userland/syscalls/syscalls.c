@@ -40,3 +40,7 @@ void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 void sys_clear_indexed_line(int index){
 	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE,(uint64_t)index);
 }
+
+void sys_keyboard_replace_buffer(char* s){
+	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER,(uint64_t)s);
+}

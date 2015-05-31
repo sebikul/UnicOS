@@ -85,4 +85,8 @@ void sys_clear_indexed_line(int index){
 	video_clear_indexed_line(index);
 }
 
+void sys_keyboard_replace_buffer(char* s){
+	keyboard_replace_last_written(s);
+}
+
 

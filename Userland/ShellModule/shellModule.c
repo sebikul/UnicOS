@@ -73,12 +73,14 @@ void command_dispatcher(char* command) {
 	char** argv = calloc(MAX_ARGS * sizeof(char*));
 
 	//backup en el historial
-	shell_history[current_history] = calloc(strlen(command) + 1);
+	shell_history[max_history] = calloc(strlen(command) + 1);
 
-	strcpy(shell_history[current_history], command);
+	strcpy(shell_history[max_history], command);
 
-	current_history++;
+	//current_history++;
 	max_history++;
+
+	current_history=max_history;
 
 	//Vamos a sacarle todos los espacion al principio del comando
 	if (*command == ' ') {
@@ -247,6 +249,8 @@ void keyboard_uparrow_handler(uint64_t s) {
 
 	printf("user@localhost $ %s", shell_history[current_history]);
 
+	sys_keyboard_replace_buffer(shell_history[current_history]);
+
 }
 
 void keyboard_downarrow_handler(uint64_t s) {
@@ -260,6 +264,8 @@ void keyboard_downarrow_handler(uint64_t s) {
 	sys_clear_indexed_line(0);
 
 	printf("user@localhost $ %s", shell_history[current_history]);
+
+	sys_keyboard_replace_buffer(shell_history[current_history]);
 
 }
 

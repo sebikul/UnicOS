@@ -115,16 +115,9 @@ scancode keyboard_scancodes[256] = {
 
 //static dka_handler keyboard_handler = NULL;
 
-typedef struct {
-	uint64_t scancode;
-	dka_handler handler;
-} dka_catch;
-
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 
 static int dka_catched_len = 0;
-
-
 
 
 static bool keyboard_buffer_write(char c) {
@@ -163,6 +156,16 @@ static void keyboard_buffer_delete() {
 	video_update_cursor();
 
 
+}
+
+void keyboard_replace_last_written(char* s){
+
+	keyboard_written=0;
+
+	while(*s!=0){
+		keyboard_buffer_write(*s);
+		s++;
+	}
 }
 
 
@@ -302,7 +305,7 @@ void keyboard_irq_handler(uint64_t s) {
 
 void keyboard_catch(uint64_t scancode, dka_handler handler) {
 
-	dka_catch* tmp = calloc(sizeof(dka_catch));
+	dka_catch* tmp = (dka_catch*)calloc(sizeof(dka_catch));
 
 	tmp->scancode = scancode;
 	tmp->handler = handler;

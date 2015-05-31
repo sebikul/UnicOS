@@ -17,6 +17,7 @@ extern 		sys_calloc
 extern 		sys_free
 extern 		sys_keyboard_catch
 extern 		sys_clear_indexed_line
+extern 		sys_keyboard_replace_buffer
 
 loader:
 
@@ -119,6 +120,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi, 	9
 		jz 			int_video_clr_indexed_line
 
+		cmp 		rdi, 	10
+		jz 			int_keyboard_replace_buffer
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
@@ -148,6 +152,11 @@ int_keyboard_catch:
 int_video_clr_indexed_line:
 		call 		sys_video_clr_indexed_line_handler
 		jmp 		soft_interrupt_done
+
+int_keyboard_replace_buffer
+		call 		sys_keyboard_replace_buffer_handler
+		jmp 		soft_interrupt_done
+
 
 soft_interrupt_done:
 		push 		rax
@@ -231,6 +240,11 @@ sys_keyboard_catch_handler:
 sys_video_clr_indexed_line_handler:
 		call 		prepare_params
 		call 		sys_clear_indexed_line
+		ret
+
+sys_keyboard_replace_buffer_handler:
+		call 		prepare_params
+		call 		sys_keyboard_replace_buffer
 		ret
 
 init_pic:
