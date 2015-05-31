@@ -7,6 +7,8 @@
 #define MAX_ARGS 				256
 #define CMD_BUFFER_SIZE 		2*MAX_ARGS
 
+#define MAX_HISTORY_SIZE 		256
+
 #define LEFT_STRIP(str)			while (*(++command) == ' ')
 
 extern char bss;
@@ -15,7 +17,9 @@ extern char endOfBinary;
 static int var1 = 0;
 static int var2 = 0;
 
-char* shell_history[20] = {0};
+static char* shell_history[MAX_HISTORY_SIZE] = {0};
+static int current_history = 0;
+static int max_history=0;
 
 // static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
 // int cmd_count;
@@ -68,13 +72,21 @@ void command_dispatcher(char* command) {
 	int argc = 0;
 	char** argv = calloc(MAX_ARGS * sizeof(char*));
 
+	//backup en el historial
+	shell_history[current_history] = calloc(strlen(command) + 1);
+
+	strcpy(shell_history[current_history], command);
+
+	current_history++;
+	max_history++;
+
 	//Vamos a sacarle todos los espacion al principio del comando
 	if (*command == ' ') {
-		printf("Limpiando espacios\n");
+		//printf("Limpiando espacios\n");
 		LEFT_STRIP(command);
 	}
 
-	printf("Parseando argumentos...\n");
+	//printf("Parseando argumentos...\n");
 
 	while (*command != 0) {
 
@@ -87,8 +99,8 @@ void command_dispatcher(char* command) {
 
 		bool comillas = (*command == '"');
 
-		printf("Parseando argumento: %i\n", argc);
-		printf("Cadena que resta por procesar: %s\n", command);
+		//printf("Parseando argumento: %i\n", argc);
+		//printf("Cadena que resta por procesar: %s\n", command);
 
 		if (comillas)
 			command++;
@@ -121,11 +133,11 @@ void command_dispatcher(char* command) {
 
 
 
-	printf("Comando a ejecutar: <%s>\n", argv[0]);
+	// printf("Comando a ejecutar: <%s>\n", argv[0]);
 
-	for (int i = 1; i < argc; i++) {
-		printf("Argumento %i: <%s>\n", i, argv[i]);
-	}
+	// for (int i = 1; i < argc; i++) {
+	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
+	// }
 
 	if (strcmp(argv[0], "echo") == 0) {
 		//printf("Ejecutando echo: \n");
@@ -223,13 +235,31 @@ void command_dispatcher(char* command) {
 
 void keyboard_uparrow_handler(uint64_t s) {
 
-	fprintf(FD_STDERR, "Flecha para arriba apretada!\n");
+	current_history--;
+
+	if (current_history < 0) {
+		//fprintf(FD_STDERR, "\nHa llegado al maximo del historial de comandos guardados.");
+		current_history = 0;
+		return;
+	}
+
+	sys_clear_indexed_line(0);
+
+	printf("user@localhost $ %s", shell_history[current_history]);
 
 }
 
 void keyboard_downarrow_handler(uint64_t s) {
 
-	fprintf(FD_STDERR, "Flecha para bajo apretada!\n");
+	if(current_history==max_history-1){
+		return;
+	}
+
+	current_history++;
+
+	sys_clear_indexed_line(0);
+
+	printf("user@localhost $ %s", shell_history[current_history]);
 
 }
 

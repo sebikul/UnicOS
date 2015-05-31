@@ -81,5 +81,8 @@ void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 	keyboard_catch(scancode, handler);
 }
 
+void sys_clear_indexed_line(int index){
+	video_clear_indexed_line(index);
+}
 
 

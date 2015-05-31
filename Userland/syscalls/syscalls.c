@@ -36,3 +36,7 @@ void sys_free(void* m) {
 void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
 }
+
+void sys_clear_indexed_line(int index){
+	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE,(uint64_t)index);
+}

@@ -37,7 +37,7 @@ time_t* time();
 
 int strcmp(const char* s1, const char* s2);
 
-char* strcpy(char* src, char* dest);
+char* strcpy(char* dest, char* src);
 
 void * memset(void * destiny, int32_t c, uint64_t length);
 

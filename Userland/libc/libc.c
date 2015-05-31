@@ -256,7 +256,9 @@ int strcmp(const char* s1, const char* s2) {
 	return *s1 - *s2;
 }
 
-char* strcpy(char* src, char* dest) {
+char* strcpy(char* dest, char* src) {
+
+	char* bk = dest;
 
 	while (*src != 0) {
 		*dest = *src;
@@ -266,7 +268,7 @@ char* strcpy(char* src, char* dest) {
 
 	*dest = 0;
 
-	return dest;
+	return bk;
 }
 
 

@@ -4,14 +4,14 @@
 
 #include <stdint.h>
 
-#define SYSCALL_RTC					2
-#define SYSCALL_READ				3
-#define SYSCALL_WRITE				4
-#define SYSCALL_MALLOC				5
-#define SYSCALL_CALLOC				6
-#define SYSCALL_FREE				7
-#define SYSCALL_KEYBOARD_CATCH 		8
-
+#define SYSCALL_RTC						2
+#define SYSCALL_READ					3
+#define SYSCALL_WRITE					4
+#define SYSCALL_MALLOC					5
+#define SYSCALL_CALLOC					6
+#define SYSCALL_FREE					7
+#define SYSCALL_KEYBOARD_CATCH 			8
+#define SYSCALL_VIDEO_CLR_INDEXED_LINE 	9
 
 enum FD
 {
@@ -41,5 +41,7 @@ void* sys_calloc(int len);
 void sys_free(void* m);
 
 void sys_keyboard_catch(uint64_t scancode, dka_handler handler);
+
+void sys_clear_indexed_line(int index);
 
 #endif

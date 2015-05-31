@@ -88,6 +88,19 @@ void video_clear_screen() {
 
 }
 
+void video_clear_line(int row) {
+
+	for (int i = 0; i < SCREEN_WIDTH; i++) {
+		video_write_char_at(' ', row, i);
+	}
+
+	video_column = 0;
+}
+
+void video_clear_indexed_line(int index) {
+	video_clear_line(video_row + index);
+}
+
 /*//todo static
 void video_write_char_with_color(const char c, vga_color fg, vga_color bg) {
 
