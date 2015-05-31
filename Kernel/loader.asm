@@ -11,7 +11,7 @@ extern 		exit
 extern		video_write_line
 extern 		video_write_nl
 extern 		keyboard_irq_handler
-extern 		sys_time
+extern 		sys_rtc_time
 
 loader:
 
@@ -159,24 +159,10 @@ keyboard_done:
 		iretq
 
 sys_time_handler:
-		; xor 	rax,rax
-
-		; out 	0x70,al
-		; in 		al,0x71
-		; mov 	[rcx],rax
-
-		; mov		al,0x02
-		; out		0x70,al
-		; in 		al,0x71
-		; mov 	[rdx],rax
-
-		; mov		al,0x04
-		; out		0x70,al
-		; in 		al,0x71
-		; mov		[rsi],rax
 		call 		prepare_params
-		call 		sys_time
+		call 		sys_rtc_time
 		ret
+
 sys_write_handler:
 		call 		prepare_params
 		call 		sys_write

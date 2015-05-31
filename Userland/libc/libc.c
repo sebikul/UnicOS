@@ -286,7 +286,7 @@ char* strcpy(char* src, char* dest) {
 
 time_t* time() {
 
-	time_t* t = calloc(sizeof(time_t));
+	time_t* t = (time_t*)calloc(sizeof(time_t));
 
 	sys_rtc_time(t);
 

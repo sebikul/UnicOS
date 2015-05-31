@@ -24,22 +24,9 @@ void command_dispatcher(char* command);
 int main() {
 
 	static char buffer[CMD_BUFFER_SIZE] = {0};
-	int len, cmd_count;
+	int len;
 
 	memset(&bss, 0, &endOfBinary - &bss);
-
-	// for (int i = 1;; i++) {
-	// 	if (*cmd_list[i] == 0) {
-	// 		cmd_count = i - 2;
-	// 		break;
-	// 	}
-	// }
-
-	// printf("# de comandos para ejecutar: ");
-	// printf(intToChar(cmd_count));
-	// printf("\n");
-
-
 
 	fprintf(FD_STDERR, "Ejecutando \"ShellModule...numero que me gusta: %i.\n", 50);
 	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
@@ -111,7 +98,7 @@ void command_dispatcher(char* command) {
 
 		if (comillas && *command == '"') {
 			command++;
-			comillas == FALSE;
+			comillas = FALSE;
 		}
 
 		if (comillas) {

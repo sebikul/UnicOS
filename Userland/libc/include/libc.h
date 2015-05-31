@@ -16,6 +16,11 @@
 
 typedef char bool;
 
+void* malloc(int len);
+void* calloc(int len);
+void free(void* m);
+int strpos(char* s, char n);
+
 void fprintf(FD fd, char* fmt, ...) __attribute__ ((format (printf, 2, 3)));;
 
 void printf(char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -30,7 +35,7 @@ int scanf(char* c, int len);
 
 char* intToChar(int number) ;
 
-void printTime();
+time_t* time();
 
 int strcmp(const char* s1, const char* s2);
 

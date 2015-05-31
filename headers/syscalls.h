@@ -29,7 +29,7 @@ void sys_write(FD fd, char* s, int len);
 
 int sys_read(FD fd, char* s, int len);
 
-void sys_time(time_t* t) ;
+void sys_rtc_time(time_t* t) ;
 
 
 #endif

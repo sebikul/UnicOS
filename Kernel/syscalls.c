@@ -6,7 +6,7 @@
 
 #define EOF 	-1
 
-void sys_time(time_t* t) {
+void sys_rtc_time(time_t* t) {
 
 	rtc_get_time(t);
 
