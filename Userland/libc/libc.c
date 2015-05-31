@@ -3,39 +3,25 @@
 #include <syscalls.h>
 #include <libc.h>
 
-static void* mallocBuffer = (void*)0x600000;
-
-static void* lastMalloc;
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
 void* malloc(int len) {
 
-	lastMalloc = mallocBuffer;
-
-	mallocBuffer += len * sizeof(void*);
-
-	return lastMalloc;
+	return sys_malloc(len);
 
 }
 
 void* calloc(int len) {
-	char* space = (char*)malloc(len);
 
-	for (int i = 0; i < len; i++) {
-		space[i] = (char)0;
-	}
+	return sys_calloc(len);
 
-	return (void*)space;
 }
 
 void free(void* m) {
-
-	if (m == lastMalloc) {
-		mallocBuffer = m;
-	}
-
+	sys_free(m);
 }
+
 
 int strpos(char* s, char n) {
 

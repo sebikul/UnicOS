@@ -4,9 +4,6 @@
 
 #include <syscalls.h>
 
-#define FD_STDERR 		0
-#define FD_STDOUT		1
-
 #define EOF 	-1
 
 #define TRUE 1
@@ -19,6 +16,7 @@ typedef char bool;
 void* malloc(int len);
 void* calloc(int len);
 void free(void* m);
+
 int strpos(char* s, char n);
 
 void fprintf(FD fd, char* fmt, ...) __attribute__ ((format (printf, 2, 3)));;

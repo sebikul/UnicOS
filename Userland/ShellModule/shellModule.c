@@ -15,16 +15,19 @@ extern char endOfBinary;
 static int var1 = 0;
 static int var2 = 0;
 
+char* shell_history[20] = {0};
+
 // static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
 // int cmd_count;
 
+void keyboard_uparrow_handler(uint64_t s);
+void keyboard_downarrow_handler(uint64_t s);
 
 void command_dispatcher(char* command);
 
 int main() {
 
 	static char buffer[CMD_BUFFER_SIZE] = {0};
-	int len;
 
 	memset(&bss, 0, &endOfBinary - &bss);
 
@@ -33,13 +36,15 @@ int main() {
 
 	printf("Este numero deberia tener 5 digitos %05i. Y este 3: %03i\n", 453, 78);
 
+
+	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
+	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
+
 	while (1) {
 
 		printf("\nuser@localhost $ ");
 
-		len = scanf(buffer, CMD_BUFFER_SIZE);
-
-		if (len == 0) {
+		if (scanf(buffer, CMD_BUFFER_SIZE) == 0) {
 			continue;
 		}
 
@@ -216,4 +221,15 @@ void command_dispatcher(char* command) {
 
 }
 
+void keyboard_uparrow_handler(uint64_t s) {
+
+	fprintf(FD_STDERR, "Flecha para arriba apretada!\n");
+
+}
+
+void keyboard_downarrow_handler(uint64_t s) {
+
+	fprintf(FD_STDERR, "Flecha para bajo apretada!\n");
+
+}
 

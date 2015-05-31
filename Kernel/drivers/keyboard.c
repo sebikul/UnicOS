@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <video.h>
 #include <keyboard.h>
+#include <lib.h>
+#include <syscalls.h>
 
 #define FIRST_BITE_ON(c) (0x80 | c)
 
@@ -109,6 +111,22 @@ scancode keyboard_scancodes[256] = {
 	{0x58, NULL}//f12
 };
 
+//typedef void (*dka_handler)(uint64_t s);
+
+//static dka_handler keyboard_handler = NULL;
+
+typedef struct {
+	uint64_t scancode;
+	dka_handler handler;
+} dka_catch;
+
+static dka_catch* dka_catched_scancodes[256] = {NULL};
+
+static int dka_catched_len = 0;
+
+
+
+
 static bool keyboard_buffer_write(char c) {
 
 	int pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
@@ -153,11 +171,7 @@ int keyboard_wait_for_buffer(int len) {
 	keyboard_written = 0;
 	read_eof = FALSE;
 
-	int pos;
-
-	do {
-		pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
-	} while (keyboard_written < len && !read_eof) ;
+	while (keyboard_written < len && !read_eof) ;
 
 	return keyboard_written;
 
@@ -184,6 +198,29 @@ static void keyboard_write_char(char c) {
 }
 
 void keyboard_irq_handler(uint64_t s) {
+
+	// if (keyboard_handler != NULL) {
+	// 	keyboard_handler(s);
+	// 	return;
+	// }
+
+	if (dka_catched_len > 0) {
+
+		bool catched = FALSE;
+
+		for (int i = 0; i < dka_catched_len; i++) {
+			if (dka_catched_scancodes[i]->scancode == s) {
+
+				dka_catched_scancodes[i]->handler(s);
+				catched = TRUE;
+
+			}
+		}
+
+		if (catched) {
+			return;
+		}
+	}
 
 	scancode t = keyboard_scancodes[s];
 
@@ -240,3 +277,43 @@ void keyboard_irq_handler(uint64_t s) {
 	}
 
 }
+
+
+// bool keyboard_grab(dka_handler handler) {
+
+// 	if (keyboard_handler == NULL) {
+// 		keyboard_handler = handler;
+// 		return TRUE;
+// 	}
+
+// 	return FALSE;
+
+// }
+
+// bool keyboard_release(dka_handler handler) {
+
+// 	if (keyboard_handler == handler) {
+// 		keyboard_handler = NULL;
+// 		return TRUE;
+// 	}
+
+// 	return FALSE;
+// }
+
+void keyboard_catch(uint64_t scancode, dka_handler handler) {
+
+	dka_catch* tmp = calloc(sizeof(dka_catch));
+
+	tmp->scancode = scancode;
+	tmp->handler = handler;
+
+	dka_catched_scancodes[dka_catched_len++] = tmp;
+
+
+
+}
+
+
+
+
+

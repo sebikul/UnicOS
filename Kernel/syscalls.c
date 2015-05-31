@@ -3,6 +3,7 @@
 #include <video.h>
 #include <keyboard.h>
 #include <rtc.h>
+#include <lib.h>
 
 #define EOF 	-1
 
@@ -59,4 +60,26 @@ int sys_read(FD fd, char* s, int len) {
 	return read;
 
 }
+
+void* sys_malloc(int len) {
+
+	return malloc(len);
+
+}
+
+void* sys_calloc(int len) {
+
+	return calloc(len);
+
+}
+
+void sys_free(void* m) {
+	free(m);
+}
+
+void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
+	keyboard_catch(scancode, handler);
+}
+
+
 

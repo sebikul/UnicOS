@@ -12,6 +12,10 @@ extern		video_write_line
 extern 		video_write_nl
 extern 		keyboard_irq_handler
 extern 		sys_rtc_time
+extern 		sys_malloc
+extern 		sys_calloc
+extern 		sys_free
+extern 		sys_keyboard_catch
 
 loader:
 
@@ -91,28 +95,51 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		;push 		rax
 
 		cmp 		rdi,	2
-		jz			int_sys_time
-
-		cmp			rdi, 	4
-		jz			int_sys_write
+		jz			int_sys_rtc
 
 		cmp			rdi, 	3
 		jz 			int_sys_read
 
+		cmp			rdi, 	4
+		jz			int_sys_write
+
+		cmp 		rdi,	5
+		jz 			int_malloc
+
+		cmp 		rdi,	6
+		jz 			int_calloc
+
+		cmp 		rdi,	7
+		jz 			int_free
+
+		cmp 		rdi, 	8
+		jz 			int_keyboard_catch
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
-int_sys_time:
-		call 		sys_time_handler
+int_sys_rtc:
+		call 		sys_rtc_handler
 		jmp			soft_interrupt_done
 int_sys_write:
 		call 		sys_write_handler
 		jmp 		soft_interrupt_done
-
 int_sys_read:
 		call 		sys_read_handler
 		jmp 		soft_interrupt_done
 
+int_malloc:
+		call 		sys_malloc_handler
+		jmp 		soft_interrupt_done
+int_calloc:
+		call 		sys_calloc_handler
+		jmp 		soft_interrupt_done
+int_free:
+		call 		sys_free_handler
+		jmp 		soft_interrupt_done
 
+int_keyboard_catch:
+		call 		sys_keyboard_catch_handler
+		jmp 		soft_interrupt_done
 
 soft_interrupt_done:
 		push 		rax
@@ -158,7 +185,7 @@ keyboard_done:
 		pop 		rdi
 		iretq
 
-sys_time_handler:
+sys_rtc_handler:
 		call 		prepare_params
 		call 		sys_rtc_time
 		ret
@@ -171,7 +198,26 @@ sys_write_handler:
 sys_read_handler:
 		call 		prepare_params
 		call 		sys_read
+		ret
 
+sys_malloc_handler:
+		call 		prepare_params
+		call 		sys_malloc
+		ret
+
+sys_calloc_handler:
+		call 		prepare_params
+		call 		sys_calloc
+		ret
+
+sys_free_handler:
+		call 		prepare_params
+		call 		sys_free
+		ret
+
+sys_keyboard_catch_handler:
+		call 		prepare_params
+		call 		sys_keyboard_catch
 		ret
 
 init_pic:

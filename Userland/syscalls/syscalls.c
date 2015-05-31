@@ -1,10 +1,7 @@
 #include <syscalls.h>
 #include <stdint.h>
 
-//extern int syscall(int, FD, char*, int);
-
-extern int syscall(uint64_t callid, ...);
-//extern void syscall(int* hours, int* minutes, int* seconds);
+extern uint64_t syscall(uint64_t callid, ...);
 
 void sys_write(FD fd, char* s, int len) {
 
@@ -17,26 +14,25 @@ int sys_read(FD fd, char* s, int len) {
 	return syscall((uint64_t)SYSCALL_READ, (uint64_t)fd, (uint64_t)s, (uint64_t)len);
 
 }
-/*
-	 00  RTC seconds
-	 01  RTC seconds alarm
-	 02  RTC minutes
-	 03  RTC minutes alarm
-	 04  RTC hours
-	 05  RTC hours alarm
-	 06  RTC day of week
-	 07  RTC day of month
-	 08  RTC month
-	 09  RTC year
-*/
+
 void sys_rtc_time(time_t* t) {
 
-	syscall((uint64_t)SYS_CALL_RTC,(uint64_t)t);
+	syscall((uint64_t)SYSCALL_RTC, (uint64_t)t);
 
-	//syscall
-	//syscall(SYS_CALL_RTC,hours,minutes,seconds);
-	//hay que ver como llamar al rtc y eso.... es medio raro http://stanislavs.org/helppc/cmos_ram.html
-	//hours=syscall(SYS_CALL_RTC, RTC_HOURS);
-	//minutes=syscall(SYS_CALL_RTC, RTC_MINUTES);
-	//seconds=syscall(SYS_CALL_RTC, RTC_SECONDS);
+}
+
+void* sys_malloc(int len) {
+	return (void*)syscall((uint64_t)SYSCALL_MALLOC, (uint64_t)len);
+}
+
+void* sys_calloc(int len) {
+	return (void*)syscall((uint64_t)SYSCALL_CALLOC, (uint64_t)len);
+}
+
+void sys_free(void* m) {
+	syscall((uint64_t)SYSCALL_FREE, (uint64_t)m);
+}
+
+void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
+	syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
 }
