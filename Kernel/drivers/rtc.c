@@ -14,8 +14,6 @@ void rtc_get_time(time_t* t) {
 
 	uint8_t regb;
 
-	video_write_line("Leyendo tiempo del rtc");
-
 	while (rtc_update_in_progress());
 
 	t->second = rtc_read(RTC_CURRENT_SECOND);

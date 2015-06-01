@@ -19,7 +19,7 @@ static int var2 = 0;
 
 static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
-static int max_history=0;
+static int max_history = 0;
 
 // static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
 // int cmd_count;
@@ -80,7 +80,7 @@ void command_dispatcher(char* command) {
 	//current_history++;
 	max_history++;
 
-	current_history=max_history;
+	current_history = max_history;
 
 	//Vamos a sacarle todos los espacion al principio del comando
 	if (*command == ' ') {
@@ -237,13 +237,11 @@ void command_dispatcher(char* command) {
 
 void keyboard_uparrow_handler(uint64_t s) {
 
-	current_history--;
-
-	if (current_history < 0) {
-		//fprintf(FD_STDERR, "\nHa llegado al maximo del historial de comandos guardados.");
-		current_history = 0;
+	if (current_history == 0) {
 		return;
 	}
+
+	current_history--;
 
 	sys_clear_indexed_line(0);
 
@@ -255,7 +253,12 @@ void keyboard_uparrow_handler(uint64_t s) {
 
 void keyboard_downarrow_handler(uint64_t s) {
 
-	if(current_history==max_history-1){
+	if (current_history == max_history-1 || max_history==0) {
+
+		sys_clear_indexed_line(0);
+		printf("user@localhost $ ");
+		sys_keyboard_replace_buffer("");
+
 		return;
 	}
 

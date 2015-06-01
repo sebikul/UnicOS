@@ -4,7 +4,7 @@ void command_time(int argc, char** argv) {
 
 	time_t* t = time();
 
-	printf("El tiempo actual es: %02i:%02i:%02i del %02i/%02i/%02i\n", t->hour, t->minute, t->second, t->day, t->month, t->year);
+	printf("El tiempo actual es: %02i:%02i:%02i del %02i/%02i/%02i", t->hour, t->minute, t->second, t->day, t->month, t->year);
 
 }
 void command_settime(int hours, int minutes, int seconds) {

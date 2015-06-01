@@ -185,12 +185,6 @@ keyboard:
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
 
-		;mov 		[0x000B8000], 	al			; Dump the scancode to the screen
-
-		;and 		rax,	0xF 	
-
-		;int 03h
-
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 
