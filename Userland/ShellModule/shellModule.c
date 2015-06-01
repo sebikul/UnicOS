@@ -21,8 +21,8 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-// static char* cmd_list[] = {"echo", "help", "time", "set time", "backcolor", "fontcolor", "exit", "clean", "restart", 0};
-// int cmd_count;
+static int cmd_count = 7;
+char** cmd_list;
 
 void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
@@ -34,6 +34,8 @@ int main() {
 	static char buffer[CMD_BUFFER_SIZE] = {0};
 
 	memset(&bss, 0, &endOfBinary - &bss);
+
+	initialize_command_list();
 
 	fprintf(FD_STDERR, "Ejecutando \"ShellModule...numero que me gusta: %i.\n", 50);
 	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
@@ -140,7 +142,7 @@ void command_dispatcher(char* command) {
 	// for (int i = 1; i < argc; i++) {
 	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
 	// }
-
+/*
 	if (strcmp(argv[0], "echo") == 0) {
 		//printf("Ejecutando echo: \n");
 		command_echo(argc, argv);
@@ -151,87 +153,57 @@ void command_dispatcher(char* command) {
 	} else {
 		printf("%s: Comando no encontrado", argv[0]);
 	}
+*/
+	 int cmd = 0;
 
-	// int cmd = -1;
+	for (; cmd < cmd_count; cmd++) {
+	 	if (strcmp(argv[0], cmd_list[cmd]) ==0) {
+	 		break;
+	 	}
+	 }
+	 
+	 switch (cmd) {
+	
+	 case 0: //echo
+	 	printf("\nEjecutando echo...\n");
+	 	command_echo(argc, argv);
+	 	break;
 
-	// for (; cmd < cmd_count; cmd++) {
-	// 	if (strcmp(command, cmd_list[cmd])) {
-	// 		break;
-	// 	}
-	// }
+	 case 1: //help
 
-	// switch (cmd) {
+	 	command_help(argc, argv);
+	 	break;
 
-	// case 1: //echo
-	// 	printf("\nEjecutando echo...\n");
-	// 	command_echo(args);
-	// 	break;
+	 case 2: //time
 
-	// case 2: //help
+	 	//command_time();
+	 	break;
 
-	// 	command_help();
-	// 	break;
+	 case 3: //color
 
-	// case 3: //time
+	 	break;
 
-	// 	command_time();
-	// 	break;
+	 case 4: //exit
 
-	// case 4: //set time
+	 	//command_exit();
+	 	break;
 
+	 case 5: //clear
 
-	// 	int h=charToInt(arg[0]);
-	// 	int m=charToInt(arg[1]);
-	// 	int s=charToInt(arg[2]);
+	 	//command_clean();
+	 	break;
 
-	// 	//que cada funcion valide sus parametros
+	 case 6: //restart
 
-	// 	command_settime(h,m,s);
-
-
-	// 	break;
-
-	// case 5: //backcolor
-
-	// 	/*
-	// 	int color=charToInt(arg[0]);
-	// 	command_backcolor(color);
-	// 	*/
-
-	// 	break;
-
-	// case 6: //fontcolor
-
-	// 	/*
-	// 	int color=charToInt(arg[0]);
-	// 	command_fontcolor(color);
-	// 	*/
-	// 	break;
-
-	// case 7: //exit
-
-	// 	command_exit();
-	// 	break;
-
-	// case 8: //clean
-
-	// 	command_clean();
-	// 	break;
-
-	// case 9: //restart
-
-	// 	command_restart();
-	// 	break;
+	 	//command_restart();
+	 	break;
 
 	// //other functions....
 
-	// default:
+	 default:
 
-	// 	printf("\nComando no encontrado: ");
-	// 	printf(command);
-
-
-	// }
+	 	printf("\nComando no encontrado: ");
+	}
 
 }
 
@@ -269,6 +241,29 @@ void keyboard_downarrow_handler(uint64_t s) {
 	printf("user@localhost $ %s", shell_history[current_history]);
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
+
+}
+
+void initialize_command_list(){
+	cmd_list = calloc(cmd_count * sizeof(char*));
+	calloc_cmd(0,"echo");
+	calloc_cmd(1,"help");
+	calloc_cmd(2,"time");
+	calloc_cmd(3,"color");
+	calloc_cmd(4,"exit");
+	calloc_cmd(5,"clear");
+	calloc_cmd(6,"restart");
+}
+
+void calloc_cmd(int i, char* str){
+	int len= strlen(str);
+	cmd_list[i] = calloc(len * sizeof(char));
+	int j=0;
+	for (; j < len; j++)
+	{
+		cmd_list[i][j]=str[j];
+	}
+	cmd_list[i][j]=0;
 
 }
 
