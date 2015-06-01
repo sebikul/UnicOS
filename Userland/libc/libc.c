@@ -70,108 +70,106 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 			} else {
 				// hay que procesar el siguiente caracter y actuar acorde
-				bool flag;
-				do
-				{		
-					flag=FALSE;	
 
-					switch (fmt[i]) {
-					case 's': {
-						//lo que se desea es imprimir unca cadena
-						char* arg = va_arg(ap, char*);
-						int k = 0;
+fmtparser:
 
-						//k: posicion en el argumento
+				switch (fmt[i]) {
+				case 's': {
+					//lo que se desea es imprimir unca cadena
+					char* arg = va_arg(ap, char*);
+					int k = 0;
 
-						while (arg[k] != 0) {
-							str[j] = arg[k];
-							j++;
-							k++;
-						}
+					//k: posicion en el argumento
 
-						i++;
-						break;
-					}
-
-					case 'i': {
-
-						int arg = va_arg(ap, int);
-
-						char* number = intToChar(arg);
-
-						int k = 0;
-
-						int numlen = strlen(number);
-
-						if (numlen < width) {
-
-							char chartowrite;
-							int numtowrite = width - numlen;
-
-							if (flag_zero) {
-								chartowrite = '0';
-
-							} else {
-								chartowrite = ' ';
-							}
-
-							for (int i = 0; i < numtowrite; i++) {
-								str[j] = chartowrite;
-								j++;
-							}
-
-						}
-
-						//k: posicion en el argumento
-
-						while (number[k] != 0) {
-							str[j] = number[k];
-							j++;
-							k++;
-						}
-
-						i++;
-						break;
-
-					}
-
-					case 'c': {
-
-						char arg = (char)va_arg(ap, int);
-
-						str[j] = arg;
+					while (arg[k] != 0) {
+						str[j] = arg[k];
 						j++;
-						i++;
-						break;
-
+						k++;
 					}
-					case '0': {
-						if (!flag_zero) {
-							flag_zero = TRUE;
-							i++;
-							flag=TRUE;
-							break;
+
+					i++;
+					break;
+				}
+
+				case 'i': {
+
+					int arg = va_arg(ap, int);
+
+					char* number = intToChar(arg);
+
+					int k = 0;
+
+					int numlen = strlen(number);
+
+					if (numlen < width) {
+
+						char chartowrite;
+						int numtowrite = width - numlen;
+
+						if (flag_zero) {
+							chartowrite = '0';
+
+						} else {
+							chartowrite = ' ';
 						}
+
+						for (int i = 0; i < numtowrite; i++) {
+							str[j] = chartowrite;
+							j++;
+						}
+
 					}
 
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9': {
-						width = fmt[i] - '0';
+					//k: posicion en el argumento
+
+					while (number[k] != 0) {
+						str[j] = number[k];
+						j++;
+						k++;
+					}
+
+					i++;
+					break;
+
+				}
+
+				case 'c': {
+
+					char arg = (char)va_arg(ap, int);
+
+					str[j] = arg;
+					j++;
+					i++;
+					break;
+
+				}
+				case '0': {
+					if (!flag_zero) {
+						flag_zero = TRUE;
 						i++;
-						flag=TRUE;
+						goto fmtparser;
 						break;
 					}
+				}
 
-					}
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9': {
+					width = fmt[i] - '0';
+					i++;
+					goto fmtparser;
+					break;
+				}
 
-				} while (flag);
+				}
+
+
 
 			}
 
