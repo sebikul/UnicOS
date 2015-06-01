@@ -142,67 +142,67 @@ void command_dispatcher(char* command) {
 	// for (int i = 1; i < argc; i++) {
 	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
 	// }
-/*
-	if (strcmp(argv[0], "echo") == 0) {
-		//printf("Ejecutando echo: \n");
-		command_echo(argc, argv);
-	} else if (strcmp(argv[0], "help") == 0) {
-		command_help(argc, argv);
-	} else if (strcmp(argv[0], "time") == 0) {
-		command_time(argc, argv);
-	} else {
-		printf("%s: Comando no encontrado", argv[0]);
-	}
-*/
-	 int cmd = 0;
+	/*
+		if (strcmp(argv[0], "echo") == 0) {
+			//printf("Ejecutando echo: \n");
+			command_echo(argc, argv);
+		} else if (strcmp(argv[0], "help") == 0) {
+			command_help(argc, argv);
+		} else if (strcmp(argv[0], "time") == 0) {
+			command_time(argc, argv);
+		} else {
+			printf("%s: Comando no encontrado", argv[0]);
+		}
+	*/
+	int cmd = 0;
 
 	for (; cmd < cmd_count; cmd++) {
-	 	if (strcmp(argv[0], cmd_list[cmd]) ==0) {
-	 		break;
-	 	}
-	 }
-	 
-	 switch (cmd) {
-	
-	 case 0: //echo
-	 	printf("\nEjecutando echo...\n");
-	 	command_echo(argc, argv);
-	 	break;
+		if (strcmp(argv[0], cmd_list[cmd]) == 0) {
+			break;
+		}
+	}
 
-	 case 1: //help
+	switch (cmd) {
 
-	 	command_help(argc, argv);
-	 	break;
+	case 0: //echo
+		printf("\nEjecutando echo...\n");
+		command_echo(argc, argv);
+		break;
 
-	 case 2: //time
+	case 1: //help
 
-	 	//command_time();
-	 	break;
+		command_help(argc, argv);
+		break;
 
-	 case 3: //color
+	case 2: //time
 
-	 	break;
+		//command_time();
+		break;
 
-	 case 4: //exit
+	case 3: //color
 
-	 	//command_exit();
-	 	break;
+		break;
 
-	 case 5: //clear
+	case 4: //exit
 
-	 	//command_clean();
-	 	break;
+		//command_exit();
+		break;
 
-	 case 6: //restart
+	case 5: //clear
 
-	 	//command_restart();
-	 	break;
+		//command_clean();
+		break;
+
+	case 6: //restart
+
+		//command_restart();
+		break;
 
 	// //other functions....
 
-	 default:
+	default:
 
-	 	printf("\nComando no encontrado: ");
+		printf("\nComando no encontrado: ");
 	}
 
 }
@@ -221,16 +221,22 @@ void keyboard_uparrow_handler(uint64_t s) {
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
 
+	//printf("historial %i/%i\n", current_history,max_history);
+
 }
 
 void keyboard_downarrow_handler(uint64_t s) {
 
-	if (current_history == max_history-1 || max_history==0) {
+	if (current_history == max_history - 1 || max_history == 0) {
 
 		sys_clear_indexed_line(0);
 		printf("user@localhost $ ");
 		sys_keyboard_replace_buffer("");
-
+		if (current_history == max_history - 1) {
+			current_history = max_history;
+		}
+		return;
+	} else if (current_history == max_history) {
 		return;
 	}
 
@@ -244,26 +250,28 @@ void keyboard_downarrow_handler(uint64_t s) {
 
 }
 
-void initialize_command_list(){
+void initialize_command_list() {
 	cmd_list = calloc(cmd_count * sizeof(char*));
-	calloc_cmd(0,"echo");
-	calloc_cmd(1,"help");
-	calloc_cmd(2,"time");
-	calloc_cmd(3,"color");
-	calloc_cmd(4,"exit");
-	calloc_cmd(5,"clear");
-	calloc_cmd(6,"restart");
+	calloc_cmd(0, "echo");
+	calloc_cmd(1, "help");
+	calloc_cmd(2, "time");
+	calloc_cmd(3, "color");
+	calloc_cmd(4, "exit");
+	calloc_cmd(5, "clear");
+	calloc_cmd(6, "restart");
 }
 
-void calloc_cmd(int i, char* str){
-	int len= strlen(str);
+
+//todo strcpy!!!
+void calloc_cmd(int i, char* str) {
+	int len = strlen(str);
 	cmd_list[i] = calloc(len * sizeof(char));
-	int j=0;
+	int j = 0;
 	for (; j < len; j++)
 	{
-		cmd_list[i][j]=str[j];
+		cmd_list[i][j] = str[j];
 	}
-	cmd_list[i][j]=0;
+	cmd_list[i][j] = 0;
 
 }
 
