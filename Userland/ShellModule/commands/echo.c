@@ -61,6 +61,7 @@ void command_exit() {
 
 void command_restart() {
 
+	//resetea los colores por default de la pantalla
 
 }
 

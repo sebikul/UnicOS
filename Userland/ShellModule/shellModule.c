@@ -21,8 +21,9 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 7;
+static int cmd_count = 6;
 char** cmd_list;
+bool exit_flag=FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
@@ -46,7 +47,7 @@ int main() {
 	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
 	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
 
-	while (1) {
+	while (!exit_flag) {
 
 		printf("\nuser@localhost $ ");
 
@@ -166,17 +167,20 @@ void command_dispatcher(char* command) {
 
 	case 0: //echo
 		printf("\nEjecutando echo...\n");
-		command_echo(argc, argv);
-		break;
+		command_echo(argc, argv); 
+		break;										   
 
 	case 1: //help
+	//el cmd_count es medio feo, pero 
+	//sino hay que hacer una funcion generica
+	//que cuente elementos y es eso o 1 param mas
 
-		command_help(argc, argv);
+		command_help(argc, argv, cmd_list, cmd_count);
 		break;
 
 	case 2: //time
 
-		//command_time();
+		command_time(argc, argv);
 		break;
 
 	case 3: //color
@@ -185,7 +189,9 @@ void command_dispatcher(char* command) {
 
 	case 4: //exit
 
-		//command_exit();
+		//habria que inhabilitar el buffer o algo o nose si se puede cerrar QEMU
+		exit_flag=TRUE;
+		command_exit();
 		break;
 
 	case 5: //clear
@@ -193,16 +199,11 @@ void command_dispatcher(char* command) {
 		//command_clean();
 		break;
 
-	case 6: //restart
-
-		//command_restart();
-		break;
-
 	// //other functions....
 
 	default:
 
-		printf("\nComando no encontrado: ");
+		printf("\nComando no encontrado.");
 	}
 
 }
@@ -258,20 +259,12 @@ void initialize_command_list() {
 	calloc_cmd(3, "color");
 	calloc_cmd(4, "exit");
 	calloc_cmd(5, "clear");
-	calloc_cmd(6, "restart");
 }
 
-
-//todo strcpy!!!
 void calloc_cmd(int i, char* str) {
 	int len = strlen(str);
 	cmd_list[i] = calloc(len * sizeof(char));
-	int j = 0;
-	for (; j < len; j++)
-	{
-		cmd_list[i][j] = str[j];
-	}
-	cmd_list[i][j] = 0;
+	strcpy(cmd_list[i],str);
 
 }
 

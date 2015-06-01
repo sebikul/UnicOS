@@ -315,6 +315,16 @@ char* intToChar(int number) {
 
 }
 
+int charToInt(char* c){
+	int ans=0;
+	int len=strlen(c);
+	for (int i = 0; i < len; i++)
+	{
+		ans=ans*10+c[i]-'0';
+	}
+	return ans;
+}
+
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
 	char *p1, *p2;

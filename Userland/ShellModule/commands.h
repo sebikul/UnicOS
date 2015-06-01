@@ -3,7 +3,7 @@
 #define COMMANDS_H 
 
 void command_echo(int argc, char** argv);
-void command_help(int argc, char** argv);
+void command_help(int argc, char** argv, char** cmd_list, int cmd_count);
 void command_time(int argc, char** argv);
 
 
