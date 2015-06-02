@@ -55,8 +55,10 @@ void command_settime(int hours, int minutes, int seconds) {
 		time_t* t=time();
 		t->hour = hours;
 		t->minute = minutes;
-		t->second = seconds; 
+		t->second = seconds;
+		//TOASK: hay que actualizar el rtc del qemu? 
 		//sys_call_update_rtc(); o algo asi
+		printf(" %i ");
 		printf("Seteando la hora.\n");
 	}
 
