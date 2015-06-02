@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <io.h>
+#include <syscalls.h>
 
 #define SCREEN_START ((uint16_t*)0xB8000)
 
@@ -56,5 +57,6 @@ void video_write_dec(uint64_t value);
 void video_write_hex(uint64_t value);
 void video_write_bin(uint64_t value);
 void video_write_base(uint64_t value, uint32_t base);
+void getCurrentColor(color_t * t);
 
 #endif

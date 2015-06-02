@@ -282,6 +282,14 @@ time_t* time() {
 
 }
 
+color_t* getColor(){
+	color_t* t = (color_t*)calloc(sizeof(color_t));
+
+	sys_color(t);
+
+	return t;
+}
+
 //Verificado
 char* intToChar(int number) {
 
@@ -397,4 +405,3 @@ void * memset(void * destiation, int32_t c, uint64_t length) {
 
 	return destiation;
 }
-

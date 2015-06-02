@@ -6,9 +6,9 @@ void command_time(int argc, char** argv) {
 	switch(argc){
 		case 1:
 
-			printf("El tiempo actual es: %02i:%02i:%02i del %02i/%02i/%02i", t->hour, t->minute, t->second, t->day, t->month, t->year);	
+			printf("El tiempo actual es: %02i:%02i:%02i del %02i/%02i/%02i", t->hour, t->minute, t->second, t->day, t->month, t->year);
 			break;
-		
+
 		case 2:
 
 			if(strcmp(argv[1],"set")==0){
@@ -27,7 +27,7 @@ void command_time(int argc, char** argv) {
 			//yo pensaba hacer sino time set para todos los parametros hora dia todo
 			//time set hour setea hora
 			//time set year setea año y asi... (lo cual es mas paja pero quizas mejor)
-			if(strcmp(argv[1],"set")==0){ 
+			if(strcmp(argv[1],"set")==0){
 				if(argc==5){
 					int h=charToInt(argv[2]);
 					int m=charToInt(argv[3]);
@@ -41,8 +41,8 @@ void command_time(int argc, char** argv) {
 			}
 
 	}
-		
-	
+
+
 }
 void command_settime(int hours, int minutes, int seconds) {
 
@@ -56,7 +56,7 @@ void command_settime(int hours, int minutes, int seconds) {
 		t->hour = hours;
 		t->minute = minutes;
 		t->second = seconds;
-		//TOASK: hay que actualizar el rtc del qemu? 
+		//TOASK: hay que actualizar el rtc del qemu?
 		//sys_call_update_rtc(); o algo asi
 		printf(" %i ");
 		printf("Seteando la hora.\n");

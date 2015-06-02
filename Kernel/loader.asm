@@ -5,7 +5,7 @@ extern initializeKernelBinary
 extern 		main
 extern 		initializeKernelBinary
 
-extern 		sys_write 
+extern 		sys_write
 extern 		sys_read
 extern 		exit
 extern		video_write_line
@@ -18,6 +18,7 @@ extern 		sys_free
 extern 		sys_keyboard_catch
 extern 		sys_clear_indexed_line
 extern 		sys_keyboard_replace_buffer
+extern 		sys_color
 
 loader:
 
@@ -71,7 +72,7 @@ create_gate:
 		shr 		rax, 	16
 		add 		rdi,	4					; skip the gate marker
 		stosw									; store the high word (31..16)
-		shr 		rax,	16	
+		shr 		rax,	16
 		stosd									; store the high dword (63..32)
 
 		pop 		rax
@@ -123,6 +124,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi, 	10
 		jz 			int_keyboard_replace_buffer
 
+		cmp			rdi,	11
+		jz			int_sys_color
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
@@ -153,10 +157,13 @@ int_video_clr_indexed_line:
 		call 		sys_video_clr_indexed_line_handler
 		jmp 		soft_interrupt_done
 
-int_keyboard_replace_buffer
+int_keyboard_replace_buffer:
 		call 		sys_keyboard_replace_buffer_handler
 		jmp 		soft_interrupt_done
 
+int_sys_color:
+		call 		sys_color_handler
+		jmp			soft_interrupt_done
 
 soft_interrupt_done:
 		push 		rax
@@ -239,6 +246,11 @@ sys_video_clr_indexed_line_handler:
 sys_keyboard_replace_buffer_handler:
 		call 		prepare_params
 		call 		sys_keyboard_replace_buffer
+		ret
+
+sys_color_handler:
+		call 		prepare_params
+		call		sys_color
 		ret
 
 init_pic:

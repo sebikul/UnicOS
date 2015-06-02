@@ -13,6 +13,7 @@
 #define SYSCALL_KEYBOARD_CATCH 				8
 #define SYSCALL_VIDEO_CLR_INDEXED_LINE 		9
 #define SYSCALL_KEYBOARD_REPLACE_BUFFER		10
+#define SYSCALL_COLOR											11
 
 enum FD{
 	FD_STDERR,
@@ -28,6 +29,12 @@ typedef struct {
 	uint32_t year;//ultimos dos digitos
 } time_t;
 
+
+typedef struct {
+	uint8_t fontColor;
+	uint8_t	backgroundColor;
+} color_t;
+
 typedef enum FD FD;
 
 typedef void (*dka_handler)(uint64_t s);
@@ -41,5 +48,6 @@ void sys_free(void* m);
 void sys_keyboard_catch(uint64_t scancode, dka_handler handler);
 void sys_clear_indexed_line(int index);
 void sys_keyboard_replace_buffer(char* s);
+void sys_color(color_t * t);
 
 #endif

@@ -44,3 +44,7 @@ void sys_clear_indexed_line(int index){
 void sys_keyboard_replace_buffer(char* s){
 	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER,(uint64_t)s);
 }
+
+void sys_color(color_t *t){
+	syscall((uint64_t)SYSCALL_COLOR,(uint64_t)t);
+}

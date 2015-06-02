@@ -322,3 +322,8 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 
 	return digits;
 }
+
+void getCurrentColor(color_t * t){
+	t->fontColor=video_get_fg(video_get_color());
+	t->backgroundColor=video_get_bg(video_get_color());
+}

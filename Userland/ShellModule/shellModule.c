@@ -167,11 +167,11 @@ void command_dispatcher(char* command) {
 
 	case 0: //echo
 		printf("\nEjecutando echo...\n");
-		command_echo(argc, argv); 
-		break;										   
+		command_echo(argc, argv);
+		break;
 
 	case 1: //help
-	//el cmd_count es medio feo, pero 
+	//el cmd_count es medio feo, pero
 	//sino hay que hacer una funcion generica
 	//que cuente elementos y es eso o 1 param mas
 
@@ -184,7 +184,7 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 3: //color
-
+		command_color(argc,argv);
 		break;
 
 	case 4: //exit
@@ -259,6 +259,7 @@ void initialize_command_list() {
 	calloc_cmd(3, "color");
 	calloc_cmd(4, "exit");
 	calloc_cmd(5, "clear");
+
 }
 
 void calloc_cmd(int i, char* str) {
@@ -267,4 +268,3 @@ void calloc_cmd(int i, char* str) {
 	strcpy(cmd_list[i],str);
 
 }
-
