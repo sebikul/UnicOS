@@ -6,7 +6,6 @@
 
 #include <lib.h>
 #include <moduleLoader.h>
-#include <naiveConsole.h>
 #include <video.h>
 #include <keyboard.h>
 //#include <rtc.h>

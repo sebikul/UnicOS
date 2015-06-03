@@ -29,9 +29,9 @@ void command_time(int argc, char** argv) {
 			//time set year setea año y asi... (lo cual es mas paja pero quizas mejor)
 			if(strcmp(argv[1],"set")==0){
 				if(argc==5){
-					int h=charToInt(argv[2]);
-					int m=charToInt(argv[3]);
-					int s=charToInt(argv[4]);
+					int h=ctoi(argv[2]);
+					int m=ctoi(argv[3]);
+					int s=ctoi(argv[4]);
 					command_settime(h,m,s);
 				}else{
 					printf("Comando invalido.\n");

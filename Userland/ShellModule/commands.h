@@ -5,7 +5,7 @@
 void command_echo(int argc, char** argv);
 void command_help(int argc, char** argv, char** cmd_list, int cmd_count);
 void command_time(int argc, char** argv);
-
+void command_set_distribution(int argc , char** argv) ;
 
 void command_settime(int hours, int minutes, int seconds);
 void command_backcolor(int color);

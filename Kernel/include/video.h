@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <io.h>
-#include <syscalls.h>
+#include <types.h>
 
 #define SCREEN_START ((uint16_t*)0xB8000)
 

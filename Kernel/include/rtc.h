@@ -3,7 +3,7 @@
 #ifndef RTC_H
 #define RTC_H
 
-#include <syscalls.h>
+#include <types.h>
 
 #define RTC_CURRENT_SECOND		0x0
 #define RTC_CURRENT_MINUTE 		0x2

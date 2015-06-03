@@ -1,11 +1,11 @@
 #include <libc.h>
-#include <syscalls.h>
+#include <types.h>
 
 static char* color_to_string(color_t color);
 
 void command_color(int argc , char** argv) {
     color_t newcolor;
-    color_t c = getColor();
+    color_t c = get_color();
 
 
     switch (argc) {
@@ -19,7 +19,7 @@ void command_color(int argc , char** argv) {
 
     case 4:
         //ASK: el usuario deberia ingresar por nombre de color o por numero?
-        newcolor = charToInt(argv[3]);
+        newcolor = ctoi(argv[3]);
         if (newcolor > 0xF || newcolor < 0x0) {
             break;
         }
@@ -31,11 +31,11 @@ void command_color(int argc , char** argv) {
             if (strcmp(argv[2], "front") == 0) {
                 //cambio de color del font
 
-                setColor(newcolor, video_get_bg(c));
+                set_color(newcolor, video_get_bg(c));
 
             } else if (strcmp(argv[2], "background") == 0) {
                 //cambio de color del fondo
-                setColor(video_get_fg(c), newcolor);
+                set_color(video_get_fg(c), newcolor);
 
             } else {
                 printf("Comando invalido \n" );

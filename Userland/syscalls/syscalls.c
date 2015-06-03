@@ -1,4 +1,5 @@
 #include <syscalls.h>
+#include <types.h>
 #include <stdint.h>
 
 extern uint64_t syscall(uint64_t callid, ...);

@@ -1,5 +1,6 @@
 
 #include <syscalls.h>
+#include <types.h>
 #include <video.h>
 #include <keyboard.h>
 #include <rtc.h>

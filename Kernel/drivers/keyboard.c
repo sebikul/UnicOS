@@ -2,7 +2,7 @@
 #include <video.h>
 #include <keyboard.h>
 #include <lib.h>
-#include <syscalls.h>
+#include <types.h>
 
 #define FIRST_BITE_ON(c) (0x80 | c)
 
@@ -15,22 +15,20 @@ char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 int keyboard_wpos = 0;
 int keyboard_written = 0;
 
-keyboard_distrib keyboard_distribution = KEYBOARD_USA;
+static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
 static bool read_eof = FALSE;
 
-kstatus keyboard_status = {FALSE,//caps
+static kstatus keyboard_status = {FALSE,//caps
                            FALSE,//ctrl
                            FALSE//alt
                           };
-
-
-
+#define NOCHAR (char)0
 
 scancode keyboard_scancodes[][256] = {
 	{//USA
-		{0x00 , NULL, NULL}, //empty,
-		{0x01 , NULL, NULL}, //esc
+		{0x00 , NOCHAR, NOCHAR}, //empty,
+		{0x01 , NOCHAR, NOCHAR}, //esc
 		{0x02 , '1', '!'},
 		{0x03 , '2', '@'},
 		{0x04 , '3', '#'},
@@ -43,8 +41,8 @@ scancode keyboard_scancodes[][256] = {
 		{0x0B , '0', '"'},
 		{0x0C , '-', '_'},
 		{0x0D , '=', '+'},
-		{0x0E , NULL, NULL}, //backspace
-		{0x0F , NULL, NULL}, //tab
+		{0x0E , NOCHAR, NOCHAR}, //backspace
+		{0x0F , NOCHAR, NOCHAR}, //tab
 		{0x10 , 'q', 'Q'},
 		{0x11, 'w', 'W'},
 		{0x12, 'e', 'E'},
@@ -57,8 +55,8 @@ scancode keyboard_scancodes[][256] = {
 		{0x19, 'p', 'P'},
 		{0x1a, '[', '{'},
 		{0x1b, ']', '}'},
-		{0x1c, NULL, NULL},//enter
-		{0x1d, NULL, NULL},//left ctrl
+		{0x1c, NOCHAR, NOCHAR},//enter
+		{0x1d, NOCHAR, NOCHAR},//left ctrl
 		{0x1e, 'a', 'A'},
 		{0x1f, 's', 'S'},
 		{0x20, 'd', 'D'},
@@ -71,7 +69,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x27, ';', ':'},
 		{0x28, '\'', '"'},
 		{0x29, '`', '~'},
-		{0x2a, NULL, NULL},//left shift
+		{0x2a, NOCHAR, NOCHAR},//left shift
 		{0x2b, '\\', '|'},
 		{0x2c, 'z', 'Z'},
 		{0x2d, 'x', 'X'},
@@ -83,42 +81,42 @@ scancode keyboard_scancodes[][256] = {
 		{0x33, ',', '<'},
 		{0x34, '.', '>'},
 		{0x35, '/', '?'},
-		{0x36, NULL, NULL},//right shift
-		{0x37, '*', NULL},//keypad *
-		{0x38, NULL, NULL},//left alt
-		{0x39, ' ', NULL},
-		{0x3a, NULL, NULL},//caps
-		{0x3b, NULL, NULL},//f1
-		{0x3c, NULL, NULL},//f2
-		{0x3d, NULL, NULL},//f3
-		{0x3e, NULL, NULL},//f4
-		{0x3f, NULL, NULL},//f5
-		{0x40, NULL, NULL},//f6
-		{0x41, NULL, NULL},//f7
-		{0x42, NULL, NULL},//f8
-		{0x43, NULL, NULL},//f9
-		{0x44, NULL, NULL},//f10
-		{0x45, NULL, NULL},//num
-		{0x46, NULL, NULL},//scroll
-		{0x47, '7', NULL},//keypad 7
-		{0x48, '8', NULL},//keypad 8
-		{0x49, '9', NULL},//keypad 9
-		{0x4a, '-', NULL},//keypad -
-		{0x4b, '4', NULL},//keypad 4
-		{0x4c, '5', NULL},//keypad 5
-		{0x4d, '6', NULL},//keypad 6
-		{0x4e, '+', NULL},//keypad +
-		{0x4f, '1', NULL},//keypad 1
-		{0x50, '2', NULL},//keypad 2
-		{0x51, '3', NULL},//keypad 3
-		{0x52, '0', NULL},//keypad 0
-		{0x53, '.', NULL},//keypad 0
-		{0x57, NULL, NULL},//f11
-		{0x58, NULL, NULL}//f12
+		{0x36, NOCHAR, NOCHAR},//right shift
+		{0x37, '*', NOCHAR},//keypad *
+		{0x38, NOCHAR, NOCHAR},//left alt
+		{0x39, ' ', NOCHAR},
+		{0x3a, NOCHAR, NOCHAR},//caps
+		{0x3b, NOCHAR, NOCHAR},//f1
+		{0x3c, NOCHAR, NOCHAR},//f2
+		{0x3d, NOCHAR, NOCHAR},//f3
+		{0x3e, NOCHAR, NOCHAR},//f4
+		{0x3f, NOCHAR, NOCHAR},//f5
+		{0x40, NOCHAR, NOCHAR},//f6
+		{0x41, NOCHAR, NOCHAR},//f7
+		{0x42, NOCHAR, NOCHAR},//f8
+		{0x43, NOCHAR, NOCHAR},//f9
+		{0x44, NOCHAR, NOCHAR},//f10
+		{0x45, NOCHAR, NOCHAR},//num
+		{0x46, NOCHAR, NOCHAR},//scroll
+		{0x47, '7', NOCHAR},//keypad 7
+		{0x48, '8', NOCHAR},//keypad 8
+		{0x49, '9', NOCHAR},//keypad 9
+		{0x4a, '-', NOCHAR},//keypad -
+		{0x4b, '4', NOCHAR},//keypad 4
+		{0x4c, '5', NOCHAR},//keypad 5
+		{0x4d, '6', NOCHAR},//keypad 6
+		{0x4e, '+', NOCHAR},//keypad +
+		{0x4f, '1', NOCHAR},//keypad 1
+		{0x50, '2', NOCHAR},//keypad 2
+		{0x51, '3', NOCHAR},//keypad 3
+		{0x52, '0', NOCHAR},//keypad 0
+		{0x53, '.', NOCHAR},//keypad 0
+		{0x57, NOCHAR, NOCHAR},//f11
+		{0x58, NOCHAR, NOCHAR}//f12
 	},
 	{//LATIN
-		{0x00 , NULL, NULL}, //empty,
-		{0x01 , NULL, NULL}, //esc
+		{0x00 , NOCHAR, NOCHAR}, //empty,
+		{0x01 , NOCHAR, NOCHAR}, //esc
 		{0x02 , '1', '!'},
 		{0x03 , '2', '"'},
 		{0x04 , '3', '#'},
@@ -131,8 +129,8 @@ scancode keyboard_scancodes[][256] = {
 		{0x0B , '0', '"'},
 		{0x0C , '-', '_'},
 		{0x0D , '=', '+'},
-		{0x0E , NULL, NULL}, //backspace
-		{0x0F , NULL, NULL}, //tab
+		{0x0E , NOCHAR, NOCHAR}, //backspace
+		{0x0F , NOCHAR, NOCHAR}, //tab
 		{0x10 , 'q', 'Q'},
 		{0x11, 'w', 'W'},
 		{0x12, 'e', 'E'},
@@ -145,8 +143,8 @@ scancode keyboard_scancodes[][256] = {
 		{0x19, 'p', 'P'},
 		{0x1a, '[', '{'},
 		{0x1b, ']', '}'},
-		{0x1c, NULL, NULL},//enter
-		{0x1d, NULL, NULL},//left ctrl
+		{0x1c, NOCHAR, NOCHAR},//enter
+		{0x1d, NOCHAR, NOCHAR},//left ctrl
 		{0x1e, 'a', 'A'},
 		{0x1f, 's', 'S'},
 		{0x20, 'd', 'D'},
@@ -159,7 +157,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x27, ';', ':'},
 		{0x28, '\'', '"'},
 		{0x29, '`', '~'},
-		{0x2a, NULL, NULL},//left shift
+		{0x2a, NOCHAR, NOCHAR},//left shift
 		{0x2b, '\\', '|'},
 		{0x2c, 'z', 'Z'},
 		{0x2d, 'x', 'X'},
@@ -171,38 +169,38 @@ scancode keyboard_scancodes[][256] = {
 		{0x33, ',', '<'},
 		{0x34, '.', '>'},
 		{0x35, '/', '?'},
-		{0x36, NULL, NULL},//right shift
-		{0x37, '*', NULL},//keypad *
-		{0x38, NULL, NULL},//left alt
-		{0x39, ' ', NULL},
-		{0x3a, NULL, NULL},//caps
-		{0x3b, NULL, NULL},//f1
-		{0x3c, NULL, NULL},//f2
-		{0x3d, NULL, NULL},//f3
-		{0x3e, NULL, NULL},//f4
-		{0x3f, NULL, NULL},//f5
-		{0x40, NULL, NULL},//f6
-		{0x41, NULL, NULL},//f7
-		{0x42, NULL, NULL},//f8
-		{0x43, NULL, NULL},//f9
-		{0x44, NULL, NULL},//f10
-		{0x45, NULL, NULL},//num
-		{0x46, NULL, NULL},//scroll
-		{0x47, '7', NULL},//keypad 7
-		{0x48, '8', NULL},//keypad 8
-		{0x49, '9', NULL},//keypad 9
-		{0x4a, '-', NULL},//keypad -
-		{0x4b, '4', NULL},//keypad 4
-		{0x4c, '5', NULL},//keypad 5
-		{0x4d, '6', NULL},//keypad 6
-		{0x4e, '+', NULL},//keypad +
-		{0x4f, '1', NULL},//keypad 1
-		{0x50, '2', NULL},//keypad 2
-		{0x51, '3', NULL},//keypad 3
-		{0x52, '0', NULL},//keypad 0
-		{0x53, '.', NULL},//keypad 0
-		{0x57, NULL, NULL},//f11
-		{0x58, NULL, NULL}//f12
+		{0x36, NOCHAR, NOCHAR},//right shift
+		{0x37, '*', NOCHAR},//keypad *
+		{0x38, NOCHAR, NOCHAR},//left alt
+		{0x39, ' ', NOCHAR},
+		{0x3a, NOCHAR, NOCHAR},//caps
+		{0x3b, NOCHAR, NOCHAR},//f1
+		{0x3c, NOCHAR, NOCHAR},//f2
+		{0x3d, NOCHAR, NOCHAR},//f3
+		{0x3e, NOCHAR, NOCHAR},//f4
+		{0x3f, NOCHAR, NOCHAR},//f5
+		{0x40, NOCHAR, NOCHAR},//f6
+		{0x41, NOCHAR, NOCHAR},//f7
+		{0x42, NOCHAR, NOCHAR},//f8
+		{0x43, NOCHAR, NOCHAR},//f9
+		{0x44, NOCHAR, NOCHAR},//f10
+		{0x45, NOCHAR, NOCHAR},//num
+		{0x46, NOCHAR, NOCHAR},//scroll
+		{0x47, '7', NOCHAR},//keypad 7
+		{0x48, '8', NOCHAR},//keypad 8
+		{0x49, '9', NOCHAR},//keypad 9
+		{0x4a, '-', NOCHAR},//keypad -
+		{0x4b, '4', NOCHAR},//keypad 4
+		{0x4c, '5', NOCHAR},//keypad 5
+		{0x4d, '6', NOCHAR},//keypad 6
+		{0x4e, '+', NOCHAR},//keypad +
+		{0x4f, '1', NOCHAR},//keypad 1
+		{0x50, '2', NOCHAR},//keypad 2
+		{0x51, '3', NOCHAR},//keypad 3
+		{0x52, '0', NOCHAR},//keypad 0
+		{0x53, '.', NOCHAR},//keypad 0
+		{0x57, NOCHAR, NOCHAR},//f11
+		{0x58, NOCHAR, NOCHAR}//f12
 	}
 };
 

@@ -1,5 +1,4 @@
 TODO:
-Distribuciones de teclado para poder usarlo tanto en el labo como en otras compus
 Timer tick que deberia ser facil
 Mover funciones comunes de kernel y userland a un modlo comun. Hay cada vez mas codigo repetido
 Encapsular bien las funciones de cada objeto con static, solo hacer publico lo que se necesita.

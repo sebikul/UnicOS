@@ -11,7 +11,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		printf("\techo  : Muestra un mensaje en pantalla.\n");
 		printf("\ttime  : Muestra o setea la hora del sistema en pantalla.\n");
 		printf("\tcolor : Cambia el color de lo que se va a imprimir en pantalla.\n");
-		printf("\keyboard : Setea la distribucion del teclado.\n");
+		printf("\tkeyboard : Setea la distribucion del teclado.\n");
 		printf("\tclear : Limpia la pantalla.\n");
 		printf("\texit  : Finaliza el programa.\n");
 

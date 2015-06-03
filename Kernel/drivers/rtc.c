@@ -2,7 +2,7 @@
 
 #include <rtc.h>
 #include <io.h>
-#include <syscalls.h>
+#include <types.h>
 #include <video.h>
 
 #define BCD_TO_INT(bcd) (((bcd / 16) * 10) + (bcd & 0xF))

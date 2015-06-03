@@ -1,5 +1,6 @@
 
 #include <stdarg.h>
+#include <types.h>
 #include <syscalls.h>
 #include <libc.h>
 
@@ -95,7 +96,7 @@ fmtparser:
 
 					int arg = va_arg(ap, int);
 
-					char* number = intToChar(arg);
+					char* number = itoc(arg);
 
 					int k = 0;
 
@@ -292,18 +293,18 @@ static uint8_t build_color_value(vga_color fg, vga_color bg) {
 
 }
 
-color_t getColor() {
+color_t get_color() {
 	return sys_get_color();
 }
 
-void setColor(vga_color fg, vga_color bg) {
+void set_color(vga_color fg, vga_color bg) {
 	color_t t = build_color_value(fg, bg);
 
 	sys_set_color(t);
 
 }
 //Verificado
-char* intToChar(int number) {
+char* itoc(int number) {
 
 	int i = 0;
 	int j = 0;
@@ -335,7 +336,7 @@ char* intToChar(int number) {
 
 }
 
-int charToInt(char* c) {
+int ctoi(char* c) {
 	int ans = 0;
 	int len = strlen(c);
 	for (int i = 0; i < len; i++)

@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "lib.h"
+#include <lib.h>
 
 static void* mallocBuffer = (void*)0x600000;
 

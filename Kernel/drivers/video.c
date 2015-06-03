@@ -1,7 +1,7 @@
 
 #include <video.h>
 #include <io.h>
-#include <syscalls.h>
+#include <types.h>
 
 int video_row = 0;
 int video_column = 0;

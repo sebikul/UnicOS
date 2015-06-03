@@ -2,16 +2,9 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <syscalls.h>
-
-#define NULL 0
-
-#define TRUE 1
-#define FALSE 0
+#include <types.h>
 
 #define KEYBOARD_BUFFER_SIZE 128
-
-typedef char bool;
 
 typedef struct {
 	char scancode;
