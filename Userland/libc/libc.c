@@ -283,22 +283,12 @@ time_t* time() {
 
 }
 
-/**
- *	Devuelve 8 bites, formato bgfg
- *	FIXME
- */
-static uint8_t build_color_value(vga_color fg, vga_color bg) {
-
-	return  (bg << 4) | fg;
-
-}
-
 color_t get_color() {
 	return sys_get_color();
 }
 
 void set_color(vga_color fg, vga_color bg) {
-	color_t t = build_color_value(fg, bg);
+	color_t t = BUILD_COLOR(fg, bg);
 
 	sys_set_color(t);
 

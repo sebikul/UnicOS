@@ -24,11 +24,11 @@ void video_initialize() {
 
 //todo static
 void video_reset_color() {
-	current_color = build_color_value(COLOR_WHITE, COLOR_BLACK);
+	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
 }
 
 void video_set_color(vga_color fg, vga_color bg) {
-	current_color = build_color_value(fg, bg);
+	current_color = BUILD_COLOR(fg, bg);
 }
 
 void video_set_full_color(color_t color) {
@@ -37,15 +37,6 @@ void video_set_full_color(color_t color) {
 
 color_t video_get_color() {
 	return current_color;
-}
-
-/**
- *	Devuelve 8 bites, formato bgfg
- */
-color_t build_color_value(vga_color fg, vga_color bg) {
-
-	return  (bg << 4) | fg;
-
 }
 
 uint16_t video_get_full_char_at(int row, int col) {
@@ -98,17 +89,6 @@ void video_clear_indexed_line(int index) {
 	video_clear_line(video_row + index);
 }
 
-/*//todo static
-void video_write_char_with_color(const char c, vga_color fg, vga_color bg) {
-
-	uint8_t color = build_color_value(fg, bg);
-
-	uint16_t scrpos = c | color << 8;
-
-	video_write_full_char(scrpos);
-
-}*/
-
 static void video_write_full_char(uint16_t c) {
 
 	video_write_full_char_at(c, video_row, video_column);
@@ -148,7 +128,6 @@ void video_write_char(const char c) {
 	video_write_full_char(c_16 | (color_16 << 8));
 }
 
-//todo static
 void video_write_string(const char * s) {
 
 	while (*s != 0) {
@@ -156,7 +135,6 @@ void video_write_string(const char * s) {
 		switch (*s) {
 		case '\n':
 			video_write_nl();
-			//video_write_prompt();
 			break;
 
 		case '\t':
@@ -169,18 +147,12 @@ void video_write_string(const char * s) {
 		}
 
 		s++;
-
-		// if (video_column == 0) {
-		// 	video_indent_line();
-		// }
-
 	}
 
 	video_update_cursor();
 
 }
 
-//todo static
 void video_write_nl() {
 
 	int line_start = (video_column == 0);
@@ -193,14 +165,8 @@ void video_write_nl() {
 
 }
 
-// void video_indent_line() {
-// 	video_write_string(" >  ");
-// }
-
 void video_write_line(const char * s) {
 
-	//video_write_prompt();
-	//
 	if (video_column != 0) {
 		video_write_nl();
 	}
@@ -210,28 +176,6 @@ void video_write_line(const char * s) {
 	video_write_nl();
 
 }
-
-// void video_write_prompt() {
-
-// 	if (video_column != 0) {
-// 		video_write_nl();
-// 	}
-
-// 	video_write_string(" root# ");
-// }
-
-// void video_write_pline(const char * s) {
-
-// 	if (video_column != 0) {
-// 		video_write_nl();
-// 	}
-
-// 	video_write_string(s);
-
-// 	video_write_nl();
-
-// }
-
 
 void video_scroll() {
 

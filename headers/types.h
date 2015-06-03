@@ -49,6 +49,10 @@ typedef struct {
 //todo moverlos a un .h separado. podemos hacer un types.h, etc.
 #define video_get_fg(color) (0x0F & color)
 #define video_get_bg(color) ((0xF0 & color) >> 4)
+
+//Devuelve 8 bites, formato bgfg
+#define BUILD_COLOR(fg,bg) (color_t)((bg << 4) | fg)
+
 typedef uint8_t color_t;
 
 typedef enum {

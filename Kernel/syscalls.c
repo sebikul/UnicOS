@@ -6,8 +6,6 @@
 #include <rtc.h>
 #include <lib.h>
 
-#define EOF 	-1
-
 void sys_rtc_time(time_t* t) {
 
 	rtc_get_time(t);
@@ -16,7 +14,7 @@ void sys_rtc_time(time_t* t) {
 
 void sys_write(FD fd, char* s, int len) {
 
-	uint16_t colorbk;
+	color_t colorbk;
 
 	switch (fd) {
 	case FD_STDOUT:
