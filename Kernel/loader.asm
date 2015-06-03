@@ -24,6 +24,7 @@ extern 		sys_keyboard_replace_buffer
 extern 		sys_get_color
 extern 		sys_set_color
 extern 		sys_kbd_set_distribution
+extern 		sys_set_background_timer
 
 loader:
 
@@ -132,8 +133,6 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi,	12
 		jz			int_sys_set_color
 
-		;set time
-
 		cmp 		rdi,	14
 		jz			int_sys_kbd_set_distribution
 
@@ -200,6 +199,12 @@ int_sys_kbd_set_distribution:
 		call 		prepare_params
 		call		sys_kbd_set_distribution
 		jmp 		soft_interrupt_done
+
+int_sys_set_background_timer:
+		call 		prepare_params
+		call		sys_set_background_timer
+		jmp 		soft_interrupt_done
+
 
 soft_interrupt_done:
 		push 		rax

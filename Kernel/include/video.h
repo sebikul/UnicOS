@@ -34,4 +34,6 @@ void video_write_hex(uint64_t value);
 void video_write_bin(uint64_t value);
 void video_write_base(uint64_t value, uint32_t base);
 
+void screensaver_reset_timer();
+
 #endif

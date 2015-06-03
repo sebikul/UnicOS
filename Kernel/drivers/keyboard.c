@@ -300,6 +300,8 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
+	screensaver_reset_timer();
+
 	if (dka_catched_len > 0) {
 
 		bool catched = FALSE;

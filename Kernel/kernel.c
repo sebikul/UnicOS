@@ -25,6 +25,10 @@ static const uint64_t PageSize = 0x1000;
 static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
+static uint64_t pit_timer = 0;
+uint64_t screensaver_wait_time = 10; //TODO
+uint64_t screensaver_timer;
+
 typedef int (*EntryPoint)();
 
 void load_kernel_modules();
@@ -73,6 +77,8 @@ void * initializeKernelBinary() {
 
 	video_write_line("[Done]");
 
+	screensaver_reset_timer();
+
 	video_write_line("Kernel cargado.");
 
 	return getStackBase();
@@ -80,15 +86,12 @@ void * initializeKernelBinary() {
 
 void load_kernel_modules() {
 
-	//video_write_pline("[Loading modules]");
-
 	void * moduleAddresses[] = {
 		shellCodeModuleAddress,
 		shellDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	//video_write_pline("[Done]");
 
 }
 
@@ -114,8 +117,18 @@ int main() {
 	return 0;
 }
 
+void screensaver_reset_timer() {
+	screensaver_timer = 18*screensaver_wait_time;
+}
+
 void irq0_handler() {
 
-	//video_write_line("PIT loco");
+	pit_timer++;
+	screensaver_timer--;
+
+	if (screensaver_timer == 0) {
+		video_write_line("Entrando al screensaver!");
+		screensaver_reset_timer();
+	}
 
 }
