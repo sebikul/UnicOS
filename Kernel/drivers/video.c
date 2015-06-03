@@ -328,6 +328,8 @@ void getCurrentColor(color_t * t){
 	t->backgroundColor=video_get_bg(video_get_color());
 }
 
+
+//El problema que hay con setColor es que cambia apartir del cursor para adelante.. el background tambien habria que ver is arreglar eso
 void setColor(color_t * t){
 	//hago la comparacion con 255 porque -1 es 255 en unsigned
 	if(t->fontColor == 255 && t->backgroundColor != 255){

@@ -35,18 +35,18 @@ void command_color(int argc , char** argv){
                 command_backcolor(color);
 
               }else{
-                printf("Comando invalido 1\n" );
+                printf("Comando invalido \n" );
 
               }
 
           }else{
-            printf("Comando invalido 2\n" );
+            printf("Comando invalido \n" );
           }
           break;
 
 
     default :
-      printf("Comando invalido 3\n" );
+      printf("Comando invalido \n" );
   }
 }
 
