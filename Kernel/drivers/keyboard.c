@@ -9,6 +9,8 @@
 extern int video_column;
 extern int video_row;
 
+extern bool screensaver_is_active;
+
 char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 
 int keyboard_wpos = 0;
@@ -19,13 +21,13 @@ static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 static bool read_eof = FALSE;
 
 static kstatus keyboard_status = {FALSE,//caps
-                           FALSE,//ctrl
-                           FALSE//alt
-                          };
+                                  FALSE,//ctrl
+                                  FALSE//alt
+                                 };
 #define NOCHAR (char)0
 
 scancode keyboard_scancodes[][256] = {
-	{//USA
+	{	//USA
 		{0x00 , NOCHAR, NOCHAR}, //empty,
 		{0x01 , NOCHAR, NOCHAR}, //esc
 		{0x02 , '1', '!'},
@@ -101,9 +103,9 @@ scancode keyboard_scancodes[][256] = {
 		{0x48, '8', NOCHAR},//keypad 8
 		{0x49, '9', NOCHAR},//keypad 9
 		{0x4a, '-', NOCHAR},//keypad -
-		{0x4b, '4', NOCHAR},//keypad 4
+		{0x4b, NOCHAR, NOCHAR},//keypad 4
 		{0x4c, '5', NOCHAR},//keypad 5
-		{0x4d, '6', NOCHAR},//keypad 6
+		{0x4d, NOCHAR, NOCHAR},//keypad 6
 		{0x4e, '+', NOCHAR},//keypad +
 		{0x4f, '1', NOCHAR},//keypad 1
 		{0x50, '2', NOCHAR},//keypad 2
@@ -113,7 +115,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x57, NOCHAR, NOCHAR},//f11
 		{0x58, NOCHAR, NOCHAR}//f12
 	},
-	{//LATIN
+	{	//LATIN
 		{0x00 , NOCHAR, NOCHAR}, //empty,
 		{0x01 , NOCHAR, NOCHAR}, //esc
 		{0x02 , '1', '!'},
@@ -299,7 +301,11 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
-	screensaver_reset_timer();
+	if (screensaver_is_active) {
+		screensaver_reset_timer();
+		return;
+	}
+
 
 	if (dka_catched_len > 0) {
 
@@ -399,6 +405,6 @@ void keyboard_catch(uint64_t scancode, dka_handler handler) {
 
 }
 
-void keyboard_set_distribution(keyboard_distrib d){
-	keyboard_distribution=d;
+void keyboard_set_distribution(keyboard_distrib d) {
+	keyboard_distribution = d;
 }

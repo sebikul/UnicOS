@@ -255,11 +255,11 @@ void video_trigger_backup() {
 
 void video_trigger_restore() {
 
-	video_write_line("Restaurando pantalla.");
-
 	video_row = screensaver_backup.row;
 	video_column = screensaver_backup.column;
 	current_color = screensaver_backup.color;
+
+	
 
 	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
 		SCREEN_START[i] = screensaver_backup.screen[i];
@@ -269,6 +269,8 @@ void video_trigger_restore() {
 }
 
 void video_trigger_screensaver() {
+
+	video_trigger_backup();
 
 	video_clear_screen();
 	video_write_nl();
