@@ -35,6 +35,8 @@ char* intToChar(int number) ;
 
 color_t* getColor();
 
+void setColor();
+
 time_t* time();
 
 int strcmp(const char* s1, const char* s2);

@@ -18,7 +18,8 @@ extern 		sys_free
 extern 		sys_keyboard_catch
 extern 		sys_clear_indexed_line
 extern 		sys_keyboard_replace_buffer
-extern 		sys_color
+extern 		sys_get_color
+extern 		sys_set_color
 
 loader:
 
@@ -125,7 +126,10 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		jz 			int_keyboard_replace_buffer
 
 		cmp			rdi,	11
-		jz			int_sys_color
+		jz			int_sys_get_color
+
+		cmp 		rdi,	12
+		jz			int_sys_set_color
 
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
@@ -161,9 +165,12 @@ int_keyboard_replace_buffer:
 		call 		sys_keyboard_replace_buffer_handler
 		jmp 		soft_interrupt_done
 
-int_sys_color:
-		call 		sys_color_handler
+int_sys_get_color:
+		call 		sys_color_get_handler
 		jmp			soft_interrupt_done
+int_sys_set_color:
+		call 		sys_color_set_handler
+		jmp 		soft_interrupt_done
 
 soft_interrupt_done:
 		push 		rax
@@ -248,9 +255,14 @@ sys_keyboard_replace_buffer_handler:
 		call 		sys_keyboard_replace_buffer
 		ret
 
-sys_color_handler:
+sys_color_get_handler:
 		call 		prepare_params
-		call		sys_color
+		call		sys_get_color
+		ret
+
+sys_color_set_handler:
+		call 		prepare_params
+		call		sys_set_color
 		ret
 
 init_pic:

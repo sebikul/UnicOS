@@ -89,9 +89,12 @@ void sys_keyboard_replace_buffer(char* s){
 	keyboard_replace_last_written(s);
 }
 
-void sys_color(color_t* t){
-	if(t->set == 0)
+void sys_get_color(color_t* t){
+
 		getCurrentColor(t);
-	else
+
+}
+
+void sys_set_color(color_t* t){
 		setColor(t);
 }
