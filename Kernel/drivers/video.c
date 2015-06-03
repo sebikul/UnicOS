@@ -22,6 +22,16 @@ void video_initialize() {
 
 }
 
+static void video_update_screen_color() {
+
+	char c;
+
+	for (int c = 1; c < SCREEN_HEIGHT * SCREEN_WIDTH * 2; c += 2) {
+		((uint8_t*)SCREEN_START)[c] = current_color;
+	}
+
+}
+
 //todo static
 void video_reset_color() {
 	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
@@ -33,6 +43,7 @@ void video_set_color(vga_color fg, vga_color bg) {
 
 void video_set_full_color(color_t color) {
 	current_color = color;
+	video_update_screen_color();
 }
 
 color_t video_get_color() {
