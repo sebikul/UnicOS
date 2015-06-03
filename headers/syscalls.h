@@ -14,13 +14,19 @@
 #define SYSCALL_VIDEO_CLR_INDEXED_LINE 		9
 #define SYSCALL_KEYBOARD_REPLACE_BUFFER		10
 #define SYSCALL_COLOR											11
+#define SYSCALL_SET_COLOR									12
+#define SYSCALL_SET_TIME									13
+
+
 
 enum FD{
 	FD_STDERR,
 	FD_STDOUT
 };
 
+
 typedef struct {
+	int set;
 	uint8_t hour;
 	uint8_t minute;
 	uint8_t second;
@@ -31,6 +37,7 @@ typedef struct {
 
 
 typedef struct {
+	int set;
 	uint8_t fontColor;
 	uint8_t	backgroundColor;
 } color_t;

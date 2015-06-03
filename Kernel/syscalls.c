@@ -90,5 +90,8 @@ void sys_keyboard_replace_buffer(char* s){
 }
 
 void sys_color(color_t* t){
-	getCurrentColor(t);
+	if(t->set == 0)
+		getCurrentColor(t);
+	else
+		setColor(t);
 }

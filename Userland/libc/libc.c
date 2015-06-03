@@ -284,12 +284,20 @@ time_t* time() {
 
 color_t* getColor(){
 	color_t* t = (color_t*)calloc(sizeof(color_t));
-
+	t->set = 0;
 	sys_color(t);
 
 	return t;
 }
 
+void setColor(int fontColor, int backgroundColor){
+	color_t* t = (color_t*)calloc(sizeof(color_t));
+	t->set = 1;
+	t->fontColor = (uint8_t) fontColor;
+	t->backgroundColor = (uint8_t) backgroundColor;
+	sys_color(t);
+
+}
 //Verificado
 char* intToChar(int number) {
 

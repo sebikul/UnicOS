@@ -25,9 +25,9 @@ static void command_echo_usage() {
 
 }
 
-void command_backcolor(int color) {
+//void command_backcolor(int color) {
 
-	printf("\n");
+//	printf("\n");
 	/*if(color invalido){
 		return;
 		}
@@ -37,21 +37,21 @@ void command_backcolor(int color) {
 	//para poder llamar a las funciones de kernel que permiten cambiar colores
 
 	//por ejemplo nose la interrupcion 55 recibe un parametro que es el numero de color y llama a la funcion set_bkg_color
-	printf("Color cambiado");
+//	printf("Color cambiado");
 
-}
-void command_fontcolor(int color) {
+//}
+//void command_fontcolor(int color) {
 
-	printf("\n");
+	//printf("\n");
 	/*if(color invalido){
 		return;
 		}
 	*/
 
 	//idem fc anterior
-	printf("Color cambiado");
+//	printf("Color cambiado");
 
-}
+//}
 void command_exit() {
 
 	printf("\n");

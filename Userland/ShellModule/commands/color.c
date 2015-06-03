@@ -16,35 +16,37 @@ void command_color(int argc , char** argv){
             break;
 
     case 4:
-            //un enum con los colores?
+            //ASK: el usuario deberia ingresar por nombre de color o por numero?
             color = charToInt(argv[3]);
+            if(color>15 || color<0)
+              break;
             //tendria que checkear que los colores esten bien
-            if(strcmp(argv[1],"set")){
+            if(strcmp(argv[1],"set")==0){
               //verificando que el segundo comando es set
 
               if(strcmp(argv[2],"font")==0){
                 //cambio de color del font
 
-                //command_fontcolor(color);
+                command_fontcolor(color);
 
 
               }else if(strcmp(argv[2],"background")==0){
               //cambio de color del fondo
-                //command_backcolor(color);
+                command_backcolor(color);
 
               }else{
-                printf("Comando invalido\n" );
+                printf("Comando invalido 1\n" );
 
               }
 
           }else{
-            printf("Comando invalido\n" );
+            printf("Comando invalido 2\n" );
           }
           break;
 
 
     default :
-      printf("Comando invalido\n" );
+      printf("Comando invalido 3\n" );
   }
 }
 
@@ -121,12 +123,13 @@ void printColorInChar(int color){
   }
 }
 
-//void command_fontcolor(int color){
+void command_fontcolor(int color){
   //setea color del font
+  setColor(color,-1);
 
+}
 
-//}
-
-//void command_backcolor(int color){
+void command_backcolor(int color){
   //setea color del fondo
-//}
+  setColor(-1,color);
+}

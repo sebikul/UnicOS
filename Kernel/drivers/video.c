@@ -327,3 +327,14 @@ void getCurrentColor(color_t * t){
 	t->fontColor=video_get_fg(video_get_color());
 	t->backgroundColor=video_get_bg(video_get_color());
 }
+
+void setColor(color_t * t){
+	//hago la comparacion con 255 porque -1 es 255 en unsigned
+	if(t->fontColor == 255 && t->backgroundColor != 255){
+		//cambia background
+		video_set_color(video_get_fg(video_get_color()),t->backgroundColor);
+	}else if(t->fontColor != 255 && t->backgroundColor == 255){
+		//cambia fontColor
+		video_set_color(t->fontColor,video_get_bg(video_get_color()));
+	}
+}
