@@ -45,10 +45,10 @@ void sys_keyboard_replace_buffer(char* s){
 	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER,(uint64_t)s);
 }
 
-void sys_get_color(color_t *t){
-	syscall((uint64_t)SYSCALL_GET_COLOR,(uint64_t)t);
+color_t sys_get_color(){
+	return (color_t)syscall((uint64_t)SYSCALL_GET_COLOR);
 }
 
-void sys_set_color(color_t * t){
+void sys_set_color(color_t t){
 	syscall((uint64_t)SYSCALL_SET_COLOR,(uint64_t)t);
 }

@@ -81,20 +81,18 @@ void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 	keyboard_catch(scancode, handler);
 }
 
-void sys_clear_indexed_line(int index){
+void sys_clear_indexed_line(int index) {
 	video_clear_indexed_line(index);
 }
 
-void sys_keyboard_replace_buffer(char* s){
+void sys_keyboard_replace_buffer(char* s) {
 	keyboard_replace_last_written(s);
 }
 
-void sys_get_color(color_t* t){
-
-		getCurrentColor(t);
-
+color_t sys_get_color() {
+	return video_get_color();
 }
 
-void sys_set_color(color_t* t){
-		setColor(t);
+void sys_set_color(color_t t) {
+	video_set_full_color(t);
 }

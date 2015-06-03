@@ -9,6 +9,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define NULL (void*)0
+
 #define MAX_PRINTF_LEN 1024
 
 typedef char bool;
@@ -32,10 +34,11 @@ int getchar();
 int scanf(char* c, int len);
 
 char* intToChar(int number) ;
+int charToInt(char* c);
 
-color_t* getColor();
+color_t getColor();
 
-void setColor();
+void setColor(vga_color fg, vga_color bg);
 
 time_t* time();
 

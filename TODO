@@ -1,51 +1,8 @@
 TODO:
-
-*Complete TODO section..
-
-
-Kernel
-iretq !!!!!!!!!!!!!!!!!!!	
-
-
-Interprete de comandos: que demuestren el funcionamiento del kernel. Deberá
-tomar dichos comandos por entrada estándar y mostrar el resultado de la
-ejecución por salida estándar. El interprete deberá interactuar con el sistema
-mediante un modelo de terminal.
-● Funciones:
-○ Una función que permita visualizar la hora del sistema.
-○ Una función que permita cambiar la hora del sistema.
-○ Una función de ayuda, que muestre los distintos programas disponibles.
-
-	Drivers
-		Video
-			finishLine...
-
-			console handler...
-
-		Keyboard
-			getKey...
-
-	IDT
-		software
-			syscall handler -& validator- (generic-super case)
-
-		hardware
-			syscall keyboard
-			syscall RTC
-
-
-
-
-
-User
-	write
-		printf putc
-
-	read
-		scanf getc
-
-
-
+Distribuciones de teclado para poder usarlo tanto en el labo como en otras compus
+Timer tick que deberia ser facil
+Mover funciones comunes de kernel y userland a un modlo comun. Hay cada vez mas codigo repetido
+Encapsular bien las funciones de cada objeto con static, solo hacer publico lo que se necesita.
 
 
 

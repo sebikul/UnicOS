@@ -11,32 +11,12 @@
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
 
-typedef enum{
-	COLOR_BLACK = 0,
-	COLOR_BLUE = 1,
-	COLOR_GREEN = 2,
-	COLOR_CYAN = 3,
-	COLOR_RED = 4,
-	COLOR_MAGENTA = 5,
-	COLOR_BROWN = 6,
-	COLOR_LIGHT_GREY = 7,
-	COLOR_DARK_GREY = 8,
-	COLOR_LIGHT_BLUE = 9,
-	COLOR_LIGHT_GREEN = 10,
-	COLOR_LIGHT_CYAN = 11,
-	COLOR_LIGHT_RED = 12,
-	COLOR_LIGHT_MAGENTA = 13,
-	COLOR_LIGHT_BROWN = 14,
-	COLOR_WHITE = 15,
-} vga_color;
-
-
 void video_initialize();
 void video_reset_color();
-uint16_t video_get_color();
-void video_set_full_color(uint16_t color);
+color_t video_get_color();
+void video_set_full_color(color_t color);
 void video_set_color(vga_color fg, vga_color bg);
-uint8_t build_color_value(vga_color fg, vga_color bg);
+color_t build_color_value(vga_color fg, vga_color bg);
 uint16_t video_get_full_char_at(int row, int col);
 void video_write_full_char_at(uint16_t c, int row, int col);
 void video_write_char_at(const char c, int row, int col);
@@ -57,6 +37,5 @@ void video_write_dec(uint64_t value);
 void video_write_hex(uint64_t value);
 void video_write_bin(uint64_t value);
 void video_write_base(uint64_t value, uint32_t base);
-void getCurrentColor(color_t * t);
 
 #endif

@@ -282,17 +282,23 @@ time_t* time() {
 
 }
 
-color_t* getColor(){
-	color_t* t = (color_t*)calloc(sizeof(color_t));
-	sys_get_color(t);
+/**
+ *	Devuelve 8 bites, formato bgfg
+ *	FIXME
+ */
+static uint8_t build_color_value(vga_color fg, vga_color bg) {
 
-	return t;
+	return  (bg << 4) | fg;
+
 }
 
-void setColor(int fontColor, int backgroundColor){
-	color_t* t = (color_t*)calloc(sizeof(color_t));
-	t->fontColor = (uint8_t) fontColor;
-	t->backgroundColor = (uint8_t) backgroundColor;
+color_t getColor() {
+	return sys_get_color();
+}
+
+void setColor(vga_color fg, vga_color bg) {
+	color_t t = build_color_value(fg, bg);
+
 	sys_set_color(t);
 
 }
@@ -329,12 +335,12 @@ char* intToChar(int number) {
 
 }
 
-int charToInt(char* c){
-	int ans=0;
-	int len=strlen(c);
+int charToInt(char* c) {
+	int ans = 0;
+	int len = strlen(c);
 	for (int i = 0; i < len; i++)
 	{
-		ans=ans*10+c[i]-'0';
+		ans = ans * 10 + c[i] - '0';
 	}
 	return ans;
 }

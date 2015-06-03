@@ -29,6 +29,8 @@ void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
 
 void command_dispatcher(char* command);
+static void initialize_command_list();
+static void calloc_cmd(int i, char* str);
 
 int main() {
 
@@ -251,7 +253,7 @@ void keyboard_downarrow_handler(uint64_t s) {
 
 }
 
-void initialize_command_list() {
+static void initialize_command_list() {
 	cmd_list = calloc(cmd_count * sizeof(char*));
 	calloc_cmd(0, "echo");
 	calloc_cmd(1, "help");
@@ -262,7 +264,7 @@ void initialize_command_list() {
 
 }
 
-void calloc_cmd(int i, char* str) {
+static void calloc_cmd(int i, char* str) {
 	int len = strlen(str);
 	cmd_list[i] = calloc(len * sizeof(char));
 	strcpy(cmd_list[i],str);

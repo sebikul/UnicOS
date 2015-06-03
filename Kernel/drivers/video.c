@@ -1,16 +1,13 @@
 
-#include "video.h"
-#include "naiveConsole.h"
-#include "io.h"
-
-#define video_get_fg(color) (0x0F & color)
-#define video_get_bg(color) ((0xF0 & color) >> 4)
+#include <video.h>
+#include <io.h>
+#include <syscalls.h>
 
 int video_row = 0;
 int video_column = 0;
 static char buffer[128] = { 0 };
 
-static uint8_t current_color = 0;
+static color_t current_color = 0;
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
@@ -34,18 +31,18 @@ void video_set_color(vga_color fg, vga_color bg) {
 	current_color = build_color_value(fg, bg);
 }
 
-void video_set_full_color(uint16_t color) {
+void video_set_full_color(color_t color) {
 	current_color = color;
 }
 
-uint16_t video_get_color() {
+color_t video_get_color() {
 	return current_color;
 }
 
 /**
  *	Devuelve 8 bites, formato bgfg
  */
-uint8_t build_color_value(vga_color fg, vga_color bg) {
+color_t build_color_value(vga_color fg, vga_color bg) {
 
 	return  (bg << 4) | fg;
 
@@ -321,22 +318,4 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
 	}
 
 	return digits;
-}
-
-void getCurrentColor(color_t * t){
-	t->fontColor=video_get_fg(video_get_color());
-	t->backgroundColor=video_get_bg(video_get_color());
-}
-
-
-//El problema que hay con setColor es que cambia apartir del cursor para adelante.. el background tambien habria que ver is arreglar eso
-void setColor(color_t * t){
-	//hago la comparacion con 255 porque -1 es 255 en unsigned
-	if(t->fontColor == 255 && t->backgroundColor != 255){
-		//cambia background
-		video_set_color(video_get_fg(video_get_color()),t->backgroundColor);
-	}else if(t->fontColor != 255 && t->backgroundColor == 255){
-		//cambia fontColor
-		video_set_color(t->fontColor,video_get_bg(video_get_color()));
-	}
 }
