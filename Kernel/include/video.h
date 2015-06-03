@@ -27,6 +27,7 @@ void video_write_line(const char * s);
 void video_scroll();
 void video_update_cursor();
 void video_clear_indexed_line(int index);
+void video_update_screen_color();
 
 void video_write_dec(uint64_t value);
 void video_write_hex(uint64_t value);
