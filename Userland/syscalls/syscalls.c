@@ -16,10 +16,12 @@ int sys_read(FD fd, char* s, int len) {
 
 }
 
-void sys_rtc_time(time_t* t) {
-
+void sys_rtc_get(time_t* t) {
 	syscall((uint64_t)SYSCALL_RTC, (uint64_t)t);
+}
 
+void sys_rtc_set(time_t* t) {
+	syscall((uint64_t)SYSCALL_RTC_SET, (uint64_t)t);
 }
 
 void* sys_malloc(int len) {

@@ -6,10 +6,12 @@
 #include <rtc.h>
 #include <lib.h>
 
-void sys_rtc_time(time_t* t) {
-
+void sys_rtc_get(time_t* t) {
 	rtc_get_time(t);
+}
 
+void sys_rtc_set(time_t* t) {
+	rtc_set_time(t);
 }
 
 void sys_write(FD fd, char* s, int len) {

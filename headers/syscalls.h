@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include <types.h>
 
-#define SYSCALL_RTC							2
+#define SYSCALL_RTC							1
+#define SYSCALL_RTC_SET						2
 #define SYSCALL_READ						3
 #define SYSCALL_WRITE						4
 #define SYSCALL_MALLOC						5
@@ -21,7 +22,8 @@
 
 void sys_write(FD fd, char* s, int len);
 int sys_read(FD fd, char* s, int len);
-void sys_rtc_time(time_t* t) ;
+void sys_rtc_get(time_t* t);
+void sys_rtc_set(time_t* t);
 void* sys_malloc(int len);
 void* sys_calloc(int len);
 void sys_free(void* m);

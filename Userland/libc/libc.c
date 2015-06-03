@@ -4,9 +4,6 @@
 #include <syscalls.h>
 #include <libc.h>
 
-
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
-
 void* malloc(int len) {
 
 	return sys_malloc(len);
@@ -277,7 +274,7 @@ time_t* time() {
 
 	time_t* t = (time_t*)calloc(sizeof(time_t));
 
-	sys_rtc_time(t);
+	sys_rtc_get(t);
 
 	return t;
 
@@ -336,68 +333,37 @@ int ctoi(char* c) {
 	return ans;
 }
 
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
-	char *p = buffer;
-	char *p1, *p2;
-	uint32_t digits = 0;
-
-	//Calculate characters for each digit
-	do
-	{
-		uint32_t remainder = value % base;
-		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
-		digits++;
-	}
-	while (value /= base);
-
-	// Terminate string in buffer.
-	*p = 0;
-
-	//Reverse string in buffer.
-	p1 = buffer;
-	p2 = p - 1;
-	while (p1 < p2)
-	{
-		char tmp = *p1;
-		*p1 = *p2;
-		*p2 = tmp;
-		p1++;
-		p2--;
-	}
-
-	return digits;
-}
 
 
-static int pow(int base, int ex) {
+// static int pow(int base, int ex) {
 
-	if (ex < 0) {
-		return 1 / 0;
-	}
+// 	if (ex < 0) {
+// 		return 1 / 0;
+// 	}
 
-	if (ex == 0) {
-		return 1;
-	}
+// 	if (ex == 0) {
+// 		return 1;
+// 	}
 
 
-	return base * pow(base, ex - 1);
-}
+// 	return base * pow(base, ex - 1);
+// }
 
-static int decfrombase(int entrada, int base) {
+// static int decfrombase(int entrada, int base) {
 
-	int decimal = 0, i = 0;
+// 	int decimal = 0, i = 0;
 
-	while (entrada != 0) {
+// 	while (entrada != 0) {
 
-		decimal += (entrada % 10) * pow(base, i++);
+// 		decimal += (entrada % 10) * pow(base, i++);
 
-		entrada /= 10;
+// 		entrada /= 10;
 
-	}
+// 	}
 
-	return decimal;
+// 	return decimal;
 
-}
+// }
 
 void * memset(void * destiation, int32_t c, uint64_t length) {
 	uint8_t chr = (uint8_t)c;

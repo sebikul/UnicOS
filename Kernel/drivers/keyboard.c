@@ -320,7 +320,7 @@ void keyboard_irq_handler(uint64_t s) {
 
 	scancode t = keyboard_scancodes[keyboard_distribution][s];
 
-	if (t.ascii == NULL) {
+	if (t.ascii == NOCHAR) {
 
 		switch (s) {
 		case 0x3a://caps

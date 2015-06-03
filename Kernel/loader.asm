@@ -12,7 +12,8 @@ extern 		keyboard_irq_handler
 ;SYSCALLS
 extern 		sys_write
 extern 		sys_read
-extern 		sys_rtc_time
+extern 		sys_rtc_get
+extern 		sys_rtc_set
 extern 		sys_malloc
 extern 		sys_calloc
 extern 		sys_free
@@ -90,8 +91,11 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		push 		rdi
 		;push 		rax
 
-		cmp 		rdi,	2
+		cmp 		rdi,	1
 		jz			int_sys_rtc
+
+		cmp 		rdi,	2
+		jz			int_sys_rtc_set
 
 		cmp			rdi, 	3
 		jz 			int_sys_read
@@ -132,8 +136,14 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 int_sys_rtc:
 		call 		prepare_params
-		call 		sys_rtc_time
+		call 		sys_rtc_get
 		jmp			soft_interrupt_done
+
+int_sys_rtc_set
+		call 		prepare_params
+		call 		sys_rtc_set
+		jmp 		soft_interrupt_done
+
 int_sys_write:
 		call 		prepare_params
 		call 		sys_write
