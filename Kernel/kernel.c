@@ -28,7 +28,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 static uint64_t pit_timer = 0;
 uint64_t screensaver_wait_time = 5; //TODO
-uint64_t screensaver_timer;
+uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
 typedef int (*EntryPoint)();
@@ -121,12 +121,12 @@ int main() {
 
 void screensaver_reset_timer() {
 	if (screensaver_is_active) {
-		video_write_line("Restaurando pantalla.");
 		video_trigger_restore();
 		screensaver_is_active = FALSE;
-	} else {
-		screensaver_timer = 18 * screensaver_wait_time;
+
 	}
+	screensaver_timer = 18 * screensaver_wait_time;
+
 }
 
 void irq0_handler() {
