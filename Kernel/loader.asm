@@ -8,6 +8,7 @@ extern 		initializeKernelBinary
 extern		video_write_line
 extern 		video_write_nl
 extern 		keyboard_irq_handler
+extern 		irq0_handler
 
 ;SYSCALLS
 extern 		sys_write
@@ -80,6 +81,10 @@ set_interrupt_handlers:
 
 		mov 		rdi, 	0x21				; Set up Keyboard handler
 		mov 		rax,	keyboard
+		call 		create_gate
+
+		mov 		rdi, 	0x20				; Set up Keyboard handler
+		mov 		rax,	pit_handler
 		call 		create_gate
 
 		lidt 		[IDTR64]					; load IDT register
@@ -213,6 +218,18 @@ prepare_params:
 
 		ret
 
+pit_handler:
+		push 		rdi
+		push 		rax
+
+		call 		irq0_handler
+
+		mov			al, 	0x20				; Acknowledge the IRQ
+		out 		0x20, 	al
+
+		pop 		rax
+		pop 		rdi
+		iretq
 
 align 16
 keyboard:
@@ -237,7 +254,7 @@ keyboard_done:
 init_pic:
 	; Enable specific interrupts
 	in al, 0x21
-	mov al, 11111001b		; Enable Cascade, Keyboard
+	mov al, 11111000b		; Enable Cascade, Keyboard
 	out 0x21, al
 
 	sti				; Enable interrupts

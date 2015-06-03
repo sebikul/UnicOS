@@ -113,3 +113,9 @@ int main() {
 
 	return 0;
 }
+
+void irq0_handler() {
+
+	//video_write_line("PIT loco");
+
+}
