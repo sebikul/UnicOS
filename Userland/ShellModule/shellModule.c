@@ -23,7 +23,7 @@ static int max_history = 0;
 
 static int cmd_count = 6;
 char** cmd_list;
-bool exit_flag=FALSE;
+bool exit_flag = FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
@@ -168,14 +168,13 @@ void command_dispatcher(char* command) {
 	switch (cmd) {
 
 	case 0: //echo
-		printf("\nEjecutando echo...\n");
 		command_echo(argc, argv);
 		break;
 
 	case 1: //help
-	//el cmd_count es medio feo, pero
-	//sino hay que hacer una funcion generica
-	//que cuente elementos y es eso o 1 param mas
+		//el cmd_count es medio feo, pero
+		//sino hay que hacer una funcion generica
+		//que cuente elementos y es eso o 1 param mas
 
 		command_help(argc, argv, cmd_list, cmd_count);
 		break;
@@ -186,17 +185,21 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 3: //color
-		command_color(argc,argv);
+		command_color(argc, argv);
 		break;
 
-	case 4: //exit
+	case 4:
+		command_set_distribution(argc, argv);
+		break;
+
+	case 5: //exit
 
 		//habria que inhabilitar el buffer o algo o nose si se puede cerrar QEMU
-		exit_flag=TRUE;
+		exit_flag = TRUE;
 		command_exit();
 		break;
 
-	case 5: //clear
+	case 6: //clear
 
 		//command_clean();
 		break;
@@ -205,7 +208,7 @@ void command_dispatcher(char* command) {
 
 	default:
 
-		printf("\nComando no encontrado.");
+		printf("Comando no encontrado.");
 	}
 
 }
@@ -259,14 +262,15 @@ static void initialize_command_list() {
 	calloc_cmd(1, "help");
 	calloc_cmd(2, "time");
 	calloc_cmd(3, "color");
-	calloc_cmd(4, "exit");
-	calloc_cmd(5, "clear");
+	calloc_cmd(4, "keyboard");
+	calloc_cmd(5, "exit");
+	calloc_cmd(6, "clear");
 
 }
 
 static void calloc_cmd(int i, char* str) {
 	int len = strlen(str);
 	cmd_list[i] = calloc(len * sizeof(char));
-	strcpy(cmd_list[i],str);
+	strcpy(cmd_list[i], str);
 
 }

@@ -16,6 +16,7 @@
 #define SYSCALL_GET_COLOR					11
 #define SYSCALL_SET_COLOR					12
 #define SYSCALL_SET_TIME					13
+#define SYSCALL_SET_KBD_DISTRIBUTION		14
 
 
 //todo moverlos a un .h separado. podemos hacer un types.h, etc.
@@ -57,6 +58,11 @@ typedef struct {
 
 typedef uint8_t color_t;
 
+typedef enum {
+	KEYBOARD_USA,
+	KEYBOARD_LATIN
+} keyboard_distrib;
+
 typedef void (*dka_handler)(uint64_t s);
 
 void sys_write(FD fd, char* s, int len);
@@ -70,5 +76,6 @@ void sys_clear_indexed_line(int index);
 void sys_keyboard_replace_buffer(char* s);
 void sys_set_color(color_t t);
 color_t sys_get_color();
+void sys_kbd_set_distribution(keyboard_distrib d);
 
 #endif

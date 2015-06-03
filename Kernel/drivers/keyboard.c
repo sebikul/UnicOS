@@ -15,6 +15,8 @@ char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 int keyboard_wpos = 0;
 int keyboard_written = 0;
 
+keyboard_distrib keyboard_distribution = KEYBOARD_USA;
+
 static bool read_eof = FALSE;
 
 kstatus keyboard_status = {FALSE,//caps
@@ -22,93 +24,186 @@ kstatus keyboard_status = {FALSE,//caps
                            FALSE//alt
                           };
 
-scancode keyboard_scancodes[256] = {
-	{0x00 , NULL}, //empty,
-	{0x01 , NULL}, //esc
-	{0x02 , '1'},
-	{0x03 , '2'},
-	{0x04 , '3'},
-	{0x05 , '4'},
-	{0x06 , '5'},
-	{0x07 , '6'},
-	{0x08 , '7'},
-	{0x09 , '8'},
-	{0x0A , '9'},
-	{0x0B , '0'},
-	{0x0C , '-'},
-	{0x0D , '='},
-	{0x0E , NULL}, //backspace
-	{0x0F , NULL}, //tab
-	{0x10 , 'q'},
-	{0x11, 'w'},
-	{0x12, 'e'},
-	{0x13, 'r'},
-	{0x14, 't'},
-	{0x15, 'y'},
-	{0x16, 'u'},
-	{0x17, 'i'},
-	{0x18, 'o'},
-	{0x19, 'p'},
-	{0x1a, '['},
-	{0x1b, ']'},
-	{0x1c, NULL},//enter
-	{0x1d, NULL},//left ctrl
-	{0x1e, 'a'},
-	{0x1f, 's'},
-	{0x20, 'd'},
-	{0x21, 'f'},
-	{0x22, 'g'},
-	{0x23, 'h'},
-	{0x24, 'j'},
-	{0x25, 'k'},
-	{0x26, 'l'},
-	{0x27, ';'},
-	{0x28, '\''},
-	{0x29, '`'},
-	{0x2a, NULL},//left shift
-	{0x2b, '\\'},
-	{0x2c, 'z'},
-	{0x2d, 'x'},
-	{0x2e, 'c'},
-	{0x2f, 'v'},
-	{0x30, 'b'},
-	{0x31, 'n'},
-	{0x32, 'm'},
-	{0x33, ','},
-	{0x34, '.'},
-	{0x35, '/'},
-	{0x36, NULL},//right shift
-	{0x37, '*'},//keypad *
-	{0x38, NULL},//left alt
-	{0x39, ' '},
-	{0x3a, NULL},//caps
-	{0x3b, NULL},//f1
-	{0x3c, NULL},//f2
-	{0x3d, NULL},//f3
-	{0x3e, NULL},//f4
-	{0x3f, NULL},//f5
-	{0x40, NULL},//f6
-	{0x41, NULL},//f7
-	{0x42, NULL},//f8
-	{0x43, NULL},//f9
-	{0x44, NULL},//f10
-	{0x45, NULL},//num
-	{0x46, NULL},//scroll
-	{0x47, '7'},//keypad 7
-	{0x48, '8'},//keypad 8
-	{0x49, '9'},//keypad 9
-	{0x4a, '-'},//keypad -
-	{0x4b, '4'},//keypad 4
-	{0x4c, '5'},//keypad 5
-	{0x4d, '6'},//keypad 6
-	{0x4e, '+'},//keypad +
-	{0x4f, '1'},//keypad 1
-	{0x50, '2'},//keypad 2
-	{0x51, '3'},//keypad 3
-	{0x52, '0'},//keypad 0
-	{0x53, '.'},//keypad 0
-	{0x57, NULL},//f11
-	{0x58, NULL}//f12
+
+
+
+scancode keyboard_scancodes[][256] = {
+	{//USA
+		{0x00 , NULL, NULL}, //empty,
+		{0x01 , NULL, NULL}, //esc
+		{0x02 , '1', '!'},
+		{0x03 , '2', '@'},
+		{0x04 , '3', '#'},
+		{0x05 , '4', '$'},
+		{0x06 , '5', '%'},
+		{0x07 , '6', '^'},
+		{0x08 , '7', '&'},
+		{0x09 , '8', '*'},
+		{0x0A , '9', '('},
+		{0x0B , '0', '"'},
+		{0x0C , '-', '_'},
+		{0x0D , '=', '+'},
+		{0x0E , NULL, NULL}, //backspace
+		{0x0F , NULL, NULL}, //tab
+		{0x10 , 'q', 'Q'},
+		{0x11, 'w', 'W'},
+		{0x12, 'e', 'E'},
+		{0x13, 'r', 'R'},
+		{0x14, 't', 'T'},
+		{0x15, 'y', 'Y'},
+		{0x16, 'u', 'U'},
+		{0x17, 'i', 'I'},
+		{0x18, 'o', 'O'},
+		{0x19, 'p', 'P'},
+		{0x1a, '[', '{'},
+		{0x1b, ']', '}'},
+		{0x1c, NULL, NULL},//enter
+		{0x1d, NULL, NULL},//left ctrl
+		{0x1e, 'a', 'A'},
+		{0x1f, 's', 'S'},
+		{0x20, 'd', 'D'},
+		{0x21, 'f', 'F'},
+		{0x22, 'g', 'G'},
+		{0x23, 'h', 'H'},
+		{0x24, 'j', 'J'},
+		{0x25, 'k', 'K'},
+		{0x26, 'l', 'L'},
+		{0x27, ';', ':'},
+		{0x28, '\'', '"'},
+		{0x29, '`', '~'},
+		{0x2a, NULL, NULL},//left shift
+		{0x2b, '\\', '|'},
+		{0x2c, 'z', 'Z'},
+		{0x2d, 'x', 'X'},
+		{0x2e, 'c', 'C'},
+		{0x2f, 'v', 'V'},
+		{0x30, 'b', 'B'},
+		{0x31, 'n', 'N'},
+		{0x32, 'm', 'M'},
+		{0x33, ',', '<'},
+		{0x34, '.', '>'},
+		{0x35, '/', '?'},
+		{0x36, NULL, NULL},//right shift
+		{0x37, '*', NULL},//keypad *
+		{0x38, NULL, NULL},//left alt
+		{0x39, ' ', NULL},
+		{0x3a, NULL, NULL},//caps
+		{0x3b, NULL, NULL},//f1
+		{0x3c, NULL, NULL},//f2
+		{0x3d, NULL, NULL},//f3
+		{0x3e, NULL, NULL},//f4
+		{0x3f, NULL, NULL},//f5
+		{0x40, NULL, NULL},//f6
+		{0x41, NULL, NULL},//f7
+		{0x42, NULL, NULL},//f8
+		{0x43, NULL, NULL},//f9
+		{0x44, NULL, NULL},//f10
+		{0x45, NULL, NULL},//num
+		{0x46, NULL, NULL},//scroll
+		{0x47, '7', NULL},//keypad 7
+		{0x48, '8', NULL},//keypad 8
+		{0x49, '9', NULL},//keypad 9
+		{0x4a, '-', NULL},//keypad -
+		{0x4b, '4', NULL},//keypad 4
+		{0x4c, '5', NULL},//keypad 5
+		{0x4d, '6', NULL},//keypad 6
+		{0x4e, '+', NULL},//keypad +
+		{0x4f, '1', NULL},//keypad 1
+		{0x50, '2', NULL},//keypad 2
+		{0x51, '3', NULL},//keypad 3
+		{0x52, '0', NULL},//keypad 0
+		{0x53, '.', NULL},//keypad 0
+		{0x57, NULL, NULL},//f11
+		{0x58, NULL, NULL}//f12
+	},
+	{//LATIN
+		{0x00 , NULL, NULL}, //empty,
+		{0x01 , NULL, NULL}, //esc
+		{0x02 , '1', '!'},
+		{0x03 , '2', '"'},
+		{0x04 , '3', '#'},
+		{0x05 , '4', '$'},
+		{0x06 , '5', '%'},
+		{0x07 , '6', '^'},
+		{0x08 , '7', '&'},
+		{0x09 , '8', '*'},
+		{0x0A , '9', '('},
+		{0x0B , '0', '"'},
+		{0x0C , '-', '_'},
+		{0x0D , '=', '+'},
+		{0x0E , NULL, NULL}, //backspace
+		{0x0F , NULL, NULL}, //tab
+		{0x10 , 'q', 'Q'},
+		{0x11, 'w', 'W'},
+		{0x12, 'e', 'E'},
+		{0x13, 'r', 'R'},
+		{0x14, 't', 'T'},
+		{0x15, 'y', 'Y'},
+		{0x16, 'u', 'U'},
+		{0x17, 'i', 'I'},
+		{0x18, 'o', 'O'},
+		{0x19, 'p', 'P'},
+		{0x1a, '[', '{'},
+		{0x1b, ']', '}'},
+		{0x1c, NULL, NULL},//enter
+		{0x1d, NULL, NULL},//left ctrl
+		{0x1e, 'a', 'A'},
+		{0x1f, 's', 'S'},
+		{0x20, 'd', 'D'},
+		{0x21, 'f', 'F'},
+		{0x22, 'g', 'G'},
+		{0x23, 'h', 'H'},
+		{0x24, 'j', 'J'},
+		{0x25, 'k', 'K'},
+		{0x26, 'l', 'L'},
+		{0x27, ';', ':'},
+		{0x28, '\'', '"'},
+		{0x29, '`', '~'},
+		{0x2a, NULL, NULL},//left shift
+		{0x2b, '\\', '|'},
+		{0x2c, 'z', 'Z'},
+		{0x2d, 'x', 'X'},
+		{0x2e, 'c', 'C'},
+		{0x2f, 'v', 'V'},
+		{0x30, 'b', 'B'},
+		{0x31, 'n', 'N'},
+		{0x32, 'm', 'M'},
+		{0x33, ',', '<'},
+		{0x34, '.', '>'},
+		{0x35, '/', '?'},
+		{0x36, NULL, NULL},//right shift
+		{0x37, '*', NULL},//keypad *
+		{0x38, NULL, NULL},//left alt
+		{0x39, ' ', NULL},
+		{0x3a, NULL, NULL},//caps
+		{0x3b, NULL, NULL},//f1
+		{0x3c, NULL, NULL},//f2
+		{0x3d, NULL, NULL},//f3
+		{0x3e, NULL, NULL},//f4
+		{0x3f, NULL, NULL},//f5
+		{0x40, NULL, NULL},//f6
+		{0x41, NULL, NULL},//f7
+		{0x42, NULL, NULL},//f8
+		{0x43, NULL, NULL},//f9
+		{0x44, NULL, NULL},//f10
+		{0x45, NULL, NULL},//num
+		{0x46, NULL, NULL},//scroll
+		{0x47, '7', NULL},//keypad 7
+		{0x48, '8', NULL},//keypad 8
+		{0x49, '9', NULL},//keypad 9
+		{0x4a, '-', NULL},//keypad -
+		{0x4b, '4', NULL},//keypad 4
+		{0x4c, '5', NULL},//keypad 5
+		{0x4d, '6', NULL},//keypad 6
+		{0x4e, '+', NULL},//keypad +
+		{0x4f, '1', NULL},//keypad 1
+		{0x50, '2', NULL},//keypad 2
+		{0x51, '3', NULL},//keypad 3
+		{0x52, '0', NULL},//keypad 0
+		{0x53, '.', NULL},//keypad 0
+		{0x57, NULL, NULL},//f11
+		{0x58, NULL, NULL}//f12
+	}
 };
 
 //typedef void (*dka_handler)(uint64_t s);
@@ -158,11 +253,11 @@ static void keyboard_buffer_delete() {
 
 }
 
-void keyboard_replace_last_written(char* s){
+void keyboard_replace_last_written(char* s) {
 
-	keyboard_written=0;
+	keyboard_written = 0;
 
-	while(*s!=0){
+	while (*s != 0) {
 		keyboard_buffer_write(*s);
 		s++;
 	}
@@ -225,7 +320,7 @@ void keyboard_irq_handler(uint64_t s) {
 		}
 	}
 
-	scancode t = keyboard_scancodes[s];
+	scancode t = keyboard_scancodes[keyboard_distribution][s];
 
 	if (t.ascii == NULL) {
 
@@ -257,18 +352,7 @@ void keyboard_irq_handler(uint64_t s) {
 	} else {
 
 		if (keyboard_status.caps) {
-
-			char ascii = t.ascii;
-
-			if (t.scancode == 0x28) {
-				ascii = '"';
-			} else {
-				ascii = ascii - 'a' + 'A';
-			}
-
-			keyboard_write_char(ascii );
-
-
+			keyboard_write_char(t.caps);
 		} else {
 			keyboard_write_char(t.ascii);
 		}
@@ -316,7 +400,6 @@ void keyboard_catch(uint64_t scancode, dka_handler handler) {
 
 }
 
-
-
-
-
+void keyboard_set_distribution(keyboard_distrib d){
+	keyboard_distribution=d;
+}

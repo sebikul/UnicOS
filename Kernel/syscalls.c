@@ -96,3 +96,7 @@ color_t sys_get_color() {
 void sys_set_color(color_t t) {
 	video_set_full_color(t);
 }
+
+void sys_kbd_set_distribution(keyboard_distrib d) {
+	keyboard_set_distribution(d);
+}

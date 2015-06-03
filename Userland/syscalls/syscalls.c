@@ -37,18 +37,22 @@ void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
 }
 
-void sys_clear_indexed_line(int index){
-	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE,(uint64_t)index);
+void sys_clear_indexed_line(int index) {
+	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE, (uint64_t)index);
 }
 
-void sys_keyboard_replace_buffer(char* s){
-	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER,(uint64_t)s);
+void sys_keyboard_replace_buffer(char* s) {
+	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER, (uint64_t)s);
 }
 
-color_t sys_get_color(){
+color_t sys_get_color() {
 	return (color_t)syscall((uint64_t)SYSCALL_GET_COLOR);
 }
 
-void sys_set_color(color_t t){
-	syscall((uint64_t)SYSCALL_SET_COLOR,(uint64_t)t);
+void sys_set_color(color_t t) {
+	syscall((uint64_t)SYSCALL_SET_COLOR, (uint64_t)t);
+}
+
+void sys_kbd_set_distribution(keyboard_distrib d) {
+	syscall((uint64_t)SYSCALL_SET_KBD_DISTRIBUTION, (uint64_t)d);
 }

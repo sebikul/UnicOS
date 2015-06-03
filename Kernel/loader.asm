@@ -21,6 +21,7 @@ extern 		sys_clear_indexed_line
 extern 		sys_keyboard_replace_buffer
 extern 		sys_get_color
 extern 		sys_set_color
+extern 		sys_kbd_set_distribution
 
 loader:
 
@@ -122,6 +123,11 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi,	12
 		jz			int_sys_set_color
 
+		;set time
+
+		cmp 		rdi,	14
+		jz			int_sys_kbd_set_distribution
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
@@ -173,6 +179,11 @@ int_sys_get_color:
 int_sys_set_color:
 		call 		prepare_params
 		call		sys_set_color
+		jmp 		soft_interrupt_done
+
+int_sys_kbd_set_distribution:
+		call 		prepare_params
+		call		sys_kbd_set_distribution
 		jmp 		soft_interrupt_done
 
 soft_interrupt_done:
