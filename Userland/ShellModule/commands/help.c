@@ -14,6 +14,8 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		printf("\tkeyboard : Setea la distribucion del teclado.\n");
 		printf("\tclear : Limpia la pantalla.\n");
 		printf("\trestart : Restaura los colores por defecto.\n");
+		printf("\tuser : Modifica el nombre de usuario.\n");
+		printf("\thost : Modifica el nombre del host.\n");
 		printf("\texit  : Finaliza el programa.\n");
 
 		printf("\nEjecute 'help [comando]' para obtener mas ayuda.\n");
@@ -69,7 +71,15 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 
 		case 7: //restart
 
-			printf("\t");
+			printf("\t[restart] Restaura los colores de texto y fondo. \n");
+			break;
+
+		case 8: //user
+			printf("\t[user] Recibe el nombre de usuario y lo setea. \n");
+			break;
+
+		case 9: //host
+			printf("\t[host] Recibe el nombre del host y lo setea. \n");
 			break;
 
 		default:

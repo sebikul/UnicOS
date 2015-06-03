@@ -11,7 +11,6 @@ extern int video_row;
 
 char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
 
-//int keyboard_rpos = 0;
 int keyboard_wpos = 0;
 int keyboard_written = 0;
 

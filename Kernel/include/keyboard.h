@@ -12,7 +12,6 @@ typedef struct {
 	char caps;
 } scancode;
 
-//vamos a sacrificar mucho espacio para que el codigo sea mas legible. Se podrian usar mascaras
 typedef struct {
 	bool caps;
 	bool ctrl;
