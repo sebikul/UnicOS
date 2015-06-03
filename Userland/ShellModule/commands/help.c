@@ -84,7 +84,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 
 		default:
 
-			printf("\nNo se encontro el comando.");
+			printf("\nNo se encontro el comando.\n");
 		}
 	}
 

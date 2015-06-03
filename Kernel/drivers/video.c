@@ -9,7 +9,7 @@ static char buffer[128] = { 0 };
 
 static color_t current_color = 0;
 
-static uint16_t video_buffer_backup[SCREEN_WIDTH * SCREEN_HEIGHT] = {0};
+static screen_t screensaver_backup;
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
@@ -220,28 +220,61 @@ void video_update_cursor() {
 
 }
 
-void video_write_dec(uint64_t value){
+void video_write_dec(uint64_t value) {
 	video_write_base(value, 10);
 }
 
-void video_write_hex(uint64_t value){
+void video_write_hex(uint64_t value) {
 	video_write_base(value, 16);
 }
 
-void video_write_bin(uint64_t value){
+void video_write_bin(uint64_t value) {
 	video_write_base(value, 2);
 }
 
-void video_write_base(uint64_t value, uint32_t base){
+void video_write_base(uint64_t value, uint32_t base) {
 	uintToBase(value, buffer, base);
 	video_write_string(buffer);
 }
 
-void video_trigger_backup(){
+void video_trigger_backup() {
+
+	screensaver_backup.row = video_row;
+	screensaver_backup.column = video_column;
+	screensaver_backup.color = current_color;
+
+	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
+		screensaver_backup.screen[i] = SCREEN_START[i];
+	}
+
+	video_row = 0;
+	video_column = 0;
+	video_reset_color();
 
 }
 
-void video_trigger_restore(){
+void video_trigger_restore() {
+
+	video_write_line("Restaurando pantalla.");
+
+	video_row = screensaver_backup.row;
+	video_column = screensaver_backup.column;
+	current_color = screensaver_backup.color;
+
+	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
+		SCREEN_START[i] = screensaver_backup.screen[i];
+	}
+
+	video_update_cursor();
+}
+
+void video_trigger_screensaver() {
+
+	video_clear_screen();
+	video_write_nl();
+	video_write_nl();
+	video_write_nl();
+	video_write_line("Este es el screensaver");
 
 }
 
