@@ -84,7 +84,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x36, NOCHAR, NOCHAR},//right shift
 		{0x37, '*', NOCHAR},//keypad *
 		{0x38, NOCHAR, NOCHAR},//left alt
-		{0x39, ' ', NOCHAR},
+		{0x39, ' ', ' '},
 		{0x3a, NOCHAR, NOCHAR},//caps
 		{0x3b, NOCHAR, NOCHAR},//f1
 		{0x3c, NOCHAR, NOCHAR},//f2
@@ -172,7 +172,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x36, NOCHAR, NOCHAR},//right shift
 		{0x37, '*', NOCHAR},//keypad *
 		{0x38, NOCHAR, NOCHAR},//left alt
-		{0x39, ' ', NOCHAR},
+		{0x39, ' ', ' '},
 		{0x3a, NOCHAR, NOCHAR},//caps
 		{0x3b, NOCHAR, NOCHAR},//f1
 		{0x3c, NOCHAR, NOCHAR},//f2
