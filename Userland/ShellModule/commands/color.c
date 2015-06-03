@@ -1,12 +1,16 @@
 #include <libc.h>
 #include <types.h>
 
+static int COLOR_COUNT=16;
+static char** colors;
 static char* color_to_string(color_t color);
+static char* color_to_string(color_t color);
+static int string_color_to_int(char* color);
 
 void command_color(int argc , char** argv) {
-    color_t newcolor;
     color_t c = get_color();
-
+    int icolor;
+    initialize_colors();
 
     switch (argc) {
 
@@ -18,108 +22,91 @@ void command_color(int argc , char** argv) {
         break;
 
     case 4:
-        //ASK: el usuario deberia ingresar por nombre de color o por numero?
-        newcolor = ctoi(argv[3]);
-        if (newcolor > 0xF || newcolor < 0x0) {
-            break;
+        icolor=string_color_to_int(argv[3]);
+        if(icolor==EOF){
+            printf("NO ES UN COLOR");
+            return;
         }
 
-        //tendria que checkear que los colores esten bien
+
         if (strcmp(argv[1], "set") == 0) {
-            //verificando que el segundo comando es set
 
             if (strcmp(argv[2], "front") == 0) {
-                //cambio de color del font
+                //cambio de color del caracter
 
-                set_color(newcolor, video_get_bg(c));
+                set_color(icolor, video_get_bg(c));
 
             } else if (strcmp(argv[2], "background") == 0) {
                 //cambio de color del fondo
-                set_color(video_get_fg(c), newcolor);
+
+                set_color(video_get_fg(c), icolor);
 
             } else {
-                printf("Comando invalido \n" );
+                printf("NI BACK NI FRONT \n" );
 
             }
 
         } else {
-            printf("Comando invalido \n" );
+            printf("SET QUE? \n" );
         }
         break;
 
 
     default :
-        printf("Comando invalido \n" );
+        printf("CANT DE PARAM INVALIDOS \n" );
     }
 }
 
+void initialize_colors(){
+    colors = calloc(COLOR_COUNT * sizeof(char*));
+
+    calloc_colors(0, "Black");
+    calloc_colors(1, "Blue");
+    calloc_colors(2, "Green");
+    calloc_colors(3, "Cyan");
+    calloc_colors(4, "Red");
+    calloc_colors(5, "Magenta");
+    calloc_colors(6, "Brown");
+    calloc_colors(7, "Light Grey");
+    calloc_colors(8, "Dark Grey");
+    calloc_colors(9, "Light Blue");
+    calloc_colors(10, "Light Green");
+    calloc_colors(11, "Light Cyan");
+    calloc_colors(12, "Light Red");
+    calloc_colors(13, "Light Magenta");
+    calloc_colors(14, "Light Brown");
+    calloc_colors(15, "White");
+
+}
+
+void calloc_colors(int i, char* str) {
+    int len = strlen(str);
+    colors[i] = calloc(len * sizeof(char)+1);
+    strcpy(colors[i], str);
+}
+
+void command_restart() {
+
+    //resetea los colores por default de la pantalla
+    //TODO: SYS CALL A DRIVER DE VIDEO
+
+}
+
 static char* color_to_string(color_t color) {
-    switch (color) {
-    //case COLOR_BLACK:
-    case 0:
-        return "Black";
+    if(color<0 || color>=COLOR_COUNT){
+        return NULL;
+    }
+    return colors[color];
+}
 
-    //case COLOR_BLUE:
-    case 1:
-        return "Blue";
-
-    //case COLOR_GREEN:
-    case 2:
-        return "Green";
-
-    //case COLOR_CYAN:
-    case 3:
-        return "Cyan";
-
-    //case COLOR_RED:
-    case 4:
-        return "Red";
-
-    //case COLOR_MAGENTA:
-    case 5:
-        return "Magenta";
-
-    //case COLOR_BROWN:
-    case 6:
-        return "Brown";
-
-    //case COLOR_LIGHT_GREY:
-    case 7:
-        return "Light Grey";
-
-    //case COLOR_DARK_GREY:
-    case 8:
-        return "Dark Grey";
-
-    //case COLOR_LIGHT_BLUE:
-    case 9:
-        return "Light Blue";
-
-    //case COLOR_LIGHT_GREEN:
-    case 10:
-        return "Light Green";
-
-    //case COLOR_LIGHT_CYAN:
-    case 11:
-        return "Light Cyan";
-
-    //case COLOR_LIGHT_RED:
-    case 12:
-        return "Light Red";
-
-    //case COLOR_LIGHT_MAGENTA:
-    case 13:
-        return "Light Magenta";
-
-    //case COLOR_LIGHT_BROWN:
-    case 14:
-        return "Light Brown";
-
-    //case COLOR_WHITE:
-    case 15:
-        return "White";
-
+static int string_color_to_int(char* color) {
+    if(color!=NULL){
+        for (int i = 0; i < COLOR_COUNT; i++) {
+            if(strcmp(color,colors[i])==0){
+                return i;
+            }
+        }
     }
 
-    return NULL;
+    return EOF;
 }

@@ -22,8 +22,8 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 6;
-char** cmd_list;
+static int cmd_count = 7;
+static char** cmd_list;
 bool exit_flag = FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);
