@@ -143,7 +143,7 @@ int_sys_rtc:
 		call 		sys_rtc_get
 		jmp			soft_interrupt_done
 
-int_sys_rtc_set
+int_sys_rtc_set:
 		call 		prepare_params
 		call 		sys_rtc_set
 		jmp 		soft_interrupt_done

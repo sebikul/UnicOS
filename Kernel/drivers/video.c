@@ -9,6 +9,8 @@ static char buffer[128] = { 0 };
 
 static color_t current_color = 0;
 
+static uint16_t video_buffer_backup[SCREEN_WIDTH * SCREEN_HEIGHT] = {0};
+
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
 
@@ -23,8 +25,6 @@ void video_initialize() {
 }
 
 void video_update_screen_color() {
-
-	char c;
 
 	for (int c = 1; c < SCREEN_HEIGHT * SCREEN_WIDTH * 2; c += 2) {
 		((uint8_t*)SCREEN_START)[c] = current_color;
@@ -220,25 +220,29 @@ void video_update_cursor() {
 
 }
 
-void video_write_dec(uint64_t value)
-{
+void video_write_dec(uint64_t value){
 	video_write_base(value, 10);
 }
 
-void video_write_hex(uint64_t value)
-{
+void video_write_hex(uint64_t value){
 	video_write_base(value, 16);
 }
 
-void video_write_bin(uint64_t value)
-{
+void video_write_bin(uint64_t value){
 	video_write_base(value, 2);
 }
 
-void video_write_base(uint64_t value, uint32_t base)
-{
+void video_write_base(uint64_t value, uint32_t base){
 	uintToBase(value, buffer, base);
 	video_write_string(buffer);
+}
+
+void video_trigger_backup(){
+
+}
+
+void video_trigger_restore(){
+
 }
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base)
