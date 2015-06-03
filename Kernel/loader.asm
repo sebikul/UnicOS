@@ -5,12 +5,13 @@ extern initializeKernelBinary
 extern 		main
 extern 		initializeKernelBinary
 
-extern 		sys_write
-extern 		sys_read
-extern 		exit
 extern		video_write_line
 extern 		video_write_nl
 extern 		keyboard_irq_handler
+
+;SYSCALLS
+extern 		sys_write
+extern 		sys_read
 extern 		sys_rtc_time
 extern 		sys_malloc
 extern 		sys_calloc
@@ -28,23 +29,13 @@ loader:
 		mov			rsp, 	rax					; Set up the stack with the returned address
 		push 		rax
 
-		mov 		rdi, msg_init 				;Inicializando IDT
-		call 		video_write_line
-		call 		video_write_nl
+		;mov 		rdi, msg_init 				;Inicializando IDT
+		;call 		video_write_line
+		;call 		video_write_nl
 
 		call 		set_interrupt_handlers
-
 		call 		init_pic
-
 		call		main
-
-		; mov 		rdi, 4
-		; mov 		rsi, 1
-		; mov 		rdx, msg_test
-		; mov 		rcx, msg_test_len
-		; int 80h
-
-
 
 
 hang:
@@ -134,42 +125,54 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
-		call 		sys_rtc_handler
+		call 		prepare_params
+		call 		sys_rtc_time
 		jmp			soft_interrupt_done
 int_sys_write:
-		call 		sys_write_handler
+		call 		prepare_params
+		call 		sys_write
 		jmp 		soft_interrupt_done
 int_sys_read:
-		call 		sys_read_handler
+		call 		prepare_params
+		call 		sys_read
 		jmp 		soft_interrupt_done
 
 int_malloc:
-		call 		sys_malloc_handler
+		call 		prepare_params
+		call 		sys_malloc
 		jmp 		soft_interrupt_done
 int_calloc:
-		call 		sys_calloc_handler
+		call 		prepare_params
+		call 		sys_calloc
 		jmp 		soft_interrupt_done
 int_free:
-		call 		sys_free_handler
+		call 		prepare_params
+		call 		sys_free
 		jmp 		soft_interrupt_done
 
 int_keyboard_catch:
-		call 		sys_keyboard_catch_handler
+		call 		prepare_params
+		call 		sys_keyboard_catch
 		jmp 		soft_interrupt_done
 
 int_video_clr_indexed_line:
-		call 		sys_video_clr_indexed_line_handler
+		call 		prepare_params
+		call 		sys_clear_indexed_line
 		jmp 		soft_interrupt_done
 
 int_keyboard_replace_buffer:
-		call 		sys_keyboard_replace_buffer_handler
+		call 		prepare_params
+		call 		sys_keyboard_replace_buffer
 		jmp 		soft_interrupt_done
 
 int_sys_get_color:
-		call 		sys_color_get_handler
+		call 		prepare_params
+		call		sys_get_color
 		jmp			soft_interrupt_done
+
 int_sys_set_color:
-		call 		sys_color_set_handler
+		call 		prepare_params
+		call		sys_set_color
 		jmp 		soft_interrupt_done
 
 soft_interrupt_done:
@@ -210,72 +213,12 @@ keyboard_done:
 		pop 		rdi
 		iretq
 
-sys_rtc_handler:
-		call 		prepare_params
-		call 		sys_rtc_time
-		ret
-
-sys_write_handler:
-		call 		prepare_params
-		call 		sys_write
-		ret
-
-sys_read_handler:
-		call 		prepare_params
-		call 		sys_read
-		ret
-
-sys_malloc_handler:
-		call 		prepare_params
-		call 		sys_malloc
-		ret
-
-sys_calloc_handler:
-		call 		prepare_params
-		call 		sys_calloc
-		ret
-
-sys_free_handler:
-		call 		prepare_params
-		call 		sys_free
-		ret
-
-sys_keyboard_catch_handler:
-		call 		prepare_params
-		call 		sys_keyboard_catch
-		ret
-
-sys_video_clr_indexed_line_handler:
-		call 		prepare_params
-		call 		sys_clear_indexed_line
-		ret
-
-sys_keyboard_replace_buffer_handler:
-		call 		prepare_params
-		call 		sys_keyboard_replace_buffer
-		ret
-
-sys_color_get_handler:
-		call 		prepare_params
-		call		sys_get_color
-		ret
-
-sys_color_set_handler:
-		call 		prepare_params
-		call		sys_set_color
-		ret
-
 init_pic:
 	; Enable specific interrupts
 	in al, 0x21
 	mov al, 11111001b		; Enable Cascade, Keyboard
 	out 0x21, al
 
-
 	sti				; Enable interrupts
 
 	ret
-
-
-; =============================================================================
-; EOF
