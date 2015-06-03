@@ -65,6 +65,12 @@ void rtc_set_time(time_t* t) {
 
 	t->year = t->year % 100;
 
+	if (CLOCK_IN_12HOURS(regb) && t->hour > 12) {
+
+		t->hour = TO_PM(t->hour - 12);
+
+	}
+
 	if (USES_BCD(regb)) {
 
 		t->second = INT_TO_BCD(t->second);
@@ -76,11 +82,7 @@ void rtc_set_time(time_t* t) {
 
 	}
 
-	if (CLOCK_IN_12HOURS(regb) && t->hour > 12) {
 
-		t->hour = TO_PM(t->hour - 12);
-
-	}
 
 	rtc_write(RTC_CURRENT_SECOND, t->second);
 	rtc_write(RTC_CURRENT_MINUTE, t->minute);
@@ -111,6 +113,3 @@ static void rtc_write(uint8_t reg, uint8_t val) {
 	outb(RTC_PORT_VALUE, val);
 
 }
-
-
-

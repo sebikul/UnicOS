@@ -276,6 +276,10 @@ time_t* time() {
 
 }
 
+void setTime(time_t * t){
+	sys_rtc_set(t);
+}
+
 color_t get_color() {
 	return sys_get_color();
 }
