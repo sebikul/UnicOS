@@ -8,6 +8,7 @@
 #include <moduleLoader.h>
 #include <video.h>
 #include <keyboard.h>
+#include <types.h>
 //#include <rtc.h>
 
 
@@ -26,8 +27,9 @@ static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
 static uint64_t pit_timer = 0;
-uint64_t screensaver_wait_time = 10; //TODO
+uint64_t screensaver_wait_time = 5; //TODO
 uint64_t screensaver_timer;
+bool screensaver_is_active = FALSE;
 
 typedef int (*EntryPoint)();
 
@@ -118,7 +120,13 @@ int main() {
 }
 
 void screensaver_reset_timer() {
-	screensaver_timer = 18*screensaver_wait_time;
+	if (screensaver_is_active) {
+		video_write_line("Restaurando pantalla.");
+		video_trigger_restore();
+		screensaver_is_active = FALSE;
+	} else {
+		screensaver_timer = 18 * screensaver_wait_time;
+	}
 }
 
 void irq0_handler() {
@@ -126,9 +134,9 @@ void irq0_handler() {
 	pit_timer++;
 	screensaver_timer--;
 
-	if (screensaver_timer == 0) {
-		video_write_line("Entrando al screensaver!");
-		screensaver_reset_timer();
+	if (screensaver_timer == 0 && !screensaver_is_active) {
+		screensaver_is_active = TRUE;
+		video_trigger_screensaver();
 	}
 
 }
