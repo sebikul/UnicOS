@@ -19,6 +19,7 @@
 #define SYSCALL_SET_COLOR					12
 #define SYSCALL_SET_TIME					13
 #define SYSCALL_SET_KBD_DISTRIBUTION		14
+#define SYSCALL_SCREENSAVER_TIMER			15
 
 void sys_write(FD fd, char* s, int len);
 int sys_read(FD fd, char* s, int len);
@@ -33,5 +34,6 @@ void sys_keyboard_replace_buffer(char* s);
 void sys_set_color(color_t t);
 color_t sys_get_color();
 void sys_kbd_set_distribution(keyboard_distrib d);
+void sys_set_screensaver_timer(uint64_t t);
 
 #endif

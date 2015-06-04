@@ -59,3 +59,7 @@ void sys_set_color(color_t t) {
 void sys_kbd_set_distribution(keyboard_distrib d) {
 	syscall((uint64_t)SYSCALL_SET_KBD_DISTRIBUTION, (uint64_t)d);
 }
+
+void sys_set_screensaver_timer(uint64_t t) {
+	syscall((uint64_t)SYSCALL_SCREENSAVER_TIMER, (uint64_t)t);
+}

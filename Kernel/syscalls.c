@@ -6,6 +6,7 @@
 #include <rtc.h>
 #include <lib.h>
 
+extern uint64_t screensaver_wait_time;
 
 void sys_rtc_get(time_t* t) {
 	rtc_get_time(t);
@@ -102,6 +103,8 @@ void sys_kbd_set_distribution(keyboard_distrib d) {
 	keyboard_set_distribution(d);
 }
 
-void sys_set_background_timer(uint64_t time){
-	
+void sys_set_screensaver_timer(uint64_t t) {
+
+	screensaver_wait_time = t;
+
 }
