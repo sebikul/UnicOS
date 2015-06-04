@@ -116,13 +116,20 @@ int main() {
 	return 0;
 }
 
-void screensaver_reset_timer() {
+//retorna si se debe ignorar lo tecleado
+bool screensaver_reset_timer() {
+
+	bool ret = FALSE;
+
 	if (screensaver_is_active) {
+		ret = TRUE;
 		video_trigger_restore();
 		screensaver_is_active = FALSE;
 
 	}
 	screensaver_timer = 18 * screensaver_wait_time;
+
+	return ret;
 
 }
 
@@ -137,7 +144,7 @@ void irq0_handler() {
 
 }
 
-void active_screensaver(){
+void active_screensaver() {
 	screensaver_is_active = TRUE;
-	video_trigger_screensaver();	
+	video_trigger_screensaver();
 }

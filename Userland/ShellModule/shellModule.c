@@ -62,7 +62,7 @@ int main() {
 
 	while (!exit_flag) {
 
-		printf("\n%s@%s $ ",user_name,host_name);
+		printf("\n%s@%s $ ", user_name, host_name);
 
 		if (scanf(buffer, CMD_BUFFER_SIZE) == 0) {
 			continue;
@@ -268,9 +268,9 @@ static void calloc_cmd(int i, char* str) {
 
 }
 
-static void initialize_names(){
-	user_name= calloc(USER_SIZE * sizeof(char));
-	host_name= calloc(HOST_SIZE * sizeof(char));
+static void initialize_names() {
+	user_name = calloc(USER_SIZE * sizeof(char));
+	host_name = calloc(HOST_SIZE * sizeof(char));
 	strcpy(user_name, "user");
 	strcpy(host_name, "localhost");
 }

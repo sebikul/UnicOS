@@ -61,9 +61,15 @@ void sys_kbd_set_distribution(keyboard_distrib d) {
 }
 
 void sys_set_screensaver_timer(uint64_t t) {
-	syscall((uint64_t)SYSCALL_SCREENSAVER_TIMER, (uint64_t)t);
+
+	syscall((uint64_t)SYSCALL_SCREENSAVER_TIMER, t);
 }
 
 void sys_clear_screen(){
 	syscall(SYSCALL_CLEAR_SCREEN);
 }
+
+void sys_screensaver_trigger() {
+	syscall((uint64_t) SYSCALL_SCREENSAVER_TIMER);
+}
+

@@ -26,6 +26,7 @@ extern 		sys_set_color
 extern 		sys_kbd_set_distribution
 extern 		sys_set_screensaver_timer
 extern		sys_clear_screen
+extern 		sys_screensaver_trigger
 
 loader:
 
@@ -140,6 +141,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi, 	15
 		jz 			int_sys_set_screensaver_timer
 
+		cmp 		rdi, 	16
+		jz 			int_sys_screensaver_trigger
+
 		cmp			rdi,	17
 		jz			int_sys_clear_screen
 
@@ -217,6 +221,10 @@ int_sys_clear_screen:
 		call 		sys_clear_screen
 		jmp			soft_interrupt_done
 
+int_sys_screensaver_trigger:
+		call 		prepare_params
+		call		sys_screensaver_trigger
+		jmp 		soft_interrupt_done
 
 soft_interrupt_done:
 		push 		rax

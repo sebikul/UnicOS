@@ -305,7 +305,9 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
-	screensaver_reset_timer();
+	if(screensaver_reset_timer()){
+		return;
+	}
 
 
 	if (dka_catched_len > 0) {
