@@ -14,7 +14,7 @@ void command_time(int argc, char** argv) {
 			if(strcmp(argv[1],"set")==0){
 				printf("Indique la hora que desea setear.\n");
 			}else{
-				printf("Comando invalido.\n");
+				printf("Comando invalido. Comandos disponibles [time] [time set]\n");
 			}
 			break;
 
@@ -34,10 +34,10 @@ void command_time(int argc, char** argv) {
 					int s=ctoi(argv[4]);
 					command_settime(h,m,s);
 				}else{
-					printf("Comando invalido.\n");
+					printf("Faltan parametros. Debe indicar horas minutos segundos dia mes año.\n");
 				}
 			}else{
-				printf("Comando invalido.\n");
+				printf("Comando invalido. Comandos disponibles [time] [time set]\n");
 			}
 
 	}
@@ -50,8 +50,6 @@ void command_settime(int hours, int minutes, int seconds) {
 	if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
 		printf("Horario invalido.\n");
 	}else{
-		//TOASK: hay que pasar los parametros al formato asqueroso ese o lo hace
-		//		 la funcion que setea los parametros verdaderamente al rtc?
 		time_t* t=time();
 		t->hour = hours;
 		t->minute = minutes;
@@ -59,7 +57,7 @@ void command_settime(int hours, int minutes, int seconds) {
 		//TOASK: hay que actualizar el rtc del qemu?
 		//sys_call_update_rtc(); o algo asi
 		printf(" %i ");
-		printf("Seteando la hora.\n");
+		printf("La hora ha sido actualizada.\n");
 	}
 
 }

@@ -1,25 +1,17 @@
 
 #include <libc.h>
 
-static void command_echo_usage();
-
 //DEBERIAMOS PONERLE COMANDOS.C O ALGO ASI, NO LE MODIFIQUE EL NOMBRE POR SI ALGUNO ESTABA TOCANDO EL ARCHIVO
 
 void command_echo(int argc, char** argv) {
 
-	if (argc == 1) {
-		command_echo_usage();
-	} else {
+	if (argc != 1) {
 		for (int i = 1; i < argc; i++) {
 			printf("%s ", argv[i]);
 		}
+	}else{
+		printf("\n");
 	}
-
-}
-
-static void command_echo_usage() {
-
-	printf("uso: echo <cadena que se desea imprimir>\n");
 
 }
 

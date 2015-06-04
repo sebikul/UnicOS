@@ -42,18 +42,18 @@ void command_color(int argc , char** argv) {
                 set_color(video_get_fg(c), icolor);
 
             } else {
-                printf("NI BACK NI FRONT \n" );
+                printf("Comando invalido. Comandos disponibles [front] [background].\n" );
 
             }
 
         } else {
-            printf("SET QUE? \n" );
+            printf("Comando Invalido. Comandos disponibles [color] [color set] \n" );
         }
         break;
 
 
     default :
-        printf("CANT DE PARAM INVALIDOS \n" );
+        printf("Cantidad invalida de parametros. \n" );
     }
 }
 

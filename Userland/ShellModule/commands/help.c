@@ -13,6 +13,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		printf("\tcolor : Cambia el color de lo que se va a imprimir en pantalla.\n");
 		printf("\tkeyboard : Setea la distribucion del teclado.\n");
 		printf("\tclear : Limpia la pantalla.\n");
+		printf("\trestart : Restaura los colores por defecto.\n");
 		printf("\texit  : Finaliza el programa.\n");
 
 		printf("\nEjecute 'help [comando]' para obtener mas ayuda.\n");
@@ -25,10 +26,11 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 			}
 		}
 
+		printf("\n");
 		switch (cmd) {
 
 		case 0: //echo
-			printf("\tEl comando echo permite mostrar un mensaje en pantalla.\n");
+			printf("\t[echo] Permite mostrar un mensaje en pantalla.\n");
 			printf(" Ej: echo Prueba. muestra Prueba en la pantalla.\n");
 			break;
 
@@ -39,26 +41,36 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 			break;
 
 		case 2: //time
-
 			printf("\t[time] Muestra la hora en pantalla.\n");
-			printf("\t[time set] Permite setear la hora.\n");
-			printf(" Ej: time set 21 10 5 setea la hora a las 21:10:05.\n");
+			printf("\t[time set] Permite setear fecha y hora del sistema.\n");
+			printf(" Ej: time set 21 10 5 20 3 1993 setea la hora a las 21:10:05 del 20/03/1993.\n");
 			break;
 
 		case 3: //color
-
+			printf("\t[color] Muestra en pantalla el color actual de texto y de fondo.\n");
+			printf("\t[color set front] Recibe un color y lo setea como color de texto.\n");
+			printf("\t[color set background] Recibe un color y lo setea como color de fondo.\n");
+			printf("Lista de colores disponibles:\n");
+			printf("\tBlack, Blue, Green, Cyan, Red, Magenta, Brown, Light Grey, Dark Grey, White\n\tLight Blue, Light Green, Light Cyan, Light Red, Light Magenta, Light Brown.\n");
 			break;
 
-		case 4: //exit
-
-			printf("\tEl comando exit finaliza la ejecucion de la terminal.\n");
+		case 4: //keyboard
+			printf("\t[keyboard set] Recibe una distribucion de teclado [usa | latin] y la setea.\n");
 			break;
 
-		case 5: //clear
+		case 5: //exit
+			printf("\t[exit] Finaliza la ejecucion de la terminal.\n");
+			break;
 
-			printf("\tEl comando clear limpia la pantalla (no limpia el historial de comandos).\n");
+		case 6: //clear
+			printf("\t[clear] Limpia la pantalla (no limpia el historial de comandos).\n");
 			break;
 		// //other functions....
+
+		case 7: //restart
+
+			printf("\t")
+			break;
 
 		default:
 

@@ -22,8 +22,10 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 7;
+static int cmd_count = 8;
 static char** cmd_list;
+static char* user_name="user";
+static char* host_name="localhost"
 bool exit_flag = FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);
@@ -52,7 +54,7 @@ int main() {
 
 	while (!exit_flag) {
 
-		printf("\nuser@localhost $ ");
+		printf("\n%s@%s $ ",user_name,host_name);
 
 		if (scanf(buffer, CMD_BUFFER_SIZE) == 0) {
 			continue;
@@ -63,8 +65,6 @@ int main() {
 		command_dispatcher(buffer);
 
 	}
-
-	//sys_write(FD_STDOUT, "Ejecutando ShellModule", 4);
 
 	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)
@@ -83,18 +83,14 @@ void command_dispatcher(char* command) {
 
 	strcpy(shell_history[max_history], command);
 
-	//current_history++;
 	max_history++;
 
 	current_history = max_history;
 
 	//Vamos a sacarle todos los espacion al principio del comando
 	if (*command == ' ') {
-		//printf("Limpiando espacios\n");
 		LEFT_STRIP(command);
 	}
-
-	//printf("Parseando argumentos...\n");
 
 	while (*command != 0) {
 
@@ -106,9 +102,6 @@ void command_dispatcher(char* command) {
 		char* pos = argv[argc];
 
 		bool comillas = (*command == '"');
-
-		//printf("Parseando argumento: %i\n", argc);
-		//printf("Cadena que resta por procesar: %s\n", command);
 
 		if (comillas)
 			command++;
@@ -139,25 +132,6 @@ void command_dispatcher(char* command) {
 
 	}
 
-
-
-	// printf("Comando a ejecutar: <%s>\n", argv[0]);
-
-	// for (int i = 1; i < argc; i++) {
-	// 	printf("Argumento %i: <%s>\n", i, argv[i]);
-	// }
-	/*
-		if (strcmp(argv[0], "echo") == 0) {
-			//printf("Ejecutando echo: \n");
-			command_echo(argc, argv);
-		} else if (strcmp(argv[0], "help") == 0) {
-			command_help(argc, argv);
-		} else if (strcmp(argv[0], "time") == 0) {
-			command_time(argc, argv);
-		} else {
-			printf("%s: Comando no encontrado", argv[0]);
-		}
-	*/
 	int cmd = 0;
 
 	for (; cmd < cmd_count; cmd++) {
@@ -173,15 +147,10 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 1: //help
-		//el cmd_count es medio feo, pero
-		//sino hay que hacer una funcion generica
-		//que cuente elementos y es eso o 1 param mas
-
 		command_help(argc, argv, cmd_list, cmd_count);
 		break;
 
 	case 2: //time
-
 		command_time(argc, argv);
 		break;
 
@@ -194,15 +163,17 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 5: //exit
-
 		//habria que inhabilitar el buffer o algo o nose si se puede cerrar QEMU
 		exit_flag = TRUE;
 		command_exit();
 		break;
 
 	case 6: //clear
-
 		//command_clean();
+		break;
+
+	case 7: //restart
+		//command_restart();
 		break;
 
 	// //other functions....
@@ -224,11 +195,9 @@ void keyboard_uparrow_handler(uint64_t s) {
 
 	sys_clear_indexed_line(0);
 
-	printf("user@localhost $ %s", shell_history[current_history]);
+	printf("%s@%s $ %s", user_name, host_name, shell_history[current_history]);
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
-
-	//printf("historial %i/%i\n", current_history,max_history);
 
 }
 
@@ -237,7 +206,7 @@ void keyboard_downarrow_handler(uint64_t s) {
 	if (current_history == max_history - 1 || max_history == 0) {
 
 		sys_clear_indexed_line(0);
-		printf("user@localhost $ ");
+		printf("%s@%s $ ", user_name, host_name);
 		sys_keyboard_replace_buffer("");
 		if (current_history == max_history - 1) {
 			current_history = max_history;
@@ -251,7 +220,7 @@ void keyboard_downarrow_handler(uint64_t s) {
 
 	sys_clear_indexed_line(0);
 
-	printf("user@localhost $ %s", shell_history[current_history]);
+	printf("%s@%s $ %s", user_name, host_name, shell_history[current_history]);
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
 
@@ -266,6 +235,7 @@ static void initialize_command_list() {
 	calloc_cmd(4, "keyboard");
 	calloc_cmd(5, "exit");
 	calloc_cmd(6, "clear");
+	calloc_cmd(7, "refresh");
 
 }
 

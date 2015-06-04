@@ -6,8 +6,7 @@ static void usage();
 
 void command_set_distribution(int argc , char** argv) {
 	if (argc != 3) {
-		fprintf(FD_STDERR, "Comando invalido.\n");
-		usage();
+		printf("Cantidad invalida de argumentos.\n");
 	}
 
 	if (strcmp(argv[1], "set") == 0) {
@@ -17,15 +16,10 @@ void command_set_distribution(int argc , char** argv) {
 		} else if (strcmp(argv[2], "usa") == 0) {
 			sys_kbd_set_distribution(KEYBOARD_USA);
 		} else {
-			usage();
+			printf("Distribucion de teclado invalida. Distribuciones disponibles [usa] [latin].\n");
 		}
 
 	} else {
-		usage();
+		printf("Comando invalido. Comando disponible [keyboard set]\n.");
 	}
-}
-
-static void usage() {
-	printf(" keyboard: Setea la distribucion del teclado.\n"
-	       "$ keyboard set [usa|latin]");
 }
