@@ -204,6 +204,8 @@ void video_scroll() {
 	video_column = 0;
 	video_row--;
 
+	video_update_screen_color();
+
 }
 
 
