@@ -45,7 +45,8 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		case 2: //time
 			printf("\t[time] Muestra la hora en pantalla.\n");
 			printf("\t[time set] Permite setear fecha y hora del sistema.\n");
-			printf(" Ej: time set 21 10 5 20 3 1993 setea la hora a las 21:10:05 del 20/03/1993.\n");
+			printf("\t Recuerde que el formato del año debe ser de 1 o 2 digitos solamente y el siglo sera siempre el 21.\n");
+			printf(" Ej: time set 21 10 5 20 3 15 setea la hora a las 21:10:05 del 20/03/2015.\n");
 			break;
 
 		case 3: //color

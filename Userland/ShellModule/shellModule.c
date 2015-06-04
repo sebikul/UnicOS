@@ -170,17 +170,18 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 5: //exit
-		//habria que inhabilitar el buffer o algo o nose si se puede cerrar QEMU
+		//TODO: funcion ASM que haga hlt y cuelge via una sys call
+		//o sacar la funcionalidad
 		exit_flag = TRUE;
 		command_exit();
 		break;
 
 	case 6: //clear
-		//command_clean();
+		//TODO: command_clean();
 		break;
 
 	case 7: //restart
-		//command_restart();
+		//TODO: command_restart();
 		break;
 
 	case 8: //user
@@ -190,8 +191,6 @@ void command_dispatcher(char* command) {
 	case 9: //host
 		command_host_name( argc, argv);
 		break;
-
-	//other functions....
 
 	default:
 

@@ -13,7 +13,7 @@ void command_echo(int argc, char** argv) {
 
 }
 
-//TODO: SACAR
+//TODO: programar y sacar
 
 void command_exit() {
 

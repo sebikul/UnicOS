@@ -13,6 +13,13 @@ void command_color(int argc , char** argv) {
     color_t c = get_color();
     int icolor;
     initialize_colors();
+    if(argc==4){
+         icolor = string_color_to_int(argv[3]);
+    }else{
+        if(argc==5){
+            icolor = string_color_to_int(strcat(strcat(argv[3]," "),argv[4]));
+        }
+    }
 
     switch (argc) {
 
@@ -23,7 +30,8 @@ void command_color(int argc , char** argv) {
         break;
 
     case 4:
-        icolor = string_color_to_int(argv[3]);
+    case 5:
+       
         if (icolor == EOF) {
             printf("NO ES UN COLOR");
             return;

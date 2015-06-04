@@ -265,6 +265,16 @@ char* strcpy(char* dest, char* src) {
 	return bk;
 }
 
+char* strcat(char* str1, char* str2){
+	int len1=strlen(str1);
+	int len2=strlen(str2);
+	char* ans=calloc((len1+len2) * sizeof(char));
+	strcpy(ans,str1);
+	strcpy(ans+len1,str2);
+	return ans;
+
+}
+
 
 time_t* time() {
 
@@ -321,6 +331,21 @@ char* itoc(int number) {
 
 	return c;
 
+}
+
+bool stringNumeric(char* str){
+	int len=strlen(str);
+	for (int i = 0; i < len; i++)
+	{
+		if(!isNumeric(str[i])){
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+bool isNumeric(char c){
+	return(c>='0' && c<='9');
 }
 
 int ctoi(char* c) {
