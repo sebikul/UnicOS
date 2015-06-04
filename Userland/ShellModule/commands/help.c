@@ -68,7 +68,6 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		case 6: //clear
 			printf("\t[clear] Limpia la pantalla (no limpia el historial de comandos).\n");
 			break;
-		// //other functions....
 
 		case 7: //restart
 

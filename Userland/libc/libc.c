@@ -20,7 +20,6 @@ void free(void* m) {
 	sys_free(m);
 }
 
-
 int strpos(char* s, char n) {
 
 	for (int pos = 0; s[pos] != 0; pos++) {
@@ -178,6 +177,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 	}
 
+	//TODO: sacar antes de entregar
 	//va_end(ap);
 
 	sys_write(fd, str, j);
@@ -274,7 +274,6 @@ char* strcat(char* str1, char* str2){
 	return ans;
 
 }
-
 
 time_t* time() {
 

@@ -9,8 +9,6 @@
 #include <video.h>
 #include <keyboard.h>
 #include <types.h>
-//#include <rtc.h>
-
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -57,8 +55,6 @@ void * initializeKernelBinary() {
 
 	video_initialize();
 	video_clear_screen();
-
-	//rtc_init();
 
 	video_write_line("[x64BareBones]");
 

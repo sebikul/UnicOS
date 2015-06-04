@@ -46,7 +46,6 @@ typedef struct {
 	uint32_t year;
 } time_t;
 
-//todo moverlos a un .h separado. podemos hacer un types.h, etc.
 #define video_get_fg(color) (0x0F & color)
 #define video_get_bg(color) ((0xF0 & color) >> 4)
 

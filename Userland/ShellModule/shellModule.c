@@ -50,6 +50,7 @@ int main() {
 	initialize_command_list();
 	initialize_names();
 
+	//TODO: sacar antes de entregar
 	fprintf(FD_STDERR, "Ejecutando \"ShellModule...numero que me gusta: %i.\n", 50);
 	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
 
