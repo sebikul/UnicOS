@@ -12,6 +12,9 @@ static color_t current_color = 0;
 static screen_t screensaver_backup;
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
+static uint16_t video_get_full_char_at(int row, int col);
+static void video_write_full_char_at(uint16_t c, int row, int col);
+static void video_scroll();
 
 
 void video_initialize() {
@@ -47,13 +50,13 @@ color_t video_get_color() {
 	return current_color;
 }
 
-uint16_t video_get_full_char_at(int row, int col) {
+static uint16_t video_get_full_char_at(int row, int col) {
 
 	return SCREEN_START[row * SCREEN_WIDTH + col];
 
 }
 
-void video_write_full_char_at(uint16_t c, int row, int col) {
+static void video_write_full_char_at(uint16_t c, int row, int col) {
 
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
 
@@ -62,9 +65,9 @@ void video_write_full_char_at(uint16_t c, int row, int col) {
 //TODO: static - checkear usos en el proyecto
 void video_clear_screen() {
 
-	uint8_t colorbk = current_color;
+	//uint8_t colorbk = current_color;
 
-	video_reset_color();
+	//video_reset_color();
 
 	for (int i = 0; i < SCREEN_HEIGHT; i++) {
 
@@ -80,8 +83,9 @@ void video_clear_screen() {
 	video_row = 0;
 	video_column = 0;
 
-	current_color = colorbk;
+	//current_color = colorbk;
 
+	video_update_screen_color();
 }
 
 static void video_clear_line(int row) {
@@ -185,7 +189,7 @@ void video_write_line(const char * s) {
 
 }
 
-void video_scroll() {
+static void video_scroll() {
 
 	for (int row = 1; row <= SCREEN_HEIGHT; row++) {
 
