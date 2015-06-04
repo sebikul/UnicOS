@@ -15,6 +15,7 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 static uint16_t video_get_full_char_at(int row, int col);
 static void video_write_full_char_at(uint16_t c, int row, int col);
 static void video_scroll();
+static void video_reset_color();
 
 
 void video_initialize() {
@@ -34,7 +35,7 @@ void video_update_screen_color() {
 }
 
 //TODO: static - checkear usos en el proyecto
-void video_reset_color() {
+static void video_reset_color() {
 	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
 }
 

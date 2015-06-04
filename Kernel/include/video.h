@@ -19,7 +19,6 @@ typedef struct {
 } screen_t;
 
 void video_initialize();
-void video_reset_color();
 color_t video_get_color();
 void video_set_full_color(color_t color);
 void video_set_color(vga_color fg, vga_color bg);
