@@ -22,10 +22,15 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 8;
+static int cmd_count = 10;
 static char** cmd_list;
-static char* user_name="user";
-static char* host_name="localhost";
+
+char* user_name;
+char* host_name;
+int USER_SIZE = 20;
+int HOST_SIZE = 20;
+
+
 bool exit_flag = FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);
@@ -33,6 +38,7 @@ void keyboard_downarrow_handler(uint64_t s);
 
 void command_dispatcher(char* command);
 static void initialize_command_list();
+static void initialize_names();
 static void calloc_cmd(int i, char* str);
 
 int main() {
@@ -42,6 +48,7 @@ int main() {
 	memset(&bss, 0, &endOfBinary - &bss);
 
 	initialize_command_list();
+	initialize_names();
 
 	fprintf(FD_STDERR, "Ejecutando \"ShellModule...numero que me gusta: %i.\n", 50);
 	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
@@ -176,7 +183,15 @@ void command_dispatcher(char* command) {
 		//command_restart();
 		break;
 
-	// //other functions....
+	case 8: //user
+		command_user_name(argc, argv);
+		break;
+
+	case 9: //host
+		command_host_name( argc, argv);
+		break;
+
+	//other functions....
 
 	default:
 
@@ -236,6 +251,8 @@ static void initialize_command_list() {
 	calloc_cmd(5, "exit");
 	calloc_cmd(6, "clear");
 	calloc_cmd(7, "refresh");
+	calloc_cmd(8, "user");
+	calloc_cmd(9, "host");
 
 }
 
@@ -244,4 +261,11 @@ static void calloc_cmd(int i, char* str) {
 	cmd_list[i] = calloc(len * sizeof(char));
 	strcpy(cmd_list[i], str);
 
+}
+
+static void initialize_names(){
+	user_name= calloc(USER_SIZE * sizeof(char));
+	host_name= calloc(HOST_SIZE * sizeof(char));
+	strcpy(user_name, "user");
+	strcpy(host_name, "localhost");
 }
