@@ -1,11 +1,13 @@
 #include <libc.h>
 #include <types.h>
 
-static int COLOR_COUNT=16;
+static int COLOR_COUNT = 16;
 static char** colors;
 static char* color_to_string(color_t color);
 static char* color_to_string(color_t color);
 static int string_color_to_int(char* color);
+static void initialize_colors();
+static void calloc_colors(int i, char* str);
 
 void command_color(int argc , char** argv) {
     color_t c = get_color();
@@ -21,8 +23,8 @@ void command_color(int argc , char** argv) {
         break;
 
     case 4:
-        icolor=string_color_to_int(argv[3]);
-        if(icolor==EOF){
+        icolor = string_color_to_int(argv[3]);
+        if (icolor == EOF) {
             printf("NO ES UN COLOR");
             return;
         }
@@ -56,7 +58,7 @@ void command_color(int argc , char** argv) {
     }
 }
 
-void initialize_colors(){
+static void initialize_colors() {
     colors = calloc(COLOR_COUNT * sizeof(char*));
 
     calloc_colors(0, "Black");
@@ -78,9 +80,9 @@ void initialize_colors(){
 
 }
 
-void calloc_colors(int i, char* str) {
+static void calloc_colors(int i, char* str) {
     int len = strlen(str);
-    colors[i] = calloc(len * sizeof(char)+1);
+    colors[i] = calloc(len * sizeof(char) + 1);
     strcpy(colors[i], str);
 }
 
@@ -92,16 +94,16 @@ void command_restart() {
 }
 
 static char* color_to_string(color_t color) {
-    if(color<0 || color>=COLOR_COUNT){
+    if (color < 0 || color >= COLOR_COUNT) {
         return NULL;
     }
     return colors[color];
 }
 
 static int string_color_to_int(char* color) {
-    if(color!=NULL){
+    if (color != NULL) {
         for (int i = 0; i < COLOR_COUNT; i++) {
-            if(strcmp(color,colors[i])==0){
+            if (strcmp(color, colors[i]) == 0) {
                 return i;
             }
         }

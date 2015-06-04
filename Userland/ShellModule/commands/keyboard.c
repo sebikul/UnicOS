@@ -2,8 +2,6 @@
 #include <types.h>
 #include <syscalls.h>
 
-static void usage();
-
 void command_set_distribution(int argc , char** argv) {
 	if (argc != 3) {
 		printf("Cantidad invalida de argumentos.\n");

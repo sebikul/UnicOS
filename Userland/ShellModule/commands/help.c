@@ -69,7 +69,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 
 		case 7: //restart
 
-			printf("\t")
+			printf("\t");
 			break;
 
 		default:

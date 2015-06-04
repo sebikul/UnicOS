@@ -25,7 +25,7 @@ static int max_history = 0;
 static int cmd_count = 8;
 static char** cmd_list;
 static char* user_name="user";
-static char* host_name="localhost"
+static char* host_name="localhost";
 bool exit_flag = FALSE;
 
 void keyboard_uparrow_handler(uint64_t s);

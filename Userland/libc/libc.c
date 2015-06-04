@@ -63,10 +63,10 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 			} else {
 				// hay que procesar el siguiente caracter y actuar acorde
-				bool FLAG;
-				do{
+				bool flag;
+				do {
 
-					flag=FALSE;
+					flag = FALSE;
 					switch (fmt[i]) {
 					case 's': {
 						//lo que se desea es imprimir unca cadena
@@ -141,7 +141,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						if (!flag_zero) {
 							flag_zero = TRUE;
 							i++;
-							flag=TRUE;
+							flag = TRUE;
 							break;
 						}
 					}
@@ -157,13 +157,13 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 					case '9': {
 						width = fmt[i] - '0';
 						i++;
-						flag=TRUE;
+						flag = TRUE;
 						break;
 					}
 
 					}
 
-			}while(flag);
+				} while (flag);
 
 			}
 
