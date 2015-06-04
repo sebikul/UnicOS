@@ -17,8 +17,6 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 void video_initialize() {
 	video_reset_color();
 
-
-//preguntar por que es necesario, y la variable no esta inicializada
 	video_column = 0;
 	video_row = 0;
 
@@ -32,7 +30,7 @@ void video_update_screen_color() {
 
 }
 
-//todo static
+//TODO: static - checkear usos en el proyecto
 void video_reset_color() {
 	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
 }
@@ -61,7 +59,7 @@ void video_write_full_char_at(uint16_t c, int row, int col) {
 
 }
 
-//todo static
+//TODO: static - checkear usos en el proyecto
 void video_clear_screen() {
 
 	uint8_t colorbk = current_color;
@@ -127,7 +125,7 @@ void video_write_char_at(const char c, int row, int col) {
 	video_write_full_char_at(c_16 | (color_16 << 8), row, col);
 }
 
-//todo static
+//TODO: static - checkear usos en el proyecto
 void video_write_char(const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
