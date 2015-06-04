@@ -22,7 +22,7 @@ void video_initialize() {
 
 }
 
-static void video_update_screen_color() {
+void video_update_screen_color() {
 
 	char c;
 
@@ -43,7 +43,6 @@ void video_set_color(vga_color fg, vga_color bg) {
 
 void video_set_full_color(color_t color) {
 	current_color = color;
-	video_update_screen_color();
 }
 
 color_t video_get_color() {

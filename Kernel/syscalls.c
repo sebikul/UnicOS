@@ -6,6 +6,7 @@
 #include <rtc.h>
 #include <lib.h>
 
+
 void sys_rtc_get(time_t* t) {
 	rtc_get_time(t);
 }
@@ -94,8 +95,13 @@ color_t sys_get_color() {
 
 void sys_set_color(color_t t) {
 	video_set_full_color(t);
+	video_update_screen_color();
 }
 
 void sys_kbd_set_distribution(keyboard_distrib d) {
 	keyboard_set_distribution(d);
+}
+
+void sys_set_background_timer(uint64_t time){
+	
 }
