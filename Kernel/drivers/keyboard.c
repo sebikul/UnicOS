@@ -142,8 +142,8 @@ scancode keyboard_scancodes[][256] = {
 		{0x17, 'i', 'I'},
 		{0x18, 'o', 'O'},
 		{0x19, 'p', 'P'},
-		{0x1a, '[', '{'},
-		{0x1b, ']', '}'},
+		{0x1a, NOCHAR, NOCHAR},
+		{0x1b, '+', '*'},
 		{0x1c, NOCHAR, NOCHAR},//enter
 		{0x1d, NOCHAR, NOCHAR},//left ctrl
 		{0x1e, 'a', 'A'},
@@ -159,7 +159,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x28, '\'', '"'},
 		{0x29, '|', '°'},
 		{0x2a, NOCHAR, NOCHAR},//left shift
-		{0x2b, '\\', '|'},
+		{0x2b, '}', ']'},
 		{0x2c, 'z', 'Z'},
 		{0x2d, 'x', 'X'},
 		{0x2e, 'c', 'C'},
@@ -167,9 +167,9 @@ scancode keyboard_scancodes[][256] = {
 		{0x30, 'b', 'B'},
 		{0x31, 'n', 'N'},
 		{0x32, 'm', 'M'},
-		{0x33, ',', '<'},
-		{0x34, '.', '>'},
-		{0x35, '/', '?'},
+		{0x33, ',', ';'},
+		{0x34, '.', ':'},
+		{0x35, '-', '_'},
 		{0x36, NOCHAR, NOCHAR},//right shift
 		{0x37, '*', NOCHAR},//keypad *
 		{0x38, NOCHAR, NOCHAR},//left alt
@@ -199,7 +199,11 @@ scancode keyboard_scancodes[][256] = {
 		{0x50, '2', NOCHAR},//keypad 2
 		{0x51, '3', NOCHAR},//keypad 3
 		{0x52, '0', NOCHAR},//keypad 0
-		{0x53, '.', NOCHAR},//keypad 0
+		{0x53, NOCHAR, NOCHAR}, //keypad 0
+		{0x54, '.', NOCHAR},//keypad 0
+		{0x55, '.', NOCHAR},//keypad 0
+		{0x56, '<', '>'},//keypad 0
+
 		{0x57, NOCHAR, NOCHAR},//f11
 		{0x58, NOCHAR, NOCHAR}//f12
 	}
@@ -301,10 +305,8 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
-	video_write_hex(s);
-	video_write_nl();
-	return;
 	screensaver_reset_timer();
+
 
 	if (dka_catched_len > 0) {
 
