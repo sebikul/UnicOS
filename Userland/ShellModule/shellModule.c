@@ -22,7 +22,7 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 10;
+static int cmd_count = 11;
 static char** cmd_list;
 
 char* user_name;
@@ -190,7 +190,11 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 9: //host
-		command_host_name( argc, argv);
+		command_host_name(argc, argv);
+		break;
+
+	case 10: //screensaver
+		command_screensaver(argc, argv);
 		break;
 
 	default:
@@ -253,6 +257,7 @@ static void initialize_command_list() {
 	calloc_cmd(7, "refresh");
 	calloc_cmd(8, "user");
 	calloc_cmd(9, "host");
+	calloc_cmd(10, "screensaver");
 
 }
 

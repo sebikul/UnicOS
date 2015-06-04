@@ -132,8 +132,12 @@ void irq0_handler() {
 	screensaver_timer--;
 
 	if (screensaver_timer == 0 && !screensaver_is_active) {
-		screensaver_is_active = TRUE;
-		video_trigger_screensaver();
+		active_screensaver();
 	}
 
+}
+
+void active_screensaver(){
+	screensaver_is_active = TRUE;
+	video_trigger_screensaver();	
 }

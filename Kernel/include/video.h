@@ -46,5 +46,6 @@ void screensaver_reset_timer();
 void video_trigger_backup();
 void video_trigger_restore();
 void video_trigger_screensaver();
+void active_screensaver();
 
 #endif

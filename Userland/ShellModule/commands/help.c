@@ -15,6 +15,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		printf("\tclear : Limpia la pantalla.\n");
 		printf("\trestart : Restaura los colores por defecto.\n");
 		printf("\tuser : Modifica el nombre de usuario.\n");
+		printf("\tscreensaver : Activa el salva pantallas o configura el tiempo que tarda en activarse.\n");
 		printf("\thost : Modifica el nombre del host.\n");
 		printf("\texit  : Finaliza el programa.\n");
 
@@ -82,6 +83,10 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 			printf("\t[host] Recibe el nombre del host y lo setea. \n");
 			break;
 
+		case 10: //screensaver
+			printf("\t[screensaver] Activa el salva pantallas.\n");
+			printf("\t[screensaver set] Modifica el tiempo que tarda en activarse el salva pantallas (en segundos), por defecto 20 segundos.\n");
+			break;
 		default:
 
 			printf("\nNo se encontro el comando.\n");
