@@ -7,6 +7,7 @@
 #include <lib.h>
 
 extern uint64_t screensaver_wait_time;
+extern bool screensaver_is_active;
 
 void sys_rtc_get(time_t* t) {
 	rtc_get_time(t);
@@ -115,5 +116,7 @@ void sys_clear_screen() {
 void sys_screensaver_trigger() {
 
 	active_screensaver();
+
+	while(screensaver_is_active);
 
 }

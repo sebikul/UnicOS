@@ -26,6 +26,8 @@ static kstatus keyboard_status = {FALSE,//caps
                                  };
 #define NOCHAR (char)0
 
+static bool screensaver_enter_flag = FALSE;
+
 scancode keyboard_scancodes[][256] = {
 	{	//USA
 		{0x00 , NOCHAR, NOCHAR}, //empty,
@@ -305,7 +307,10 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
-	if(screensaver_reset_timer()){
+
+
+	if (!screensaver_enter_flag && screensaver_reset_timer()) {
+		screensaver_enter_flag = FALSE;
 		return;
 	}
 
@@ -337,8 +342,17 @@ void keyboard_irq_handler(uint64_t s) {
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
+		case FIRST_BITE_ON(0x1c):
+			if (screensaver_enter_flag) {
+				screensaver_enter_flag = FALSE;
+				return;
+			}
+
+			break;
+
 		case 0x1c: //enter
 			read_eof = TRUE;
+			screensaver_enter_flag = TRUE;
 			break;
 
 		case 0x0E://backspace

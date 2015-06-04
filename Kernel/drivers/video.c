@@ -303,7 +303,7 @@ void video_trigger_screensaver() {
 	    "                                                                                "
 	);
 
-video_update_screen_color();
+	video_update_screen_color();
 
 }
 

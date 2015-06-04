@@ -70,6 +70,6 @@ void sys_clear_screen(){
 }
 
 void sys_screensaver_trigger() {
-	syscall((uint64_t) SYSCALL_SCREENSAVER_TIMER);
+	syscall((uint64_t) SYSCALL_SCREENSAVER_TRIGGER);
 }
 

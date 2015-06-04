@@ -123,8 +123,8 @@ bool screensaver_reset_timer() {
 
 	if (screensaver_is_active) {
 		ret = TRUE;
-		video_trigger_restore();
 		screensaver_is_active = FALSE;
+		video_trigger_restore();
 
 	}
 	screensaver_timer = 18 * screensaver_wait_time;
