@@ -6,7 +6,6 @@
 #include <video.h>
 
 #define BCD_TO_INT(bcd) ((((bcd) / 16) * 10) + ((bcd) & 0xF))
-
 #define INT_TO_BCD(in) 	((((in) / 10) * 16) | (in % 10))
 
 #define USES_BCD(regb)	((regb & 0x4) == 0)
@@ -16,7 +15,6 @@
 
 static uint8_t rtc_read(uint8_t reg);
 static void rtc_write(uint8_t reg, uint8_t val);
-
 static uint8_t rtc_update_in_progress();
 
 void rtc_get_time(time_t* t) {
