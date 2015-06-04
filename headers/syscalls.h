@@ -22,6 +22,7 @@
 #define SYSCALL_SCREENSAVER_TIMER			15
 #define SYSCALL_SCREENSAVER_TRIGGER			16
 #define SYSCALL_CLEAR_SCREEN				17
+#define SYSCALL_EXIT						18
 
 void sys_write(FD fd, char* s, int len);
 int sys_read(FD fd, char* s, int len);

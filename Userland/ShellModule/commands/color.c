@@ -98,6 +98,10 @@ void command_restart() {
 
     //resetea los colores por default de la pantalla
     //TODO: SYS CALL A DRIVER DE VIDEO
+    int front , back;
+    front = string_color_to_int(colors[15]);
+    back = string_color_to_int(colors[0]);
+    set_color(front,back);
 
 }
 

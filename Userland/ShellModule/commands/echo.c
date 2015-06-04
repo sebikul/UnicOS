@@ -13,13 +13,6 @@ void command_echo(int argc, char** argv) {
 
 }
 
-//TODO: programar y sacar
 
-void command_exit() {
-
-	printf("\n");
-	printf("Saliendo..");
-
-}
 
 

@@ -45,6 +45,7 @@ loader:
 
 
 hang:
+		cli
 		hlt										; halt machine should kernel return
 		jmp 		hang
 
@@ -146,6 +147,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		cmp			rdi,	17
 		jz			int_sys_clear_screen
+
+		cmp			rdi,	18
+		jz			hang
 
 		jmp 		soft_interrupt_done 		; La syscall no existe
 

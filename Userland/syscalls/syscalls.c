@@ -73,3 +73,7 @@ void sys_screensaver_trigger() {
 	syscall((uint64_t) SYSCALL_SCREENSAVER_TRIGGER);
 }
 
+void sys_exit(){
+	syscall(SYSCALL_EXIT);
+}
+

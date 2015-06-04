@@ -182,7 +182,7 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 7: //restart
-		//TODO: command_restart();
+		command_restart();
 		break;
 
 	case 8: //user
