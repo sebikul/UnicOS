@@ -19,6 +19,6 @@ void command_color(int argc, char** argv);
 void command_restart();
 
 void command_exit();
-void command_clean();
+void command_clear(int argc);
 
 #endif

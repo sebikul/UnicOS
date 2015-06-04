@@ -22,9 +22,4 @@ void command_exit() {
 
 }
 
-void command_clean() {
-
-	//idem colores, llamar a la funcion clear_screen de kernel
-
-}
 

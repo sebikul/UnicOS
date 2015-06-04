@@ -5,7 +5,7 @@ void command_screensaver(int argc, char** argv) {
 
 	switch (argc) {
 	case 1:
-		sys_screensaver_trigger();
+		//sys_screensaver_trigger();
 
 
 	case 3:
@@ -14,7 +14,7 @@ void command_screensaver(int argc, char** argv) {
 			int sec;
 
 			if (!stringNumeric(argv[2])) {
-				printf("Debe ingresar una cantidad de segundos como parametro.", );
+				printf("Debe ingresar una cantidad de segundos como parametro.");
 			}
 			sec = ctoi(argv[2]);
 

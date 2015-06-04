@@ -178,7 +178,7 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 6: //clear
-		//TODO: command_clean();
+		command_clear(argc);
 		break;
 
 	case 7: //restart
