@@ -129,7 +129,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x0A , '9', ')'},
 		{0x0B , '0', '='},
 		{0x0C , '-', '?'},
-		{0x0D , '=', ' '},//todo! exclamacion que abre
+		{0x0D , '¿', '¡'},
 		{0x0E , NOCHAR, NOCHAR}, //backspace
 		{0x0F , NOCHAR, NOCHAR}, //tab
 		{0x10 , 'q', 'Q'},
@@ -157,7 +157,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x26, 'l', 'L'},
 		{0x27, ';', ':'},
 		{0x28, '\'', '"'},
-		{0x29, '`', '~'},
+		{0x29, '|', '°'},
 		{0x2a, NOCHAR, NOCHAR},//left shift
 		{0x2b, '\\', '|'},
 		{0x2c, 'z', 'Z'},
@@ -301,11 +301,10 @@ void keyboard_irq_handler(uint64_t s) {
 	// 	return;
 	// }
 
-	if (screensaver_is_active) {
-		screensaver_reset_timer();
-		return;
-	}
-
+	video_write_hex(s);
+	video_write_nl();
+	return;
+	screensaver_reset_timer();
 
 	if (dka_catched_len > 0) {
 

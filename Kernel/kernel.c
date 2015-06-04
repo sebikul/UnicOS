@@ -27,7 +27,7 @@ static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
 static uint64_t pit_timer = 0;
-uint64_t screensaver_wait_time = 5; //TODO
+uint64_t screensaver_wait_time = 9999995; //TODO
 uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
