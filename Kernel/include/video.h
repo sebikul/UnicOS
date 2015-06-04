@@ -11,6 +11,13 @@
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
 
+typedef struct {
+	int row;
+	int column;
+	uint16_t screen[SCREEN_WIDTH * SCREEN_HEIGHT];
+	color_t color;
+} screen_t;
+
 void video_initialize();
 void video_reset_color();
 color_t video_get_color();
@@ -35,5 +42,9 @@ void video_write_bin(uint64_t value);
 void video_write_base(uint64_t value, uint32_t base);
 
 void screensaver_reset_timer();
+
+void video_trigger_backup();
+void video_trigger_restore();
+void video_trigger_screensaver();
 
 #endif
