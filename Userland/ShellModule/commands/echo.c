@@ -1,8 +1,6 @@
 
 #include <libc.h>
 
-//DEBERIAMOS PONERLE COMANDOS.C O ALGO ASI, NO LE MODIFIQUE EL NOMBRE POR SI ALGUNO ESTABA TOCANDO EL ARCHIVO
-
 void command_echo(int argc, char** argv) {
 
 	if (argc != 1) {
@@ -14,6 +12,8 @@ void command_echo(int argc, char** argv) {
 	}
 
 }
+
+//TODO: SACAR
 
 void command_exit() {
 
@@ -27,8 +27,4 @@ void command_clean() {
 	//idem colores, llamar a la funcion clear_screen de kernel
 
 }
-void command_refresh() {
 
-	//idem idem idem idem idem, llama a refresh de kernel
-
-}
