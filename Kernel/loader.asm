@@ -24,7 +24,7 @@ extern 		sys_keyboard_replace_buffer
 extern 		sys_get_color
 extern 		sys_set_color
 extern 		sys_kbd_set_distribution
-extern 		sys_set_background_timer
+extern 		sys_set_screensaver_timer
 
 loader:
 
@@ -136,6 +136,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp 		rdi,	14
 		jz			int_sys_kbd_set_distribution
 
+		cmp 		rdi, 	15
+		jz 			int_sys_set_screensaver_timer
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
@@ -200,9 +203,9 @@ int_sys_kbd_set_distribution:
 		call		sys_kbd_set_distribution
 		jmp 		soft_interrupt_done
 
-int_sys_set_background_timer:
+int_sys_set_screensaver_timer:
 		call 		prepare_params
-		call		sys_set_background_timer
+		call		sys_set_screensaver_timer
 		jmp 		soft_interrupt_done
 
 
