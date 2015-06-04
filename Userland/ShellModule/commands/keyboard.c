@@ -5,6 +5,7 @@
 void command_set_distribution(int argc , char** argv) {
 	if (argc != 3) {
 		printf("Cantidad invalida de argumentos.\n");
+		return;
 	}
 
 	if (strcmp(argv[1], "set") == 0) {
@@ -18,6 +19,6 @@ void command_set_distribution(int argc , char** argv) {
 		}
 
 	} else {
-		printf("Comando invalido. Comando disponible [keyboard set]\n.");
+		printf("Comando invalido. Comando disponible [keyboard set].\n");
 	}
 }

@@ -2,6 +2,7 @@
 #include <types.h>
 
 static int COLOR_COUNT = 16;
+static bool initialize_flag=FALSE;
 static char** colors;
 static char* color_to_string(color_t color);
 static char* color_to_string(color_t color);
@@ -12,7 +13,10 @@ static void calloc_colors(int i, char* str);
 void command_color(int argc , char** argv) {
     color_t c = get_color();
     int icolor;
-    initialize_colors();
+    if (!initialize_flag){
+        initialize_colors();
+        initialize_flag=TRUE;
+    }
     if (argc == 4) {
         icolor = string_color_to_int(argv[3]);
     } else {
@@ -94,10 +98,13 @@ static void calloc_colors(int i, char* str) {
     strcpy(colors[i], str);
 }
 
-void command_restart() {
+void command_refresh() {
 
-    //resetea los colores por default de la pantalla
-    //TODO: SYS CALL A DRIVER DE VIDEO
+    if (!initialize_flag)
+    {
+        initialize_colors();
+        initialize_flag=TRUE;
+    }
     int front , back;
     front = string_color_to_int(colors[15]);
     back = string_color_to_int(colors[0]);

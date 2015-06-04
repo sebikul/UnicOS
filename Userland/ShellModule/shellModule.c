@@ -30,9 +30,6 @@ char* host_name;
 int USER_SIZE = 20;
 int HOST_SIZE = 20;
 
-
-bool exit_flag = FALSE;
-
 void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
 
@@ -60,7 +57,7 @@ int main() {
 	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
 	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
 
-	while (!exit_flag) {
+	while (1) {
 
 		printf("\n%s@%s $ ", user_name, host_name);
 
@@ -74,7 +71,7 @@ int main() {
 
 	}
 
-	//Test if BSS is properly set up
+	//TODO: sacar antes de la entrega... ? Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)
 		return 0xDEADC0DE;
 
@@ -109,6 +106,11 @@ void command_dispatcher(char* command) {
 		//copiamos el puntero a la cadena por comodidad, para poder modificarlo
 		char* pos = argv[argc];
 
+		//TODO: esto creo que hay que sacarlo, no lo estamos usando
+		//lo de las comillas
+
+		//si elegimos dejarlo... el fprintf caga los colores cuando cambias 
+		//front o backcolors, asique habria que checkear eso
 		bool comillas = (*command == '"');
 
 		if (comillas)
@@ -171,9 +173,6 @@ void command_dispatcher(char* command) {
 		break;
 
 	case 5: //exit
-		//TODO: funcion ASM que haga hlt y cuelge via una sys call
-		//o sacar la funcionalidad
-		exit_flag = TRUE;
 		command_exit();
 		break;
 
@@ -181,8 +180,8 @@ void command_dispatcher(char* command) {
 		command_clear(argc);
 		break;
 
-	case 7: //restart
-		command_restart();
+	case 7: //refresh
+		command_refresh();
 		break;
 
 	case 8: //user

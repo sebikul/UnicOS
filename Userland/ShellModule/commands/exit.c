@@ -1,11 +1,8 @@
-#include <libc.h>
-
-//TODO: programar y sacar
+#include <libc.h> 
 
 void command_exit() {
 
-	printf("\n");
-	printf("Saliendo..");
+	clear_screen();
 	exit();
 
 }

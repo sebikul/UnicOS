@@ -1,7 +1,4 @@
 TODO:
-Hacer un comando para cambiar el tiempo que tarda entrar en el screensaver. La syscall es sys_screensaver_time(t)
-
-
 Boring
 	Manual de usuario
 

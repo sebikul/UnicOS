@@ -7,17 +7,17 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 	if (argc == 1) {
 
 		printf("Comandos disponibles:\n");
-		printf("\thelp  : Muestra una lista de los comandos disponibles.\n");
-		printf("\techo  : Muestra un mensaje en pantalla.\n");
-		printf("\ttime  : Muestra o setea la hora del sistema en pantalla.\n");
-		printf("\tcolor : Cambia el color de lo que se va a imprimir en pantalla.\n");
-		printf("\tkeyboard : Setea la distribucion del teclado.\n");
-		printf("\tclear : Limpia la pantalla.\n");
-		printf("\trestart : Restaura los colores por defecto.\n");
-		printf("\tuser : Modifica el nombre de usuario.\n");
-		printf("\tscreensaver : Activa el salva pantallas o configura el tiempo que tarda en activarse.\n");
-		printf("\thost : Modifica el nombre del host.\n");
-		printf("\texit  : Finaliza el programa.\n");
+		printf("\thelp \t\t: Muestra una lista de los comandos disponibles.\n");
+		printf("\techo \t\t: Muestra un mensaje en pantalla.\n");
+		printf("\ttime \t\t: Muestra o setea la hora del sistema en pantalla.\n");
+		printf("\tcolor\t\t: Cambia el color de lo que se va a imprimir en pantalla.\n");
+		printf("\tkeyboard \t: Setea la distribucion del teclado.\n");
+		printf("\tclear\t\t: Limpia la pantalla.\n");
+		printf("\trefresh  \t: Restaura los colores por defecto.\n");
+		printf("\tuser \t\t: Modifica el nombre de usuario.\n");
+		printf("\tscreensaver  : Activa o configura el salvapantallas.\n");
+		printf("\thost \t\t: Modifica el nombre del host.\n");
+		printf("\texit \t\t: Finaliza el programa.\n");
 
 		printf("\nEjecute 'help [comando]' para obtener mas ayuda.\n");
 	} else {
@@ -70,9 +70,8 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 			printf("\t[clear] Limpia la pantalla (no limpia el historial de comandos).\n");
 			break;
 
-		case 7: //restart
-
-			printf("\t[restart] Restaura los colores de texto y fondo. \n");
+		case 7: //refresh
+			printf("\t[refresh] Restaura los colores de texto y fondo. \n");
 			break;
 
 		case 8: //user
@@ -85,7 +84,8 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 
 		case 10: //screensaver
 			printf("\t[screensaver] Activa el salva pantallas.\n");
-			printf("\t[screensaver set] Modifica el tiempo que tarda en activarse el salva pantallas (en segundos), por defecto 20 segundos.\n");
+			printf("\t[screensaver set] Setea el tiempo que tarda en activarse el salva pantallas.");
+			printf("Por defecto 20 segundos, el tiempo se ingresa en segundos.\n");
 			break;
 		default:
 

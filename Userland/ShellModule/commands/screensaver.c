@@ -18,14 +18,17 @@ void command_screensaver(int argc, char** argv) {
 			if (!stringNumeric(argv[2])) {
 
 				printf("Debe ingresar una cantidad de segundos como parametro.\n");
-
+				return;
 			}
 			sec = ctoi(argv[2]);
+			if(sec==0){
+				printf("Salva pantallas desactivado.\n");
+			}
 
 			sys_set_screensaver_timer(sec);
 
 		} else {
-			printf("Comando invalido. Comandos disponibles [screensaver set <seconds>]\n");
+			printf("Comando invalido. Comandos disponibles [screensaver set <segundos>]\n");
 		}
 
 		break;

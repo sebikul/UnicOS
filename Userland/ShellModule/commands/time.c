@@ -55,7 +55,6 @@ void command_time(int argc, char** argv) {
 		printf("Cantidad invalida de parametros.\n");
 	}
 
-
 }
 
 int checkDate(int hour, int minute, int second, int day, int month, int year) {
@@ -65,9 +64,9 @@ int checkDate(int hour, int minute, int second, int day, int month, int year) {
 		return FALSE;
 	if (second > 59 || second < 0)
 		return FALSE;
-	if (day > 31 || day < 0)
+	if (day > 31 || day <= 0)
 		return FALSE;
-	if (month > 12 || month < 0)
+	if (month > 12 || month <= 0)
 		return FALSE;
 	if (year < 0 || year > 99)
 		return FALSE;
