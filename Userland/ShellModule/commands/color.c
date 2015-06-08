@@ -29,8 +29,8 @@ void command_color(int argc , char** argv) {
 
     case 1:
 
-        printf("Color del front : (%02i) %s\n", video_get_fg(c), color_to_string(video_get_fg(c)));
-        printf("Color del background : (%02i) %s\n", video_get_bg(c), color_to_string(video_get_bg(c)));
+        printf("Color del front : %s\n", color_to_string(video_get_fg(c)));
+        printf("Color del background : %s\n", color_to_string(video_get_bg(c)));
         break;
 
     case 4:
