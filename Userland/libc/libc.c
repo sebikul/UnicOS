@@ -143,6 +143,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 							flag = TRUE;
 							break;
 						}
+						break;
 					}
 
 					case '1':
