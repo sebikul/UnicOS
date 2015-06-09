@@ -17,7 +17,7 @@ void command_screensaver(int argc, char** argv) {
 
 			if (!string_numeric(argv[2])) {
 
-				printf("Debe ingresar una cantidad de segundos como parametro.\n");
+				fprintf(FD_STDERR, "Debe ingresar una cantidad de segundos como parametro.\n");
 				return;
 			}
 			sec = ctoi(argv[2]);
@@ -28,13 +28,13 @@ void command_screensaver(int argc, char** argv) {
 			sys_set_screensaver_timer(sec);
 
 		} else {
-			printf("Comando invalido. Comandos disponibles [screensaver set <segundos>]\n");
+			fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [screensaver set <segundos>]\n");
 		}
 
 		break;
 
 	default:
-		printf("Cantidad invalida de parametros.\n");
+		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
 
 

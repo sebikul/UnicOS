@@ -47,13 +47,6 @@ int main() {
 	initialize_command_list();
 	initialize_names();
 
-	//TODO: sacar antes de entregar
-	fprintf(FD_STDERR, "Ejecutando \"ShellModule...numero que me gusta: %i.\n", 50);
-	printf("Este es un caracter %c, y este es un numero %i.\n", 'A', 78);
-
-	printf("Este numero deberia tener 5 digitos %05i. Y este 3: %03i\n", 453, 78);
-
-
 	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
 	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
 
@@ -71,7 +64,7 @@ int main() {
 
 	}
 
-	//TODO: sacar antes de la entrega... ? Test if BSS is properly set up
+	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)
 		return 0xDEADC0DE;
 
@@ -106,11 +99,6 @@ void command_dispatcher(char* command) {
 		//copiamos el puntero a la cadena por comodidad, para poder modificarlo
 		char* pos = argv[argc];
 
-		//TODO: esto creo que hay que sacarlo, no lo estamos usando
-		//lo de las comillas
-
-		//si elegimos dejarlo... el fprintf caga los colores cuando cambias 
-		//front o backcolors, asique habria que checkear eso
 		bool comillas = (*command == '"');
 
 		if (comillas)
@@ -198,7 +186,7 @@ void command_dispatcher(char* command) {
 
 	default:
 
-		printf("Comando no encontrado.");
+		fprintf(FD_STDERR, "Comando no encontrado.");
 	}
 
 }

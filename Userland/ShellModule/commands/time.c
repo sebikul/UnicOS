@@ -37,13 +37,13 @@ void command_time(int argc, char** argv) {
 
 					set_time(t);
 				} else {
-					printf("Horario invalido. Verifique la correctitud de la fecha.\n");
+					fprintf(FD_STDERR, "Horario invalido. Verifique la correctitud de la fecha.\n");
 				}
 			} else {
-				printf("Horario invalido. La hora se ingresa en formato numerico unicamente.\n");
+				fprintf(FD_STDERR, "Horario invalido. La hora se ingresa en formato numerico unicamente.\n");
 			}
 		} else {
-			printf("Comando invalido. Comandos disponibles [time] [time set]\n");
+			fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [time] [time set]\n");
 		}
 		for (int i = 2; i < 8 && flagn; i++) {
 			if (!string_numeric(argv[i])) {
@@ -54,7 +54,7 @@ void command_time(int argc, char** argv) {
 		break;
 
 	default:
-		printf("Cantidad invalida de parametros.\n");
+		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
 
 }

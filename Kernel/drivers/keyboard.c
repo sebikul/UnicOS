@@ -211,10 +211,6 @@ scancode keyboard_scancodes[][256] = {
 	}
 };
 
-//typedef void (*dka_handler)(uint64_t s);
-
-//static dka_handler keyboard_handler = NULL;
-
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 
 static int dka_catched_len = 0;
@@ -302,12 +298,6 @@ static void keyboard_write_char(char c) {
 
 void keyboard_irq_handler(uint64_t s) {
 
-	// if (keyboard_handler != NULL) {
-	// 	keyboard_handler(s);
-	// 	return;
-	// }
-
-
 
 	if (!screensaver_enter_flag && screensaver_reset_timer()) {
 		screensaver_enter_flag = FALSE;
@@ -386,28 +376,6 @@ void keyboard_irq_handler(uint64_t s) {
 	}
 
 }
-
-
-// bool keyboard_grab(dka_handler handler) {
-
-// 	if (keyboard_handler == NULL) {
-// 		keyboard_handler = handler;
-// 		return TRUE;
-// 	}
-
-// 	return FALSE;
-
-// }
-
-// bool keyboard_release(dka_handler handler) {
-
-// 	if (keyboard_handler == handler) {
-// 		keyboard_handler = NULL;
-// 		return TRUE;
-// 	}
-
-// 	return FALSE;
-// }
 
 void keyboard_catch(uint64_t scancode, dka_handler handler) {
 

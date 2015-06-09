@@ -4,7 +4,7 @@
 
 void command_set_distribution(int argc , char** argv) {
 	if (argc != 3) {
-		printf("Cantidad invalida de argumentos.\n");
+		fprintf(FD_STDERR, "Cantidad invalida de argumentos.\n");
 		return;
 	}
 
@@ -15,10 +15,10 @@ void command_set_distribution(int argc , char** argv) {
 		} else if (strcmp(argv[2], "usa") == 0) {
 			sys_kbd_set_distribution(KEYBOARD_USA);
 		} else {
-			printf("Distribucion de teclado invalida. Distribuciones disponibles [usa] [latin].\n");
+			fprintf(FD_STDERR, "Distribucion de teclado invalida. Distribuciones disponibles [usa] [latin].\n");
 		}
 
 	} else {
-		printf("Comando invalido. Comando disponible [keyboard set].\n");
+		fprintf(FD_STDERR, "Comando invalido. Comando disponible [keyboard set].\n");
 	}
 }

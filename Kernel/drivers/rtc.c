@@ -63,7 +63,6 @@ void rtc_set_time(time_t* t) {
 
 	t->year = t->year % 100;
 
-	//TODO: check: Agregue el '!' porque me mostraba mal la hora nose si estaria bien
 	if (!CLOCK_IN_12HOURS(regb) && t->hour > 12) {
 
 		t->hour = TO_PM(t->hour - 12);

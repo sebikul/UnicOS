@@ -89,7 +89,7 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 			break;
 		default:
 
-			printf("\nNo se encontro el comando.\n");
+			fprintf(FD_STDERR, "\nNo se encontro el comando.\n");
 		}
 	}
 

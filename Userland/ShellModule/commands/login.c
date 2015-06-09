@@ -8,7 +8,7 @@ extern int HOST_SIZE;
 void command_user_name(int argc, char** argv) {
 
 	if (argc != 2) {
-		printf("Comando invalido. Debe ingresar un unico nombre de usuario.\n");
+		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un unico nombre de usuario.\n");
 	} else {
 		if (strlen(argv[1]) > USER_SIZE) {
 			printf("El nombre de usuario es demasiado largo, el tamaño maximo es: %i", USER_SIZE);
@@ -21,7 +21,7 @@ void command_user_name(int argc, char** argv) {
 void command_host_name(int argc, char** argv) {
 
 	if (argc != 2) {
-		printf("Comando invalido. Debe ingresar un unico nombre de host.\n");
+		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un unico nombre de host.\n");
 	} else {
 		if (strlen(argv[1]) > HOST_SIZE) {
 			printf("El nombre del host es demasiado largo, el tamaño maximo es: %i", HOST_SIZE);

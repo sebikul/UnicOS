@@ -37,7 +37,7 @@ void command_color(int argc , char** argv) {
     case 5:
 
         if (icolor == EOF) {
-            printf("NO ES UN COLOR");
+            fprintf(FD_STDERR, "NO ES UN COLOR");
             return;
         }
 
@@ -55,18 +55,18 @@ void command_color(int argc , char** argv) {
                 set_color(video_get_fg(c), icolor);
 
             } else {
-                printf("Comando invalido. Comandos disponibles [front] [background].\n" );
+                fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [front] [background].\n" );
 
             }
 
         } else {
-            printf("Comando Invalido. Comandos disponibles [color] [color set] \n" );
+            fprintf(FD_STDERR, "Comando Invalido. Comandos disponibles [color] [color set] \n" );
         }
         break;
 
 
     default :
-        printf("Cantidad invalida de parametros. \n" );
+        fprintf(FD_STDERR, "Cantidad invalida de parametros. \n" );
     }
 }
 

@@ -178,9 +178,6 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 	}
 
-	//TODO: sacar antes de entregar
-	//va_end(ap);
-
 	sys_write(fd, str, j);
 
 }

@@ -34,7 +34,6 @@ void video_update_screen_color() {
 
 }
 
-//TODO: static - checkear usos en el proyecto
 static void video_reset_color() {
 	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
 }
@@ -63,12 +62,8 @@ static void video_write_full_char_at(uint16_t c, int row, int col) {
 
 }
 
-//TODO: static - checkear usos en el proyecto
 void video_clear_screen() {
 
-	//uint8_t colorbk = current_color;
-
-	//video_reset_color();
 
 	for (int i = 0; i < SCREEN_HEIGHT; i++) {
 
@@ -76,15 +71,10 @@ void video_clear_screen() {
 			video_write_char(' ');
 		}
 
-		//cursor[i*2]=' ';
-		//cursor[i*2+1]=0; //TOASK: default?
-
 	}
 
 	video_row = 0;
 	video_column = 0;
-
-	//current_color = colorbk;
 
 	video_update_screen_color();
 }
@@ -130,7 +120,6 @@ void video_write_char_at(const char c, int row, int col) {
 	video_write_full_char_at(c_16 | (color_16 << 8), row, col);
 }
 
-//TODO: static - checkear usos en el proyecto
 void video_write_char(const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
