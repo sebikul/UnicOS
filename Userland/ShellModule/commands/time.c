@@ -1,5 +1,7 @@
 #include <libc.h>
 
+static int checkDate(int hour, int minute, int second, int day, int month, int year);
+
 void command_time(int argc, char** argv) {
 
 	time_t* t = time();
@@ -33,7 +35,7 @@ void command_time(int argc, char** argv) {
 					t->month = month;
 					t->year = year;
 
-					setTime(t);
+					set_time(t);
 				} else {
 					printf("Horario invalido. Verifique la correctitud de la fecha.\n");
 				}
@@ -44,7 +46,7 @@ void command_time(int argc, char** argv) {
 			printf("Comando invalido. Comandos disponibles [time] [time set]\n");
 		}
 		for (int i = 2; i < 8 && flagn; i++) {
-			if (!stringNumeric(argv[i])) {
+			if (!string_numeric(argv[i])) {
 				flagn = FALSE;
 			}
 		}
@@ -57,7 +59,7 @@ void command_time(int argc, char** argv) {
 
 }
 
-int checkDate(int hour, int minute, int second, int day, int month, int year) {
+static int checkDate(int hour, int minute, int second, int day, int month, int year) {
 	if (hour > 23 || hour < 0)
 		return FALSE;
 	if (minute > 59 || minute < 0)

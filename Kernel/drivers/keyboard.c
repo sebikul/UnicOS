@@ -131,7 +131,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x0A , '9', ')'},
 		{0x0B , '0', '='},
 		{0x0C , '-', '?'},
-		{0x0D , '¿', '¡'},
+		{0x0D , NOCHAR, NOCHAR},
 		{0x0E , NOCHAR, NOCHAR}, //backspace
 		{0x0F , NOCHAR, NOCHAR}, //tab
 		{0x10 , 'q', 'Q'},
@@ -159,7 +159,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x26, 'l', 'L'},
 		{0x27, ';', ':'},
 		{0x28, '\'', '"'},
-		{0x29, '|', '°'},
+		{0x29, '|', NOCHAR},
 		{0x2a, NOCHAR, NOCHAR},//left shift
 		{0x2b, '}', ']'},
 		{0x2c, 'z', 'Z'},

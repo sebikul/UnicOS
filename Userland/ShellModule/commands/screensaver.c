@@ -15,7 +15,7 @@ void command_screensaver(int argc, char** argv) {
 
 			int sec;
 
-			if (!stringNumeric(argv[2])) {
+			if (!string_numeric(argv[2])) {
 
 				printf("Debe ingresar una cantidad de segundos como parametro.\n");
 				return;

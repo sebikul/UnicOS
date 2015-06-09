@@ -24,9 +24,11 @@ time_t* time();
 int strcmp(const char* s1, const char* s2);
 char* strcpy(char* dest, char* src);
 void * memset(void * destiny, int32_t c, uint64_t length);
-bool stringNumeric(char* str);
-bool isNumeric(char c);
+bool string_numeric(char* str);
+bool is_numeric(char c);
 char* strcat(char* str1, char* str2);
+void clear_screen();
+void set_time(time_t * t);
 void exit();
 
 

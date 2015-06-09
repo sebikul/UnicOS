@@ -40,5 +40,6 @@ void sys_kbd_set_distribution(keyboard_distrib d);
 void sys_set_screensaver_timer(uint64_t t);
 void sys_clear_screen();
 void sys_screensaver_trigger();
+void sys_exit();
 
 #endif
