@@ -2,7 +2,7 @@
 #include <types.h>
 
 static int COLOR_COUNT = 16;
-static bool initialize_flag=FALSE;
+static bool initialize_flag = FALSE;
 static char** colors;
 static char* color_to_string(color_t color);
 static char* color_to_string(color_t color);
@@ -13,9 +13,9 @@ static void calloc_colors(int i, char* str);
 void command_color(int argc , char** argv) {
     color_t c = get_color();
     int icolor;
-    if (!initialize_flag){
+    if (!initialize_flag) {
         initialize_colors();
-        initialize_flag=TRUE;
+        initialize_flag = TRUE;
     }
     if (argc == 4) {
         icolor = string_color_to_int(argv[3]);
@@ -103,12 +103,12 @@ void command_refresh() {
     if (!initialize_flag)
     {
         initialize_colors();
-        initialize_flag=TRUE;
+        initialize_flag = TRUE;
     }
     int front , back;
     front = string_color_to_int(colors[15]);
     back = string_color_to_int(colors[0]);
-    set_color(front,back);
+    set_color(front, back);
 
 }
 

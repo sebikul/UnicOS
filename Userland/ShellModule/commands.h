@@ -18,6 +18,8 @@ void command_fontcolor(int color);
 void command_color(int argc, char** argv);
 void command_refresh();
 
+void command_screensaver(int argc, char** argv);
+
 void command_exit();
 void command_clear(int argc);
 

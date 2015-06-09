@@ -14,8 +14,8 @@ void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {
 		printf("\tkeyboard \t: Setea la distribucion del teclado.\n");
 		printf("\tclear\t\t: Limpia la pantalla.\n");
 		printf("\trefresh  \t: Restaura los colores por defecto.\n");
-		printf("\tuser \t\t: Modifica el nombre de usuario.\n");
 		printf("\tscreensaver  : Activa o configura el salvapantallas.\n");
+		printf("\tuser \t\t: Modifica el nombre de usuario.\n");
 		printf("\thost \t\t: Modifica el nombre del host.\n");
 		printf("\texit \t\t: Finaliza el programa.\n");
 
