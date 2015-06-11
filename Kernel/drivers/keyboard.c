@@ -1,3 +1,5 @@
+//TODO: fix caps-shift for SO
+
 #include <stdint.h>
 #include <video.h>
 #include <keyboard.h>
