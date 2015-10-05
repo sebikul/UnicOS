@@ -1,6 +1,7 @@
 #Binary Files
 *.bin
 
+unicos.sublime-workspace
 
 #The images
 *.img
