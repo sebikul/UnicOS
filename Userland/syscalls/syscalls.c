@@ -36,8 +36,8 @@ void sys_free(void* m) {
 	syscall((uint64_t)SYSCALL_FREE, (uint64_t)m);
 }
 
-void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
+	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
 }
 
 void sys_clear_indexed_line(int index) {
@@ -77,3 +77,6 @@ void sys_exit() {
 	syscall((uint64_t)SYSCALL_EXIT);
 }
 
+void sys_keyboard_clear_handler(uint64_t index) {
+	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, (uint64_t)index);
+}

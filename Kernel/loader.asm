@@ -27,9 +27,9 @@ extern 		sys_kbd_set_distribution
 extern 		sys_set_screensaver_timer
 extern		sys_clear_screen
 extern 		sys_screensaver_trigger
+extern 		sys_keyboard_clear_handler
 
 loader:
-
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
 		mov			rsp, 	rax					; Set up the stack with the returned address
@@ -151,6 +151,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cmp			rdi,	18
 		jz			hang
 
+		cmp			rdi,	19
+		jz			int_keyboard_clear_handler
+
 		jmp 		soft_interrupt_done 		; La syscall no existe
 
 int_sys_rtc:
@@ -230,6 +233,11 @@ int_sys_screensaver_trigger:
 		call		sys_screensaver_trigger
 		jmp 		soft_interrupt_done
 
+int_keyboard_clear_handler:
+		call 		prepare_params
+		call 		sys_keyboard_clear_handler
+		jmp 		soft_interrupt_done
+
 soft_interrupt_done:
 		push 		rax
 		mov 		al, 	0x20				; Acknowledge the IRQ
@@ -268,7 +276,13 @@ keyboard:
 		xor			eax, 	eax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
+		cmp 		al, 	0xE0
 
+		jnz 		keyboard_scancode_read
+		xchg 		al, 	ah
+		in 			al, 	0x60
+
+keyboard_scancode_read:
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 

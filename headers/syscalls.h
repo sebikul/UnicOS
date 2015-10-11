@@ -22,6 +22,7 @@
 #define SYSCALL_SCREENSAVER_TRIGGER			16
 #define SYSCALL_CLEAR_SCREEN				17
 #define SYSCALL_EXIT						18
+#define SYSCALL_KEYBOARD_CLEAR_HANDLER		19
 
 void sys_write(FD fd, char* s, int len);
 int sys_read(FD fd, char* s, int len);
@@ -30,7 +31,7 @@ void sys_rtc_set(time_t* t);
 void* sys_malloc(int len);
 void* sys_calloc(int len);
 void sys_free(void* m);
-void sys_keyboard_catch(uint64_t scancode, dka_handler handler);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler);
 void sys_clear_indexed_line(int index);
 void sys_keyboard_replace_buffer(char* s);
 void sys_set_color(color_t t);
@@ -40,5 +41,6 @@ void sys_set_screensaver_timer(uint64_t t);
 void sys_clear_screen();
 void sys_screensaver_trigger();
 void sys_exit();
+void sys_keyboard_clear_handler(uint64_t index);
 
 #endif

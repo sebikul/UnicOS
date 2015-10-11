@@ -24,12 +24,6 @@ void sys_write(FD fd, char* s, int len) {
 
 	color_t colorbk;
 
-	// video_write_string(KERNEL_CONSOLE, "Task: ");
-	// video_write_string(KERNEL_CONSOLE, task_get_current()->name);
-	// video_write_string(KERNEL_CONSOLE, "\tConsole: ");
-	// video_write_dec(KERNEL_CONSOLE, (uint64_t)task_get_current()->console);
-	// video_write_nl(KERNEL_CONSOLE);
-
 	switch (fd) {
 	case FD_STDOUT:
 		video_write_string(task_get_current()->console, s);
@@ -86,8 +80,8 @@ void sys_free(void* m) {
 	free(m);
 }
 
-void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
+	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid);
 }
 
 void sys_clear_indexed_line(int index) {
@@ -127,4 +121,8 @@ void sys_screensaver_trigger() {
 
 	while (screensaver_is_active);
 
+}
+
+void sys_keyboard_clear_handler(uint64_t handler) {
+	keyboard_clear_handler(handler);
 }

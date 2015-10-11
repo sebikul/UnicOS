@@ -8,9 +8,6 @@
 
 #define FIRST_BIT_ON(c) (0x80 | c)
 
-extern int video_column;
-extern int video_row;
-
 extern bool screensaver_is_active;
 
 char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
@@ -21,12 +18,10 @@ int keyboard_written = 0;
 static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
 static bool read_eof = FALSE;
-
 static kstatus keyboard_status = {FALSE,//caps
                                   FALSE,//ctrl
                                   FALSE//alt
                                  };
-#define NOCHAR (char)0
 
 static bool screensaver_enter_flag = FALSE;
 
@@ -214,9 +209,7 @@ scancode keyboard_scancodes[][256] = {
 };
 
 static dka_catch* dka_catched_scancodes[256] = {NULL};
-
 static int dka_catched_len = 0;
-
 
 static bool keyboard_buffer_write(char c) {
 
@@ -235,11 +228,10 @@ static bool keyboard_buffer_write(char c) {
 
 static void keyboard_buffer_delete() {
 
-
 	if (keyboard_written == 0) {
 		return;
 	}
-	
+
 	screen_t *screen = get_screen(task_get_current()->console);
 
 	if (screen->column == 0) {
@@ -254,8 +246,6 @@ static void keyboard_buffer_delete() {
 	video_write_char_at(KERNEL_CONSOLE, ' ', screen->row, screen->column);
 
 	video_update_cursor();
-
-
 }
 
 void keyboard_replace_last_written(char* s) {
@@ -277,7 +267,6 @@ int keyboard_wait_for_buffer(int len) {
 	while (keyboard_written < len && !read_eof) ;
 
 	return keyboard_written;
-
 }
 
 char keyboard_get_char_from_buffer() {
@@ -289,7 +278,6 @@ char keyboard_get_char_from_buffer() {
 	keyboard_wpos = keyboard_wpos % KEYBOARD_BUFFER_SIZE;
 
 	return ret;
-
 }
 
 static void keyboard_write_char(char c) {
@@ -297,28 +285,24 @@ static void keyboard_write_char(char c) {
 	if (keyboard_buffer_write(c)) {
 		video_write_char(KERNEL_CONSOLE, c);
 	}
-
 }
 
 void keyboard_irq_handler(uint64_t s) {
-
 
 	if (!screensaver_enter_flag && screensaver_reset_timer()) {
 		screensaver_enter_flag = FALSE;
 		return;
 	}
 
-
 	if (dka_catched_len > 0) {
 
 		bool catched = FALSE;
 
 		for (int i = 0; i < dka_catched_len; i++) {
-			if (dka_catched_scancodes[i]->scancode == s) {
+			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == s) {
 
 				dka_catched_scancodes[i]->handler(s);
 				catched = TRUE;
-
 			}
 		}
 
@@ -341,7 +325,6 @@ void keyboard_irq_handler(uint64_t s) {
 				screensaver_enter_flag = FALSE;
 				return;
 			}
-
 			break;
 
 		case 0x1c: //enter
@@ -362,7 +345,6 @@ void keyboard_irq_handler(uint64_t s) {
 		case FIRST_BIT_ON(0x36)://shift
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
-
 		}
 
 	} else {
@@ -373,15 +355,13 @@ void keyboard_irq_handler(uint64_t s) {
 			keyboard_write_char(t.ascii);
 		}
 
-
-
 		video_update_cursor();
-
 	}
-
 }
 
-void keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid) {
+int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid) {
+
+	int index;
 
 	dka_catch* tmp = (dka_catch*)calloc(sizeof(dka_catch));
 
@@ -389,11 +369,18 @@ void keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console
 	tmp->handler = handler;
 	tmp->pid = pid;
 	tmp->console = console;
+	tmp->wildcard = (scancode == 0);
 
-	dka_catched_scancodes[dka_catched_len++] = tmp;
+	index = dka_catched_len;
+	dka_catched_scancodes[index] = tmp;
+	dka_catched_len++;
 
+	return index;
+}
 
-
+void keyboard_clear_handler(int index){
+	free(dka_catched_scancodes[index]);
+	dka_catched_scancodes[index]=NULL;
 }
 
 void keyboard_set_distribution(keyboard_distrib d) {
