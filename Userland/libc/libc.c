@@ -124,6 +124,23 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						break;
 
 					}
+
+					case 'x': {
+
+						char buffer[128] = { 0 };
+
+						int arg = va_arg(ap, int);
+						uint32_t digits = uintToBase(arg, buffer, 16);
+
+						for (int i = 0; i < digits; i++) {
+							str[j] = buffer[i];
+							j++;
+						}
+
+						i++;
+						break;
+
+					}
 					case '0': {
 						if (!flag_zero) {
 							flag_zero = TRUE;
@@ -167,6 +184,8 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 	}
 
 	sys_write(fd, str, j);
+
+	free(str);
 
 }
 

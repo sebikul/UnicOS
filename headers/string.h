@@ -9,5 +9,6 @@ char* strcpy(char* dest, const char* src);
 int strpos(const char* s, char n);
 void * memset(void * destiation, int32_t c, uint64_t length);
 int strlen(const char* str);
+uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
 #endif
