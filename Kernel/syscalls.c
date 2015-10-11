@@ -1,10 +1,11 @@
 
-#include <syscalls.h>
-#include <types.h>
-#include <video.h>
-#include <keyboard.h>
-#include <rtc.h>
-#include <lib.h>
+#include "syscalls.h"
+#include "types.h"
+#include "video.h"
+#include "keyboard.h"
+#include "rtc.h"
+#include "string.h"
+#include "mem.h"
 
 extern uint64_t screensaver_wait_time;
 extern bool screensaver_is_active;

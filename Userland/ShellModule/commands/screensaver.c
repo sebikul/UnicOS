@@ -1,6 +1,7 @@
 #include <libc.h>
 #include <syscalls.h>
 
+#include "string.h"
 
 void command_screensaver(int argc, char** argv) {
 

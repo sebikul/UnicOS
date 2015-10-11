@@ -23,7 +23,6 @@ void video_initialize() {
 
 	video_column = 0;
 	video_row = 0;
-
 }
 
 void video_update_screen_color() {
@@ -31,7 +30,6 @@ void video_update_screen_color() {
 	for (int c = 1; c < SCREEN_HEIGHT * SCREEN_WIDTH * 2; c += 2) {
 		((uint8_t*)SCREEN_START)[c] = current_color;
 	}
-
 }
 
 static void video_reset_color() {
@@ -51,15 +49,11 @@ color_t video_get_color() {
 }
 
 static uint16_t video_get_full_char_at(int row, int col) {
-
 	return SCREEN_START[row * SCREEN_WIDTH + col];
-
 }
 
 static void video_write_full_char_at(uint16_t c, int row, int col) {
-
 	SCREEN_START[row * SCREEN_WIDTH + col] = c;
-
 }
 
 void video_clear_screen() {
@@ -70,7 +64,6 @@ void video_clear_screen() {
 		for (int j = 0; j < SCREEN_WIDTH; j++) {
 			video_write_char(' ');
 		}
-
 	}
 
 	video_row = 0;
@@ -106,8 +99,6 @@ static void video_write_full_char(uint16_t c) {
 	if (video_row == SCREEN_HEIGHT) {
 		video_scroll();
 	}
-
-
 }
 
 void video_write_char_at(const char c, int row, int col) {
@@ -152,7 +143,6 @@ void video_write_string(const char * s) {
 	}
 
 	video_update_cursor();
-
 }
 
 void video_write_nl() {
@@ -164,7 +154,6 @@ void video_write_nl() {
 		video_write_char(' ');
 		line_start = 0;
 	}
-
 }
 
 void video_write_line(const char * s) {
@@ -176,7 +165,6 @@ void video_write_line(const char * s) {
 	video_write_string(s);
 
 	video_write_nl();
-
 }
 
 static void video_scroll() {
@@ -197,9 +185,7 @@ static void video_scroll() {
 	video_row--;
 
 	video_update_screen_color();
-
 }
-
 
 void video_update_cursor() {
 
@@ -211,7 +197,6 @@ void video_update_cursor() {
 	// cursor HIGH port to vga INDEX register
 	outb(0x3D4, 0x0E);
 	outb(0x3D5, (unsigned char )((position >> 8) & 0xFF));
-
 }
 
 void video_write_dec(uint64_t value) {
@@ -244,7 +229,6 @@ void video_trigger_backup() {
 	video_row = 0;
 	video_column = 0;
 	video_reset_color();
-
 }
 
 void video_trigger_restore() {
@@ -252,8 +236,6 @@ void video_trigger_restore() {
 	video_row = screensaver_backup.row;
 	video_column = screensaver_backup.column;
 	current_color = screensaver_backup.color;
-
-	
 
 	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
 		SCREEN_START[i] = screensaver_backup.screen[i];

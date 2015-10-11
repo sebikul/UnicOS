@@ -1,8 +1,7 @@
+#include <types.h>
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
-
-#include <types.h>
 
 #define KEYBOARD_BUFFER_SIZE 128
 
@@ -31,11 +30,3 @@ void keyboard_replace_last_written(char* s);
 void keyboard_set_distribution(keyboard_distrib d);
 
 #endif
-
-
-
-
-
-
-
-

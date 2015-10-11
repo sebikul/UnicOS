@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <types.h>
-#include <syscalls.h>
-#include <libc.h>
-
-#include <commands.h>
+#include "syscalls.h"
+#include "libc.h"
+#include "string.h"
+#include "commands.h"
 
 #define MAX_ARGS 				256
 #define CMD_BUFFER_SIZE 		2*MAX_ARGS

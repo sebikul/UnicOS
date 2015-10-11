@@ -1,5 +1,5 @@
-
 #include <libc.h>
+#include "string.h"
 
 
 void command_help(int argc, char** argv, char** cmd_list, int cmd_count) {

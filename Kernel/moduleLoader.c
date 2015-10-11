@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <lib.h>
+#include <string.h>
 #include <moduleLoader.h>
 #include <video.h>
 

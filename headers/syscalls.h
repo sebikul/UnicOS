@@ -1,9 +1,8 @@
+#include <stdint.h>
+#include <types.h>
 
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
-
-#include <stdint.h>
-#include <types.h>
 
 #define SYSCALL_RTC							1
 #define SYSCALL_RTC_SET						2

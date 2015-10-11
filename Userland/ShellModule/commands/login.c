@@ -1,5 +1,7 @@
 #include <libc.h>
 
+#include "string.h"
+
 extern char* user_name;
 extern char* host_name;
 extern int USER_SIZE;

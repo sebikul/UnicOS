@@ -3,6 +3,7 @@
 #include <types.h>
 #include <syscalls.h>
 #include <libc.h>
+#include "string.h"
 
 void* malloc(int len) {
 
@@ -18,19 +19,6 @@ void* calloc(int len) {
 
 void free(void* m) {
 	sys_free(m);
-}
-
-int strpos(char* s, char n) {
-
-	for (int pos = 0; s[pos] != 0; pos++) {
-		if (s[pos] == n) {
-			return pos;
-		}
-	}
-
-	return -1;
-
-
 }
 
 static void vfprintf(FD fd, char* fmt, va_list ap) {
@@ -209,15 +197,6 @@ void putchar(char c) {
 	sys_write(FD_STDOUT, &c, 1);
 }
 
-int strlen(char* str) {
-	int size;
-	for (size = 0; *str != '\0' ; str++) {
-		size++;
-	}
-
-	return size;
-}
-
 int getchar() {
 
 	static char buffer[2] = {0};
@@ -238,31 +217,6 @@ int scanf(char* c, int len) {
 	return read;
 }
 
-int strcmp(const char* s1, const char* s2) {
-
-	while (*s1 && *s1 == *s2) {
-		s1++;
-		s2++;
-	}
-
-	return *s1 - *s2;
-}
-
-char* strcpy(char* dest, char* src) {
-
-	char* bk = dest;
-
-	while (*src != 0) {
-		*dest = *src;
-		src++;
-		dest++;
-	}
-
-	*dest = 0;
-
-	return bk;
-}
-
 char* strcat(char* str1, char* str2) {
 	int len1 = strlen(str1);
 	int len2 = strlen(str2);
@@ -270,7 +224,6 @@ char* strcat(char* str1, char* str2) {
 	strcpy(ans, str1);
 	strcpy(ans + len1, str2);
 	return ans;
-
 }
 
 time_t* time() {
@@ -353,16 +306,6 @@ int ctoi(char* c) {
 		ans = ans * 10 + c[i] - '0';
 	}
 	return ans;
-}
-
-void * memset(void * destiation, int32_t c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
-	char * dst = (char*)destiation;
-
-	while (length--)
-		dst[length] = chr;
-
-	return destiation;
 }
 
 void clear_screen() {

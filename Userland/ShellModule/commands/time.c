@@ -1,5 +1,7 @@
 #include <libc.h>
 
+#include "string.h"
+
 static int checkDate(int hour, int minute, int second, int day, int month, int year);
 
 void command_time(int argc, char** argv) {

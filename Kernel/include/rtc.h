@@ -1,9 +1,7 @@
-
+#include <types.h>
 
 #ifndef RTC_H
 #define RTC_H
-
-#include <types.h>
 
 #define RTC_PORT_POS		0x70
 #define RTC_PORT_VALUE		0x71

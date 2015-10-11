@@ -1,14 +1,14 @@
 #include <stdint.h>
+#include <moduleLoader.h>
+#include "video.h"
+#include "keyboard.h"
+#include "types.h"
+#include "mem.h"
+#include "string.h"
 
 #if ! MACOS
 #include <string.h>
 #endif
-
-#include <lib.h>
-#include <moduleLoader.h>
-#include <video.h>
-#include <keyboard.h>
-#include <types.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

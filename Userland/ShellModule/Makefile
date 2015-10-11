@@ -10,7 +10,7 @@ LIBRARIES=-L../syscalls/lib -L../libc/lib
 all: $(MODULE)
 
 $(MODULE): $(SOURCES)
-	$(GCC) $(GCCFLAGS) -T shellModule.ld $(SOURCES) $(HEADERS) $(LIBRARIES) -lc -lsyscalls  -o ../$(MODULE)
+	$(GCC) $(GCCFLAGS) -T shellModule.ld $(SOURCES) $(HEADERS) $(LIBRARIES) -lc -lsyscalls ../../common/string.c -o ../$(MODULE)
 
 clean:
 	rm -rf *.o

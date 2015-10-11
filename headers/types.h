@@ -1,14 +1,11 @@
+#include <stdint.h>
+
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdint.h>
-
 #define NULL (void*)0
 
-#define TRUE 1
-#define FALSE 0
-
-typedef char bool;
+typedef enum {FALSE, TRUE} bool;
 
 #define EOF 	-1
 

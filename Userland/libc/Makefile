@@ -7,7 +7,7 @@ LIBRARIES=-L../syscalls/lib
 all: libc
 
 libc:
-	$(GCC) $(GCCFLAGS) $(HEADERS) $(LIBRARIES) -lsyscalls -c libc.c
+	$(GCC) $(GCCFLAGS) $(HEADERS) $(LIBRARIES) -lsyscalls -c libc.c ../../common/string.c
 	$(AR) rcs lib/libc.a libc.o
 
 clean:

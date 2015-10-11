@@ -1,52 +1,15 @@
-#include <stdint.h>
-#include <lib.h>
+#include <types.h>
 
-static void* mallocBuffer = (void*)0x600000;
-
-static void* lastMalloc;
-
-void* malloc(int len) {
-
-	lastMalloc = mallocBuffer;
-
-	mallocBuffer += len * sizeof(void*);
-
-	return lastMalloc;
-
-}
-
-void* calloc(int len) {
-	char* space = (char*)malloc(len);
-
-	for (int i = 0; i < len; i++) {
-		space[i] = (char)0;
+int strlen(const char* str) {
+	int size;
+	for (size = 0; *str != '\0' ; str++) {
+		size++;
 	}
 
-	return (void*)space;
+	return size;
 }
 
-void free(void* m) {
-
-	if (m == lastMalloc) {
-		mallocBuffer = m;
-	}
-
-}
-
-
-void * memset(void * destination, int32_t c, uint64_t length)
-{
-	uint8_t chr = (uint8_t)c;
-	char * dst = (char*)destination;
-
-	while (length--)
-		dst[length] = chr;
-
-	return destination;
-}
-
-void * memcpy(void * destination, const void * source, uint64_t length)
-{
+void * memcpy(void * destination, const void * source, uint64_t length){
 	/*
 	* memcpy does not support overlapping buffers, so always do it
 	* forwards. (Don't change this without adjusting memmove.)
@@ -83,6 +46,49 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	return destination;
 }
 
+int strcmp(const char* s1, const char* s2) {
 
+	while (*s1 && *s1 == *s2) {
+		s1++;
+		s2++;
+	}
 
+	return *s1 - *s2;
+}
+
+char* strcpy(char* dest, const char* src) {
+
+	char* bk = dest;
+
+	while (*src != 0) {
+		*dest = *src;
+		src++;
+		dest++;
+	}
+
+	*dest = 0;
+
+	return bk;
+}
+
+void * memset(void * destiation, int32_t c, uint64_t length) {
+	uint8_t chr = (uint8_t)c;
+	char * dst = (char*)destiation;
+
+	while (length--)
+		dst[length] = chr;
+
+	return destiation;
+}
+
+int strpos(const char* s, char n) {
+
+	for (int pos = 0; s[pos] != 0; pos++) {
+		if (s[pos] == n) {
+			return pos;
+		}
+	}
+
+	return -1;
+}
 

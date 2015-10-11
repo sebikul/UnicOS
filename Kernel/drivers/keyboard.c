@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <video.h>
 #include <keyboard.h>
-#include <lib.h>
+#include <mem.h>
 #include <types.h>
 
 #define FIRST_BITE_ON(c) (0x80 | c)

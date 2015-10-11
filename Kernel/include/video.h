@@ -1,10 +1,9 @@
-
-#ifndef VIDEO_H
-#define VIDEO_H
-
 #include <stdint.h>
 #include <io.h>
 #include <types.h>
+
+#ifndef VIDEO_H
+#define VIDEO_H
 
 #define SCREEN_START ((uint16_t*)0xB8000)
 

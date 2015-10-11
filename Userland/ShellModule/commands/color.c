@@ -1,5 +1,7 @@
 #include <libc.h>
 #include <types.h>
+#include "string.h"
+#include "libc.h"
 
 static int COLOR_COUNT = 16;
 static bool initialize_flag = FALSE;
@@ -21,6 +23,10 @@ void command_color(int argc , char** argv) {
         icolor = string_color_to_int(argv[3]);
     } else {
         if (argc == 5) {
+
+            //char *buf=malloc(strlen(argv[3])+1+argv[4]+1);
+
+            //TODO sscanf
             icolor = string_color_to_int(strcat(strcat(argv[3], " "), argv[4]));
         }
     }
