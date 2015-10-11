@@ -73,9 +73,7 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	void* msg;
 	message_t *message;
 
-	if (msgqueue->first == NULL) {
-		return NULL;
-	}
+	while(msgqueue->first == NULL);
 
 	message = msgqueue->first;
 
