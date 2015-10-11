@@ -6,7 +6,7 @@
 #include <mem.h>
 #include <types.h>
 
-#define FIRST_BITE_ON(c) (0x80 | c)
+#define FIRST_BIT_ON(c) (0x80 | c)
 
 extern int video_column;
 extern int video_row;
@@ -239,17 +239,19 @@ static void keyboard_buffer_delete() {
 	if (keyboard_written == 0) {
 		return;
 	}
+	
+	screen_t *screen = get_screen(task_get_current()->console);
 
-	if (video_column == 0) {
-		video_column = SCREEN_WIDTH - 1;
-		video_row--;
+	if (screen->column == 0) {
+		screen->column = SCREEN_WIDTH - 1;
+		screen->row--;
 	} else {
-		video_column--;
+		screen->column--;
 	}
 
 	keyboard_written--;
 
-	video_write_char_at(' ', video_row, video_column);
+	video_write_char_at(KERNEL_CONSOLE, ' ', screen->row, screen->column);
 
 	video_update_cursor();
 
@@ -293,7 +295,7 @@ char keyboard_get_char_from_buffer() {
 static void keyboard_write_char(char c) {
 
 	if (keyboard_buffer_write(c)) {
-		video_write_char(c);
+		video_write_char(KERNEL_CONSOLE, c);
 	}
 
 }
@@ -334,7 +336,7 @@ void keyboard_irq_handler(uint64_t s) {
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
-		case FIRST_BITE_ON(0x1c):
+		case FIRST_BIT_ON(0x1c):
 			if (screensaver_enter_flag) {
 				screensaver_enter_flag = FALSE;
 				return;
@@ -356,8 +358,8 @@ void keyboard_irq_handler(uint64_t s) {
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
-		case FIRST_BITE_ON(0x2a):
-		case FIRST_BITE_ON(0x36)://shift
+		case FIRST_BIT_ON(0x2a):
+		case FIRST_BIT_ON(0x36)://shift
 			keyboard_status.caps = !keyboard_status.caps;
 			break;
 
@@ -379,12 +381,14 @@ void keyboard_irq_handler(uint64_t s) {
 
 }
 
-void keyboard_catch(uint64_t scancode, dka_handler handler) {
+void keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid) {
 
 	dka_catch* tmp = (dka_catch*)calloc(sizeof(dka_catch));
 
 	tmp->scancode = scancode;
 	tmp->handler = handler;
+	tmp->pid = pid;
+	tmp->console = console;
 
 	dka_catched_scancodes[dka_catched_len++] = tmp;
 

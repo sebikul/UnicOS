@@ -6,6 +6,8 @@
 #include "rtc.h"
 #include "string.h"
 #include "mem.h"
+#include "task.h"
+#include "kernel.h"
 
 extern uint64_t screensaver_wait_time;
 extern bool screensaver_is_active;
@@ -22,23 +24,27 @@ void sys_write(FD fd, char* s, int len) {
 
 	color_t colorbk;
 
+	// video_write_string(KERNEL_CONSOLE, "Task: ");
+	// video_write_string(KERNEL_CONSOLE, task_get_current()->name);
+	// video_write_string(KERNEL_CONSOLE, "\tConsole: ");
+	// video_write_dec(KERNEL_CONSOLE, (uint64_t)task_get_current()->console);
+	// video_write_nl(KERNEL_CONSOLE);
+
 	switch (fd) {
 	case FD_STDOUT:
-		video_write_string(s);
+		video_write_string(task_get_current()->console, s);
 		break;
 
 	case FD_STDERR:
 
-		colorbk = video_get_color();
+		colorbk = video_get_color(task_get_current()->console);
 
-		video_set_color(COLOR_RED, COLOR_BLACK);
+		video_set_color(task_get_current()->console, COLOR_RED, COLOR_BLACK);
 
-		video_write_string(s);
+		video_write_string(task_get_current()->console, s);
 
-		video_set_full_color(colorbk);
+		video_set_full_color(task_get_current()->console, colorbk);
 		break;
-
-
 	}
 
 }
@@ -81,11 +87,11 @@ void sys_free(void* m) {
 }
 
 void sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	keyboard_catch(scancode, handler);
+	keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid);
 }
 
 void sys_clear_indexed_line(int index) {
-	video_clear_indexed_line(index);
+	video_clear_indexed_line(task_get_current()->console, index);
 }
 
 void sys_keyboard_replace_buffer(char* s) {
@@ -93,12 +99,12 @@ void sys_keyboard_replace_buffer(char* s) {
 }
 
 color_t sys_get_color() {
-	return video_get_color();
+	return video_get_color(task_get_current()->console);
 }
 
 void sys_set_color(color_t t) {
-	video_set_full_color(t);
-	video_update_screen_color();
+	video_set_full_color(task_get_current()->console, t);
+	video_update_screen_color(task_get_current()->console);
 }
 
 void sys_kbd_set_distribution(keyboard_distrib d) {
@@ -112,13 +118,13 @@ void sys_set_screensaver_timer(uint64_t t) {
 }
 
 void sys_clear_screen() {
-	video_clear_screen();
+	video_clear_screen(task_get_current()->console);
 }
 
 void sys_screensaver_trigger() {
 
 	active_screensaver();
 
-	while(screensaver_is_active);
+	while (screensaver_is_active);
 
 }

@@ -1,141 +1,207 @@
-
 #include <video.h>
 #include <io.h>
 #include <types.h>
 
-int video_row = 0;
-int video_column = 0;
 static char buffer[128] = { 0 };
 
-static color_t current_color = 0;
+static screen_t consoles[VIRTUAL_CONSOLES + 1] = {{0}};
+static uint8_t current_console = 0;
 
-static screen_t screensaver_backup;
+static uint8_t screensaver_backup;
+
+static uint16_t* screen_mem = (uint16_t*)0xB8000;
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
-static uint16_t video_get_full_char_at(int row, int col);
-static void video_write_full_char_at(uint16_t c, int row, int col);
-static void video_scroll();
-static void video_reset_color();
+static uint16_t video_get_full_char_at(console_t console, int row, int col);
+static void video_write_full_char_at(console_t console, uint16_t c, int row, int col);
+static void video_scroll(console_t console);
 
-
-void video_initialize() {
-	video_reset_color();
-
-	video_column = 0;
-	video_row = 0;
+screen_t* get_screen(console_t console) {
+	return &consoles[console];
 }
 
-void video_update_screen_color() {
+static inline void video_sync_console_at(console_t console, int row, int col) {
 
-	for (int c = 1; c < SCREEN_HEIGHT * SCREEN_WIDTH * 2; c += 2) {
-		((uint8_t*)SCREEN_START)[c] = current_color;
-	}
+	screen_t *screen = get_screen(console);
+
+	screen_mem[row * SCREEN_WIDTH + col] = screen->screen[row * SCREEN_WIDTH + col];
 }
 
-static void video_reset_color() {
-	current_color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
-}
+static inline void video_sync_screen(console_t console) {
 
-void video_set_color(vga_color fg, vga_color bg) {
-	current_color = BUILD_COLOR(fg, bg);
-}
-
-void video_set_full_color(color_t color) {
-	current_color = color;
-}
-
-color_t video_get_color() {
-	return current_color;
-}
-
-static uint16_t video_get_full_char_at(int row, int col) {
-	return SCREEN_START[row * SCREEN_WIDTH + col];
-}
-
-static void video_write_full_char_at(uint16_t c, int row, int col) {
-	SCREEN_START[row * SCREEN_WIDTH + col] = c;
-}
-
-void video_clear_screen() {
-
+	screen_t *screen = get_screen(console);
 
 	for (int i = 0; i < SCREEN_HEIGHT; i++) {
 
 		for (int j = 0; j < SCREEN_WIDTH; j++) {
-			video_write_char(' ');
+			screen_mem[i * SCREEN_WIDTH + j] = screen->screen[i * SCREEN_WIDTH + j];
+		}
+	}
+}
+
+void video_initialize() {
+
+	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
+
+		screen_t *screen = &consoles[i];
+
+		screen->color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
+
+		screen->row = 0;
+		screen->column = 0;
+	}
+
+//SCREENSAVER
+
+	video_set_color(VIRTUAL_CONSOLES, COLOR_LIGHT_BROWN, COLOR_RED);
+
+	video_write_string(VIRTUAL_CONSOLES,
+	                   "                  ___                                                           "
+	                   "      ___        /  /\\                                                          "
+	                   "     /  /\\      /  /::\\                                                         "
+	                   "    /  /:/     /  /:/\\:\\                                                        "
+	                   "   /  /:/     /  /:/~/:/                                                        "
+	                   "  /  /::\\    /__/:/ /:/                                                         "
+	                   " /__/:/\\:\\   \\  \\:\\/:/                                                          "
+	                   " \\__\\/  \\:\\   \\  \\::/                                                           "
+	                   "      \\  \\:\\   \\  \\:\\                                                           "
+	                   "       \\__\\/    \\  \\:\\                                                          "
+	                   "                 \\__\\/                                                          "
+	                   "      ___           ___                         ___                             "
+	                   "     /  /\\         /  /\\          ___          /__/\\        ___                 "
+	                   "    /  /::\\       /  /::\\        /  /\\         \\  \\:\\      /  /\\                "
+	                   "   /  /:/\\:\\     /  /:/\\:\\      /  /::\\         \\  \\:\\    /  /:/                "
+	                   "  /  /:/~/::\\   /  /:/~/:/     /  /:/\\:\\    ___  \\  \\:\\  /__/::\\                "
+	                   " /__/:/ /:/\\:\\ /__/:/ /:/___  /  /:/~/::\\  /__/\\  \\__\\:\\ \\__\\/\\:\\__             "
+	                   " \\  \\:\\/:/__\\/ \\  \\:\\/:::::/ /__/:/ /:/\\:\\ \\  \\:\\ /  /:/    \\  \\:\\/\\            "
+	                   "  \\  \\::/       \\  \\::/~~~~  \\  \\:\\/:/__\\/  \\  \\:\\  /:/      \\__\\::/            "
+	                   "   \\  \\:\\        \\  \\:\\       \\  \\::/        \\  \\:\\/:/       /__/:/             "
+	                   "    \\  \\:\\        \\  \\:\\       \\__\\/          \\  \\::/        \\__\\/              "
+	                   "     \\__\\/         \\__\\/                       \\__\\/                            "
+	                   "                                                                                "
+	                   "                                                                                "
+	                  );
+
+	video_update_screen_color(VIRTUAL_CONSOLES);
+
+	current_console = 0;
+
+}
+
+void video_update_screen_color(console_t console) {
+
+	screen_t *screen = get_screen(console);
+
+	for (int c = 1; c < SCREEN_HEIGHT * SCREEN_WIDTH * 2; c += 2) {
+		((uint8_t*)screen->screen)[c] = screen->color;
+	}
+}
+
+void video_set_color(console_t console, vga_color fg, vga_color bg) {
+	get_screen(console)->color = BUILD_COLOR(fg, bg);
+}
+
+void video_set_full_color(console_t console, color_t color) {
+	get_screen(console)->color = color;
+}
+
+color_t video_get_color(console_t console) {
+	return get_screen(console)->color;
+}
+
+static uint16_t video_get_full_char_at(console_t console, int row, int col) {
+	return get_screen(console)->screen[row * SCREEN_WIDTH + col];
+}
+
+static void video_write_full_char_at(console_t console, uint16_t c, int row, int col) {
+	get_screen(console)->screen[row * SCREEN_WIDTH + col] = c;
+
+	video_sync_console_at(console, row, col);
+}
+
+void video_clear_screen(console_t console) {
+
+	screen_t *screen = get_screen(console);
+
+	for (int i = 0; i < SCREEN_HEIGHT; i++) {
+
+		for (int j = 0; j < SCREEN_WIDTH; j++) {
+			video_write_char(console, ' ');
 		}
 	}
 
-	video_row = 0;
-	video_column = 0;
+	screen->row = 0;
+	screen->column = 0;
 
-	video_update_screen_color();
+	video_update_screen_color(console);
 }
 
-static void video_clear_line(int row) {
+static void video_clear_line(console_t console, int row) {
 
 	for (int i = 0; i < SCREEN_WIDTH; i++) {
-		video_write_char_at(' ', row, i);
+		video_write_char_at(console, ' ', row, i);
 	}
 
-	video_column = 0;
+	get_screen(console)->column = 0;
 }
 
-void video_clear_indexed_line(int index) {
-	video_clear_line(video_row + index);
+void video_clear_indexed_line(console_t console, int index) {
+	video_clear_line(console, get_screen(console)->row + index);
 }
 
-static void video_write_full_char(uint16_t c) {
+static void video_write_full_char(console_t console, uint16_t c) {
 
-	video_write_full_char_at(c, video_row, video_column);
+	screen_t *screen = get_screen(console);
 
-	video_column++;
+	video_write_full_char_at(console, c, screen->row, screen->column);
 
-	if (video_column == SCREEN_WIDTH) {
-		video_column = 0;
-		video_row++;
+	screen->column++;
+
+	if (screen->column == SCREEN_WIDTH) {
+		screen->column = 0;
+		screen->row++;
 	}
 
-	if (video_row == SCREEN_HEIGHT) {
-		video_scroll();
+	if (screen->row == SCREEN_HEIGHT) {
+		video_scroll(console);
 	}
 }
 
-void video_write_char_at(const char c, int row, int col) {
+inline void video_write_char_at(console_t console , const char c, int row, int col) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t
 	uint16_t c_16 = c;
-	uint16_t color_16 = current_color;
+	uint16_t color_16 = get_screen(console)->color;
 
-	video_write_full_char_at(c_16 | (color_16 << 8), row, col);
+	video_write_full_char_at(console, c_16 | (color_16 << 8), row, col);
 }
 
-void video_write_char(const char c) {
+inline void video_write_char(console_t console, const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t
 	uint16_t c_16 = c;
-	uint16_t color_16 = current_color;
+	uint16_t color_16 = get_screen(console)->color;
 
-	video_write_full_char(c_16 | (color_16 << 8));
+	video_write_full_char(console, c_16 | (color_16 << 8));
 }
 
-void video_write_string(const char * s) {
+void video_write_string(console_t console, const char * s) {
 
 	while (*s != 0) {
 
 		switch (*s) {
 		case '\n':
-			video_write_nl();
+			video_write_nl(console);
 			break;
 
 		case '\t':
-			video_write_string("    ");
+			video_write_string(console, "    ");
 			break;
 
 		default:
-			video_write_char(*s);
+			video_write_char(console, *s);
 			break;
 		}
 
@@ -145,51 +211,55 @@ void video_write_string(const char * s) {
 	video_update_cursor();
 }
 
-void video_write_nl() {
+void video_write_nl(console_t console) {
 
-	int line_start = (video_column == 0);
+	screen_t *screen = get_screen(console);
 
-	while (video_column != 0 || line_start) {
+	int line_start = (screen->column == 0);
 
-		video_write_char(' ');
+	while (screen->column != 0 || line_start) {
+
+		video_write_char(console, ' ');
 		line_start = 0;
 	}
 }
 
-void video_write_line(const char * s) {
+void video_write_line(console_t console, const char * s) {
 
-	if (video_column != 0) {
-		video_write_nl();
+	if (get_screen(console)->column != 0) {
+		video_write_nl(console);
 	}
 
-	video_write_string(s);
+	video_write_string(console, s);
 
-	video_write_nl();
+	video_write_nl(console);
 }
 
-static void video_scroll() {
+static void video_scroll(console_t console) {
+
+	screen_t *screen = get_screen(console);
 
 	for (int row = 1; row <= SCREEN_HEIGHT; row++) {
 
 		for (int column = 0; column < SCREEN_WIDTH; column++) {
 
-			uint16_t c = video_get_full_char_at(row, column);
+			uint16_t c = video_get_full_char_at(console, row, column);
 
-			video_write_full_char_at(c, row - 1, column);
-
+			video_write_full_char_at(console, c, row - 1, column);
 		}
-
 	}
 
-	video_column = 0;
-	video_row--;
+	screen->column = 0;
+	screen->row--;
 
-	video_update_screen_color();
+	video_update_screen_color(console);
 }
 
 void video_update_cursor() {
 
-	unsigned short position = (video_row * 80) + video_column;
+	screen_t *screen = get_screen(current_console);
+
+	unsigned short position = (screen->row * 80) + screen->column;
 
 	// cursor LOW port to vga INDEX register
 	outb(0x3D4, 0x0F);
@@ -199,87 +269,46 @@ void video_update_cursor() {
 	outb(0x3D5, (unsigned char )((position >> 8) & 0xFF));
 }
 
-void video_write_dec(uint64_t value) {
-	video_write_base(value, 10);
+void video_write_dec(console_t console, uint64_t value) {
+	video_write_base(console, value, 10);
 }
 
-void video_write_hex(uint64_t value) {
-	video_write_base(value, 16);
+void video_write_hex(console_t console, uint64_t value) {
+	video_write_base(console, value, 16);
 }
 
-void video_write_bin(uint64_t value) {
-	video_write_base(value, 2);
+void video_write_bin(console_t console, uint64_t value) {
+	video_write_base(console, value, 2);
 }
 
-void video_write_base(uint64_t value, uint32_t base) {
+void video_write_base(console_t console, uint64_t value, uint32_t base) {
 	uintToBase(value, buffer, base);
-	video_write_string(buffer);
+	video_write_string(console, buffer);
 }
 
-void video_trigger_backup() {
 
-	screensaver_backup.row = video_row;
-	screensaver_backup.column = video_column;
-	screensaver_backup.color = current_color;
+void video_change_console(uint8_t console) {
 
-	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
-		screensaver_backup.screen[i] = SCREEN_START[i];
-	}
+	screen_t *screen = &consoles[console];
 
-	video_row = 0;
-	video_column = 0;
-	video_reset_color();
-}
-
-void video_trigger_restore() {
-
-	video_row = screensaver_backup.row;
-	video_column = screensaver_backup.column;
-	current_color = screensaver_backup.color;
+	current_console=console;
 
 	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
-		SCREEN_START[i] = screensaver_backup.screen[i];
+		screen_mem[i] = screen->screen[i];
 	}
 
 	video_update_cursor();
 }
 
+void video_trigger_restore() {
+
+	video_change_console(screensaver_backup);
+
+}
+
 void video_trigger_screensaver() {
 
-	video_trigger_backup();
-
-	video_clear_screen();
-
-	video_set_color(COLOR_LIGHT_BROWN, COLOR_RED);
-
-	video_write_string(
-	    "                  ___                                                           "
-	    "      ___        /  /\\                                                          "
-	    "     /  /\\      /  /::\\                                                         "
-	    "    /  /:/     /  /:/\\:\\                                                        "
-	    "   /  /:/     /  /:/~/:/                                                        "
-	    "  /  /::\\    /__/:/ /:/                                                         "
-	    " /__/:/\\:\\   \\  \\:\\/:/                                                          "
-	    " \\__\\/  \\:\\   \\  \\::/                                                           "
-	    "      \\  \\:\\   \\  \\:\\                                                           "
-	    "       \\__\\/    \\  \\:\\                                                          "
-	    "                 \\__\\/                                                          "
-	    "      ___           ___                         ___                             "
-	    "     /  /\\         /  /\\          ___          /__/\\        ___                 "
-	    "    /  /::\\       /  /::\\        /  /\\         \\  \\:\\      /  /\\                "
-	    "   /  /:/\\:\\     /  /:/\\:\\      /  /::\\         \\  \\:\\    /  /:/                "
-	    "  /  /:/~/::\\   /  /:/~/:/     /  /:/\\:\\    ___  \\  \\:\\  /__/::\\                "
-	    " /__/:/ /:/\\:\\ /__/:/ /:/___  /  /:/~/::\\  /__/\\  \\__\\:\\ \\__\\/\\:\\__             "
-	    " \\  \\:\\/:/__\\/ \\  \\:\\/:::::/ /__/:/ /:/\\:\\ \\  \\:\\ /  /:/    \\  \\:\\/\\            "
-	    "  \\  \\::/       \\  \\::/~~~~  \\  \\:\\/:/__\\/  \\  \\:\\  /:/      \\__\\::/            "
-	    "   \\  \\:\\        \\  \\:\\       \\  \\::/        \\  \\:\\/:/       /__/:/             "
-	    "    \\  \\:\\        \\  \\:\\       \\__\\/          \\  \\::/        \\__\\/              "
-	    "     \\__\\/         \\__\\/                       \\__\\/                            "
-	    "                                                                                "
-	    "                                                                                "
-	);
-
-	video_update_screen_color();
+	video_change_console(VIRTUAL_CONSOLES);
 
 }
 

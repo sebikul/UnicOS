@@ -52,33 +52,34 @@ void * initializeKernelBinary() {
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-
 	video_initialize();
-	video_clear_screen();
+	video_clear_screen(KERNEL_CONSOLE);
 
-	video_write_line("[x64BareBones]");
+	task_init();
 
-	video_write_string("  text: 0x");
-	video_write_hex((uint64_t)&text);
-	video_write_nl();
+	video_write_line(KERNEL_CONSOLE, "[x64BareBones]");
 
-	video_write_string("  rodata: 0x");
-	video_write_hex((uint64_t)&rodata);
-	video_write_nl();
+	video_write_string(KERNEL_CONSOLE, "  text: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)&text);
+	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_string("  data: 0x");
-	video_write_hex((uint64_t)&data);
-	video_write_nl();
+	video_write_string(KERNEL_CONSOLE, "  rodata: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)&rodata);
+	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_string("  bss: 0x");
-	video_write_hex((uint64_t)&bss);
-	video_write_nl();
+	video_write_string(KERNEL_CONSOLE, "  data: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)&data);
+	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_line("[Done]");
+	video_write_string(KERNEL_CONSOLE, "  bss: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)&bss);
+	video_write_nl(KERNEL_CONSOLE);
+
+	video_write_line(KERNEL_CONSOLE, "[Done]");
 
 	screensaver_reset_timer();
 
-	video_write_line("Kernel cargado.");
+	video_write_line(KERNEL_CONSOLE, "Kernel cargado.");
 
 	return getStackBase();
 }
@@ -96,21 +97,21 @@ void load_kernel_modules() {
 
 int main() {
 
-	video_write_string("Keyboard buffer at: 0x");
-	video_write_hex((uint64_t)&keyboard_kbuffer);
-	video_write_nl();
-	video_write_string("Keyboard buffer size: ");
-	video_write_dec((uint64_t)KEYBOARD_BUFFER_SIZE);
-	video_write_nl();
+	video_write_string(KERNEL_CONSOLE, "Keyboard buffer at: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)&keyboard_kbuffer);
+	video_write_nl(KERNEL_CONSOLE);
+	video_write_string(KERNEL_CONSOLE, "Keyboard buffer size: ");
+	video_write_dec(KERNEL_CONSOLE, (uint64_t)KEYBOARD_BUFFER_SIZE);
+	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_line("[Kernel Main]");
+	video_write_line(KERNEL_CONSOLE, "[Kernel Main]");
 
-	video_write_string("  Shell code module at 0x");
-	video_write_hex((uint64_t)shellCodeModuleAddress);
-	video_write_nl();
+	video_write_string(KERNEL_CONSOLE, "  Shell code module at 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)shellCodeModuleAddress);
+	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_line("Calling shell module...");
-	video_write_nl();
+	video_write_line(KERNEL_CONSOLE, "Calling shell module...");
+	video_write_nl(KERNEL_CONSOLE);
 	((EntryPoint)shellCodeModuleAddress)();
 
 	return 0;
@@ -133,6 +134,11 @@ bool screensaver_reset_timer() {
 
 }
 
+void active_screensaver() {
+	screensaver_is_active = TRUE;
+	video_trigger_screensaver();
+}
+
 void irq0_handler() {
 
 	pit_timer++;
@@ -142,9 +148,4 @@ void irq0_handler() {
 		active_screensaver();
 	}
 
-}
-
-void active_screensaver() {
-	screensaver_is_active = TRUE;
-	video_trigger_screensaver();
 }

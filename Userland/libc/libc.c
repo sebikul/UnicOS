@@ -80,7 +80,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						int k = 0;
 
-						int numlen = strlen(number);
+						uint32_t numlen = strlen(number);
 
 						if (numlen < width) {
 
