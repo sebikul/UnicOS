@@ -22,7 +22,7 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 11;
+static int cmd_count = 12;
 static char** cmd_list;
 
 char* user_name;
@@ -184,6 +184,10 @@ void command_dispatcher(char* command) {
 		command_screensaver(argc, argv);
 		break;
 
+	case 11:
+		command_rawkbd(argc, argv);
+		break;
+
 	default:
 
 		fprintf(FD_STDERR, "Comando no encontrado.");
@@ -245,6 +249,7 @@ static void initialize_command_list() {
 	calloc_cmd(8, "user");
 	calloc_cmd(9, "host");
 	calloc_cmd(10, "screensaver");
+	calloc_cmd(11, "rawkbd");
 
 }
 

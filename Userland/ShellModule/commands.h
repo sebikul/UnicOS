@@ -23,4 +23,6 @@ void command_screensaver(int argc, char** argv);
 void command_exit();
 void command_clear(int argc);
 
+void command_rawkbd(int argc, char** argv);
+
 #endif
