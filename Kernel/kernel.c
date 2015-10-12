@@ -97,6 +97,8 @@ void load_kernel_modules() {
 
 int main() {
 
+	pmm_initialize();
+
 	video_write_string(KERNEL_CONSOLE, "Keyboard buffer at: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)&keyboard_kbuffer);
 	video_write_nl(KERNEL_CONSOLE);
