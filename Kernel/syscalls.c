@@ -49,10 +49,12 @@ int sys_read(FD fd, char* s, int len) {
 
 	input_waitforline();
 
+	//video_write_line(KERNEL_CONSOLE, "Linea nueva");
+
 	while (i < len) {
 		s[i] = input_getc();
 
-		if(s[i]=='\n'){
+		if (s[i] == '\n') {
 			break;
 		}
 		i++;

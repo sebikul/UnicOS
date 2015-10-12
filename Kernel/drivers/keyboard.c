@@ -220,6 +220,7 @@ static void keyboard_caps_handler(uint64_t s) {
 static void keyboard_backspace_handler(uint64_t s) {
 
 	if (input_size() == 0) {
+		video_write_line(KERNEL_CONSOLE, "Cola vacia");
 		return;
 	}
 

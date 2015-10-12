@@ -131,6 +131,8 @@ void msgqueue_clear(msgqueue_t *msgqueue) {
 
 	msgqueue->first = NULL;
 	msgqueue->last = NULL;
+
+	msgqueue->size = 0;
 }
 
 bool msgqueue_isempty(msgqueue_t *msgqueue) {

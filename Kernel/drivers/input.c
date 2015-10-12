@@ -54,7 +54,7 @@ int input_size() {
 void input_waitforline() {
 	while (TRUE) {
 		char *c = msgqueue_peeklast(input_focus);
-		if (*c == '\n') {
+		if (c != NULL && *c == '\n') {
 			free(c);
 			break;
 		}
