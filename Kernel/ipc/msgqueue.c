@@ -89,8 +89,29 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	return msg;
 }
 
+void* msgqueue_peek(msgqueue_t *msgqueue) {
+
+	void* msg;
+	message_t *message;
+
+	if(msgqueue->first==NULL){
+		return NULL;
+	}
+
+	message = msgqueue->first;
+
+	msg = malloc(message->size);
+	memcpy(msg, message->msg, message->size);
+
+	return msg;
+}
+
 bool msgqueue_isempty(msgqueue_t *msgqueue) {
 	return (msgqueue->first == NULL);
+}
+
+int msgqueue_size(msgqueue_t msgqueue){
+	return msgqueue->size;
 }
 
 void msgqueue_delete(msgqueue_t *msgqueue) {

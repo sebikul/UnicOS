@@ -53,9 +53,7 @@ int sys_read(FD fd, char* s, int len) {
 
 	while (i < read) {
 		s[i] = keyboard_get_char_from_buffer();
-
 		i++;
-
 	}
 
 	s[i] = 0;
