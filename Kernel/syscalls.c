@@ -87,7 +87,7 @@ void sys_clear_indexed_line(int index) {
 }
 
 void sys_keyboard_replace_buffer(char* s) {
-	keyboard_replace_last_written(s);
+	keyboard_replace_buffer(s);
 }
 
 color_t sys_get_color() {

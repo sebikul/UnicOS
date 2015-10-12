@@ -55,7 +55,13 @@ void * initializeKernelBinary() {
 	video_initialize();
 	video_clear_screen(KERNEL_CONSOLE);
 
+	// interrupts off
+
 	task_init();
+	keyboard_init();
+	input_init();
+
+	// interrupts on
 
 	video_write_line(KERNEL_CONSOLE, "[x64BareBones]");
 
