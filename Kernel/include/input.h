@@ -8,5 +8,6 @@ void input_clear();
 char input_getc();
 void input_replace(const char* s);
 int input_size();
+void input_waitforline() ;
 
 #endif

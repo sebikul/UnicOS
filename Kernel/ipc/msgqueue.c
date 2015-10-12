@@ -69,14 +69,16 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 }
 
 void msgqueue_undo(msgqueue_t *msgqueue) {
-	
-	message_t *message=msgqueue->first;
+
+	message_t *message = msgqueue->first;
 
 	if (message == NULL) {
 		return;
 	}
 
 	msgqueue->first = message->next;
+
+	msgqueue->size--;
 
 	message_delete(message);
 }
@@ -102,16 +104,16 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	return msg;
 }
 
-void* msgqueue_peek(msgqueue_t *msgqueue) {
+void* msgqueue_peeklast(msgqueue_t *msgqueue) {
 
 	void* msg;
 	message_t *message;
 
-	if (msgqueue->first == NULL) {
+	if (msgqueue->last == NULL) {
 		return NULL;
 	}
 
-	message = msgqueue->first;
+	message = msgqueue->last;
 
 	msg = malloc(message->size);
 	memcpy(msg, message->msg, message->size);

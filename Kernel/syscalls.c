@@ -41,12 +41,13 @@ void sys_write(FD fd, char* s, int len) {
 		video_set_full_color(task_get_current()->console, colorbk);
 		break;
 	}
-
 }
 
 int sys_read(FD fd, char* s, int len) {
 
 	int i = 0;
+
+	input_waitforline();
 
 	while (i < len) {
 		s[i] = input_getc();
@@ -60,19 +61,14 @@ int sys_read(FD fd, char* s, int len) {
 	s[i] = 0;
 
 	return i;
-
 }
 
 void* sys_malloc(int len) {
-
 	return malloc(len);
-
 }
 
 void* sys_calloc(int len) {
-
 	return calloc(len);
-
 }
 
 void sys_free(void* m) {
@@ -119,7 +115,6 @@ void sys_screensaver_trigger() {
 	active_screensaver();
 
 	while (screensaver_is_active);
-
 }
 
 void sys_keyboard_clear_handler(uint64_t handler) {

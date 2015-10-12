@@ -24,14 +24,16 @@ void input_add(char c) {
 
 char input_getc() {
 	char *c = msgqueue_deq(input_focus);
-	return *c;
+	char rc = *c;
+	free(c);
+	return rc;
 }
 
-void input_undo(){
+void input_undo() {
 	msgqueue_undo(input_focus);
 }
 
-void input_clear(){
+void input_clear() {
 	msgqueue_clear(input_focus);
 }
 
@@ -45,6 +47,17 @@ void input_replace(const char* s) {
 	}
 }
 
-int input_size(){
+int input_size() {
 	return msgqueue_size(input_focus);
+}
+
+void input_waitforline() {
+	while (TRUE) {
+		char *c = msgqueue_peeklast(input_focus);
+		if (*c == '\n') {
+			free(c);
+			break;
+		}
+		free(c);
+	}
 }

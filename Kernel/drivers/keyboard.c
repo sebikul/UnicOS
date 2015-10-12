@@ -275,11 +275,13 @@ static void keyboard_dispatch() {
 	}
 
 	res = *scancode;
+	free(scancode);
 
 	for (int i = 0; i < reps; i++) {
 		res << sizeof(char);
 		scancode = msgqueue_deq(kbdqueue);
 		res |= (*scancode);
+		free(scancode);
 	}
 
 	if (dka_catched_len > 0) {
@@ -303,9 +305,6 @@ static void keyboard_dispatch() {
 	scancode_t t = keyboard_scancodes[keyboard_distribution][res];
 
 	if (t.ascii == NOCHAR) {
-		// video_write_string(KERNEL_CONSOLE, "Scancode especial no reconocido: 0x");
-		// video_write_hex(KERNEL_CONSOLE, res);
-		// video_write_nl(KERNEL_CONSOLE);
 		running=FALSE;
 		return;
 	}
@@ -315,10 +314,6 @@ static void keyboard_dispatch() {
 	} else {
 		c = t.ascii;
 	}
-
-	// video_write_string(KERNEL_CONSOLE, "Encolando caracter: ");
-	// video_write_char(KERNEL_CONSOLE, c);
-	// video_write_nl(KERNEL_CONSOLE);
 
 	input_add(c);
 
