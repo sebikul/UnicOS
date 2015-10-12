@@ -46,7 +46,7 @@ msgqueue_t* msgqueue_create(uint32_t maxsize) {
 
 void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 
-	if(msgqueue->size == msgqueue->maxsize){
+	if (msgqueue->size == msgqueue->maxsize) {
 		return;
 	}
 
@@ -68,12 +68,25 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	msgqueue->size++;
 }
 
+void msgqueue_undo(msgqueue_t msgqueue) {
+	
+	message_t *message=msgqueue->first;
+
+	if (message == NULL) {
+		return;
+	}
+
+	msgqueue->first = message->next;
+
+	message_delete(message);
+}
+
 void* msgqueue_deq(msgqueue_t *msgqueue) {
 
 	void* msg;
 	message_t *message;
 
-	while(msgqueue->first == NULL);
+	while (msgqueue->first == NULL);
 
 	message = msgqueue->first;
 
@@ -94,7 +107,7 @@ void* msgqueue_peek(msgqueue_t *msgqueue) {
 	void* msg;
 	message_t *message;
 
-	if(msgqueue->first==NULL){
+	if (msgqueue->first == NULL) {
 		return NULL;
 	}
 
@@ -106,11 +119,23 @@ void* msgqueue_peek(msgqueue_t *msgqueue) {
 	return msg;
 }
 
+void msgqueue_clear(msgqueue_t *msgqueue) {
+
+	if (msgqueue->first == NULL) {
+		return;
+	}
+
+	message_deep_delete(msgqueue->first);
+
+	msgqueue->first = NULL;
+	msgqueue->last = NULL;
+}
+
 bool msgqueue_isempty(msgqueue_t *msgqueue) {
 	return (msgqueue->first == NULL);
 }
 
-int msgqueue_size(msgqueue_t msgqueue){
+int msgqueue_size(msgqueue_t msgqueue) {
 	return msgqueue->size;
 }
 
