@@ -68,7 +68,7 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	msgqueue->size++;
 }
 
-void msgqueue_undo(msgqueue_t msgqueue) {
+void msgqueue_undo(msgqueue_t *msgqueue) {
 	
 	message_t *message=msgqueue->first;
 
@@ -135,7 +135,7 @@ bool msgqueue_isempty(msgqueue_t *msgqueue) {
 	return (msgqueue->first == NULL);
 }
 
-int msgqueue_size(msgqueue_t msgqueue) {
+int msgqueue_size(msgqueue_t *msgqueue) {
 	return msgqueue->size;
 }
 

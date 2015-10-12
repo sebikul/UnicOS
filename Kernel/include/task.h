@@ -46,6 +46,7 @@ typedef struct {
 
 typedef uint64_t (*task_entry_point)(int argc, char** argv);
 
+void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);
 task_t* task_get_current();
 

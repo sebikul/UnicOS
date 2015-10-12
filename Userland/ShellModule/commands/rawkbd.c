@@ -7,7 +7,7 @@ static bool _exit = 0;
 
 static void keyboard_handler(uint64_t s) {
 
-	printf("Scancode: %x\n", s);
+	printf("Scancode: %x\n", (uint32_t) s);
 
 	if (s == 0x01) {
 		printf("ESC presionado. Saliendo...\n");

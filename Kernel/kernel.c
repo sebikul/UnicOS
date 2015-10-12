@@ -5,6 +5,8 @@
 #include "types.h"
 #include "mem.h"
 #include "string.h"
+#include "task.h"
+#include "input.h"
 
 #if ! MACOS
 #include <string.h>
@@ -16,8 +18,6 @@ extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
-
-extern char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE];
 
 static const uint64_t PageSize = 0x1000;
 
@@ -102,13 +102,6 @@ void load_kernel_modules() {
 }
 
 int main() {
-
-	video_write_string(KERNEL_CONSOLE, "Keyboard buffer at: 0x");
-	video_write_hex(KERNEL_CONSOLE, (uint64_t)&keyboard_kbuffer);
-	video_write_nl(KERNEL_CONSOLE);
-	video_write_string(KERNEL_CONSOLE, "Keyboard buffer size: ");
-	video_write_dec(KERNEL_CONSOLE, (uint64_t)KEYBOARD_BUFFER_SIZE);
-	video_write_nl(KERNEL_CONSOLE);
 
 	video_write_line(KERNEL_CONSOLE, "[Kernel Main]");
 

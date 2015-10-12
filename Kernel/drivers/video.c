@@ -27,7 +27,7 @@ static inline void video_sync_console_at(console_t console, int row, int col) {
 	screen_mem[row * SCREEN_WIDTH + col] = screen->screen[row * SCREEN_WIDTH + col];
 }
 
-static inline void video_sync_screen(console_t console) {
+static inline void video_sync_console(console_t console) {
 
 	screen_t *screen = get_screen(console);
 
@@ -184,7 +184,11 @@ inline void video_write_char(console_t console, const char c) {
 	uint16_t c_16 = c;
 	uint16_t color_16 = get_screen(console)->color;
 
-	video_write_full_char(console, c_16 | (color_16 << 8));
+	if (c == '\n') {
+		video_write_nl(console);
+	} else {
+		video_write_full_char(console, c_16 | (color_16 << 8));
+	}
 }
 
 void video_write_string(console_t console, const char * s) {
@@ -192,10 +196,6 @@ void video_write_string(console_t console, const char * s) {
 	while (*s != 0) {
 
 		switch (*s) {
-		case '\n':
-			video_write_nl(console);
-			break;
-
 		case '\t':
 			video_write_string(console, "    ");
 			break;
@@ -291,7 +291,7 @@ void video_change_console(uint8_t console) {
 
 	screen_t *screen = &consoles[console];
 
-	current_console=console;
+	current_console = console;
 
 	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
 		screen_mem[i] = screen->screen[i];

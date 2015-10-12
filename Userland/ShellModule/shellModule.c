@@ -58,8 +58,6 @@ int main() {
 			continue;
 		}
 
-		putchar('\n');
-
 		command_dispatcher(buffer);
 
 	}

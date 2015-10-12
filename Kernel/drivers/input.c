@@ -19,14 +19,32 @@ void input_change_console(console_t console) {
 }
 
 void input_add(char c) {
-	msgqueue_add(input_focus, &scancode, sizeof(char));
+	msgqueue_add(input_focus, &c, sizeof(char));
 }
 
-char input_get() {
+char input_getc() {
 	char *c = msgqueue_deq(input_focus);
 	return *c;
 }
 
+void input_undo(){
+	msgqueue_undo(input_focus);
+}
+
 void input_clear(){
 	msgqueue_clear(input_focus);
+}
+
+void input_replace(const char* s) {
+
+	input_clear();
+
+	while (*s != 0) {
+		input_add(*s);
+		s++;
+	}
+}
+
+int input_size(){
+	return msgqueue_size(input_focus);
 }

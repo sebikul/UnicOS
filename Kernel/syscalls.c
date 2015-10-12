@@ -8,6 +8,7 @@
 #include "mem.h"
 #include "task.h"
 #include "kernel.h"
+#include "input.h"
 
 extern uint64_t screensaver_wait_time;
 extern bool screensaver_is_active;
@@ -45,20 +46,20 @@ void sys_write(FD fd, char* s, int len) {
 
 int sys_read(FD fd, char* s, int len) {
 
-	int read = 0;
-
 	int i = 0;
 
-	read = keyboard_wait_for_buffer(len);
+	while (i < len) {
+		s[i] = input_getc();
 
-	while (i < read) {
-		s[i] = keyboard_get_char_from_buffer();
+		if(s[i]=='\n'){
+			break;
+		}
 		i++;
 	}
 
 	s[i] = 0;
 
-	return read;
+	return i;
 
 }
 
@@ -87,7 +88,7 @@ void sys_clear_indexed_line(int index) {
 }
 
 void sys_keyboard_replace_buffer(char* s) {
-	keyboard_replace_buffer(s);
+	input_replace(s);
 }
 
 color_t sys_get_color() {
