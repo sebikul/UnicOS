@@ -124,7 +124,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						int arg = va_arg(ap, int);
 						uint32_t digits = uintToBase(arg, buffer, 16);
 
-						for (int i = 0; i < digits; i++) {
+						for (uint32_t i = 0; i < digits; i++) {
 							str[j] = buffer[i];
 							j++;
 						}
