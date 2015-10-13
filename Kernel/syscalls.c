@@ -21,7 +21,7 @@ void sys_rtc_set(time_t* t) {
 	rtc_set_time(t);
 }
 
-void sys_write(FD fd, char* s, int len) {
+void sys_write(FD fd, char* s, uint64_t len) {
 
 	color_t colorbk;
 
@@ -43,9 +43,9 @@ void sys_write(FD fd, char* s, int len) {
 	}
 }
 
-int sys_read(FD fd, char* s, int len) {
+uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
-	int i = 0;
+	uint64_t i = 0;
 
 	kdebug("Esperando entrada\n");
 
@@ -72,11 +72,11 @@ int sys_read(FD fd, char* s, int len) {
 	return i;
 }
 
-void* sys_malloc(int len) {
+void* sys_malloc(uint64_t len) {
 	return malloc(len);
 }
 
-void* sys_calloc(int len) {
+void* sys_calloc(uint64_t len) {
 	return calloc(len);
 }
 
@@ -88,7 +88,7 @@ uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
 	return keyboard_catch(scancode, handler, FALSE, task_get_current()->console, task_get_current()->pid);
 }
 
-void sys_clear_indexed_line(int index) {
+void sys_clear_indexed_line(uint64_t index) {
 	video_clear_indexed_line(task_get_current()->console, index);
 }
 

@@ -9,6 +9,7 @@
 #include "input.h"
 #include "serial.h"
 #include "kernel.h"
+#include "syscalls.h"
 
 #if ! MACOS
 #include <string.h>
@@ -152,6 +153,88 @@ void irq0_handler() {
 	if (screensaver_timer == 0 && !screensaver_is_active) {
 		active_screensaver();
 	}
+}
+
+uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8) {
+
+	//kdebug("Despachando syscall int 80h\n");
+
+	switch (rdi) {
+
+	case SYSCALL_RTC:
+		sys_rtc_get((time_t*)rsi);
+		break;
+
+	case SYSCALL_RTC_SET:
+		sys_rtc_set((time_t*)rsi);
+		break;
+
+	case SYSCALL_READ:
+		return sys_read((FD)rsi, (char*)rdx, rcx);
+		break;
+
+	case SYSCALL_WRITE:
+		sys_write((FD)rsi, (char*)rdx, rcx);
+		break;
+
+	case SYSCALL_MALLOC:
+		return (uint64_t) sys_malloc(rsi);
+		break;
+
+	case SYSCALL_CALLOC:
+		return (uint64_t) sys_calloc(rsi);
+		break;
+
+	case SYSCALL_FREE:
+		sys_free((void*)rsi);
+		break;
+
+	case SYSCALL_KEYBOARD_CATCH:
+		return sys_keyboard_catch(rsi,(dka_handler) rdx);
+		break;
+
+	case SYSCALL_VIDEO_CLR_INDEXED_LINE:
+		sys_clear_indexed_line(rsi);
+		break;
+
+	case SYSCALL_KEYBOARD_REPLACE_BUFFER:
+		sys_keyboard_replace_buffer((char*)rsi);
+		break;
+
+	case SYSCALL_GET_COLOR:
+		return (uint64_t) sys_get_color();
+		break;
+
+	case SYSCALL_SET_COLOR:
+		sys_set_color((color_t) rdi);
+		break;
+
+	case SYSCALL_SET_KBD_DISTRIBUTION:
+		sys_kbd_set_distribution(rdi);
+		break;
+
+	case SYSCALL_SCREENSAVER_TIMER:
+		sys_set_screensaver_timer(rdi);
+		break;
+
+	case SYSCALL_SCREENSAVER_TRIGGER:
+		sys_screensaver_trigger();
+		break;
+
+	case SYSCALL_CLEAR_SCREEN:
+		sys_clear_screen();
+		break;
+
+	case SYSCALL_EXIT:
+		hang();
+		break;
+
+	case SYSCALL_KEYBOARD_CLEAR_HANDLER:
+		sys_keyboard_clear_handler(rdi);
+		break;
+	}
+
+	return 0;
 
 }
 

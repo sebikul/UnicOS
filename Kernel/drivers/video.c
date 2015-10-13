@@ -3,6 +3,8 @@
 #include <types.h>
 #include "string.h"
 #include "kernel.h"
+#include "input.h"
+#include "keyboard.h"
 
 static char buffer[128] = { 0 };
 
@@ -312,9 +314,11 @@ void video_change_console(uint8_t console) {
 
 	current_console = console;
 
-	for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
-		screen_mem[i] = screen->screen[i];
-	}
+	memcpy(screen_mem, screen->screen, 2 * SCREEN_SIZE);
+
+	// for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
+	// 	screen_mem[i] = screen->screen[i];
+	// }
 
 	video_update_cursor();
 }

@@ -1,35 +1,17 @@
 global loader
 global intson
 global intsoff
+global hang
 extern main
 extern initializeKernelBinary
 
 extern 		main
 extern 		initializeKernelBinary
 
-extern		video_write_line
-extern 		video_write_nl
 extern 		keyboard_irq_handler
 extern 		irq0_handler
+extern 		irq80_handler
 
-;SYSCALLS
-extern 		sys_write
-extern 		sys_read
-extern 		sys_rtc_get
-extern 		sys_rtc_set
-extern 		sys_malloc
-extern 		sys_calloc
-extern 		sys_free
-extern 		sys_keyboard_catch
-extern 		sys_clear_indexed_line
-extern 		sys_keyboard_replace_buffer
-extern 		sys_get_color
-extern 		sys_set_color
-extern 		sys_kbd_set_distribution
-extern 		sys_set_screensaver_timer
-extern		sys_clear_screen
-extern 		sys_screensaver_trigger
-extern 		sys_keyboard_clear_handler
 
 loader:
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
@@ -102,160 +84,16 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		push 		rdi
 		;push 		rax
 
-		cmp 		rdi,	1
-		jz			int_sys_rtc
+		call 		irq80_handler
 
-		cmp 		rdi,	2
-		jz			int_sys_rtc_set
-
-		cmp			rdi, 	3
-		jz 			int_sys_read
-
-		cmp			rdi, 	4
-		jz			int_sys_write
-
-		cmp 		rdi,	5
-		jz 			int_malloc
-
-		cmp 		rdi,	6
-		jz 			int_calloc
-
-		cmp 		rdi,	7
-		jz 			int_free
-
-		cmp 		rdi, 	8
-		jz 			int_keyboard_catch
-
-		cmp 		rdi, 	9
-		jz 			int_video_clr_indexed_line
-
-		cmp 		rdi, 	10
-		jz 			int_keyboard_replace_buffer
-
-		cmp			rdi,	11
-		jz			int_sys_get_color
-
-		cmp 		rdi,	12
-		jz			int_sys_set_color
-
-		cmp 		rdi,	14
-		jz			int_sys_kbd_set_distribution
-
-		cmp 		rdi, 	15
-		jz 			int_sys_set_screensaver_timer
-
-		cmp 		rdi, 	16
-		jz 			int_sys_screensaver_trigger
-
-		cmp			rdi,	17
-		jz			int_sys_clear_screen
-
-		cmp			rdi,	18
-		jz			hang
-
-		cmp			rdi,	19
-		jz			int_keyboard_clear_handler
-
-		jmp 		soft_interrupt_done 		; La syscall no existe
-
-int_sys_rtc:
-		call 		prepare_params
-		call 		sys_rtc_get
-		jmp			soft_interrupt_done
-
-int_sys_rtc_set:
-		call 		prepare_params
-		call 		sys_rtc_set
-		jmp 		soft_interrupt_done
-
-int_sys_write:
-		call 		prepare_params
-		call 		sys_write
-		jmp 		soft_interrupt_done
-int_sys_read:
-		call 		prepare_params
-		call 		sys_read
-		jmp 		soft_interrupt_done
-
-int_malloc:
-		call 		prepare_params
-		call 		sys_malloc
-		jmp 		soft_interrupt_done
-int_calloc:
-		call 		prepare_params
-		call 		sys_calloc
-		jmp 		soft_interrupt_done
-int_free:
-		call 		prepare_params
-		call 		sys_free
-		jmp 		soft_interrupt_done
-
-int_keyboard_catch:
-		call 		prepare_params
-		call 		sys_keyboard_catch
-		jmp 		soft_interrupt_done
-
-int_video_clr_indexed_line:
-		call 		prepare_params
-		call 		sys_clear_indexed_line
-		jmp 		soft_interrupt_done
-
-int_keyboard_replace_buffer:
-		call 		prepare_params
-		call 		sys_keyboard_replace_buffer
-		jmp 		soft_interrupt_done
-
-int_sys_get_color:
-		call 		prepare_params
-		call		sys_get_color
-		jmp			soft_interrupt_done
-
-int_sys_set_color:
-		call 		prepare_params
-		call		sys_set_color
-		jmp 		soft_interrupt_done
-
-int_sys_kbd_set_distribution:
-		call 		prepare_params
-		call		sys_kbd_set_distribution
-		jmp 		soft_interrupt_done
-
-int_sys_set_screensaver_timer:
-		call 		prepare_params
-		call		sys_set_screensaver_timer
-		jmp 		soft_interrupt_done
-
-int_sys_clear_screen:
-		call 		prepare_params
-		call 		sys_clear_screen
-		jmp			soft_interrupt_done
-
-int_sys_screensaver_trigger:
-		call 		prepare_params
-		call		sys_screensaver_trigger
-		jmp 		soft_interrupt_done
-
-int_keyboard_clear_handler:
-		call 		prepare_params
-		call 		sys_keyboard_clear_handler
-		jmp 		soft_interrupt_done
-
-soft_interrupt_done:
 		push 		rax
 		mov 		al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
-
 		pop 		rax
+		
 		pop 		rdi
 		iretq
 
-prepare_params:
-		mov 		rdi,	rsi
-		mov 		rsi,	rdx
-		mov 		rdx,	rcx
-		mov			rcx,	r8
-
-		ret
 
 pit_handler:
 		push 		rdi

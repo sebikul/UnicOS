@@ -261,7 +261,6 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	}
 
 	return FALSE;
-
 }
 
 static void keyboard_dispatch() {
