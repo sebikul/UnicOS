@@ -1,5 +1,9 @@
 #include "io.h"
 
+/*
+	Codigo extraido de osdev.org
+ */
+
 #define PORT 0x3f8   /* COM1 */
 
 void serial_init() {
