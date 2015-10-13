@@ -1,4 +1,6 @@
 global loader
+global intson
+global intsoff
 extern main
 extern initializeKernelBinary
 
@@ -302,4 +304,12 @@ init_pic:
 
 	sti				; Enable interrupts
 
+	ret
+
+intson:
+	sti
+	ret
+
+intsoff:
+	cli
 	ret

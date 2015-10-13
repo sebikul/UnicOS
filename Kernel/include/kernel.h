@@ -5,6 +5,7 @@
 #define STR(x) STR_HELPER(x)
 
 #define kdebug(str) _kdebug(__FILE__ ":" STR(__LINE__) ": " str)
+#define kdebugs(str) (_kdebug(""), _kdebug(s))
 
 void _kdebug(const char* s);
 void kdebug_char(char c);
@@ -13,5 +14,8 @@ void kdebug_nl();
 
 
 void active_screensaver();
+
+void intson();
+void intsoff();
 
 #endif
