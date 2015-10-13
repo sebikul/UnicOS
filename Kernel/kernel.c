@@ -7,6 +7,8 @@
 #include "string.h"
 #include "task.h"
 #include "input.h"
+#include "serial.h"
+#include "kernel.h"
 
 #if ! MACOS
 #include <string.h>
@@ -56,10 +58,12 @@ void * initializeKernelBinary() {
 	video_clear_screen(KERNEL_CONSOLE);
 
 	// interrupts off
-
+	serial_init();
 	task_init();
 	keyboard_init();
 	input_init();
+
+	kdebug("Kernel inicializado\n");
 
 	// interrupts on
 
@@ -147,4 +151,26 @@ void irq0_handler() {
 		active_screensaver();
 	}
 
+}
+
+void _kdebug(const char* s) {
+	while (*s != 0) {
+		serial_send(*s);
+		s++;
+	}
+}
+
+void kdebug_char(char c){
+	serial_send(c);
+}
+
+static char buffer[128] = { 0 };
+
+void kdebug_base(uint64_t value, uint32_t base) {
+	uintToBase(value, buffer, base);
+	_kdebug(buffer);
+}
+
+void kdebug_nl() {
+	serial_send('\n');
 }
