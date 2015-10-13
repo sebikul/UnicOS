@@ -2,6 +2,7 @@
 #include <io.h>
 #include <types.h>
 #include "string.h"
+#include "kernel.h"
 
 static char buffer[128] = { 0 };
 
@@ -39,7 +40,19 @@ static inline void video_sync_console(console_t console) {
 	}
 }
 
-void video_initialize() {
+static void video_fn_handler(uint64_t s) {
+	if (0x3b <= s && s <= 0x41) {
+		int newconsole = s - 0x3b;
+
+		kdebug("New virtual console: ");
+		kdebug_base(newconsole, 10);
+		kdebug_nl();
+
+		video_change_console(newconsole);
+	}
+}
+
+void video_init() {
 
 	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
 
@@ -49,6 +62,8 @@ void video_initialize() {
 
 		screen->row = 0;
 		screen->column = 0;
+
+		video_clear_screen(i);
 	}
 
 //SCREENSAVER
@@ -84,7 +99,10 @@ void video_initialize() {
 
 	video_update_screen_color(VIRTUAL_CONSOLES);
 
-	current_console = 0;
+	video_change_console(0);
+
+	keyboard_catch(0x00, video_fn_handler, TRUE, 0, 0);
+
 
 }
 
@@ -252,7 +270,7 @@ static void video_scroll(console_t console) {
 	screen->column = 0;
 	screen->row--;
 
-	video_update_screen_color(console);
+	//video_update_screen_color(console);
 }
 
 void video_update_cursor() {

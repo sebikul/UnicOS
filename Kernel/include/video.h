@@ -20,7 +20,7 @@ typedef struct {
 
 typedef uint8_t console_t;
 
-void video_initialize();
+void video_init();
 screen_t* get_screen(console_t console);
 
 color_t video_get_color(console_t console);

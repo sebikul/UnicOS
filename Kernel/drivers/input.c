@@ -50,6 +50,10 @@ void input_clear() {
 
 void input_replace(const char* s) {
 
+	kdebug("Reemplazando cola de input con: ");
+	kdebugs(s);
+	kdebug_nl();
+
 	input_clear();
 
 	while (*s != 0) {

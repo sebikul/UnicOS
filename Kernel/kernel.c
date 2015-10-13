@@ -54,14 +54,16 @@ void * initializeKernelBinary() {
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-	video_initialize();
-	video_clear_screen(KERNEL_CONSOLE);
+	intsoff();
 
-	// interrupts off
 	serial_init();
-	task_init();
 	keyboard_init();
+	video_init();
+
+	task_init();
 	input_init();
+
+	intson();
 
 	kdebug("Kernel inicializado\n");
 
@@ -160,7 +162,7 @@ void _kdebug(const char* s) {
 	}
 }
 
-void kdebug_char(char c){
+void kdebug_char(char c) {
 	serial_send(c);
 }
 
