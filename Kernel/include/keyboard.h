@@ -19,12 +19,13 @@ typedef struct {
 	unsigned int console;
 	pid_t pid;
 	bool wildcard;
+	bool ignore;
 } dka_catch;
 
 void keyboard_init();
 int keyboard_wait_for_buffer(int len);
 char keyboard_get_char_from_buffer();
-int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid);
+int keyboard_catch(uint64_t scancode, dka_handler handler, bool ignore, unsigned int console, pid_t pid);
 void keyboard_clear_handler(int index);
 void keyboard_replace_buffer(char* s);
 void keyboard_set_distribution(keyboard_distrib d);

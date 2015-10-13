@@ -251,7 +251,7 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == scode) {
 
 				dka_catched_scancodes[i]->handler(scode);
-				catched = TRUE;
+				catched = (!dka_catched_scancodes[i]->ignore || catched);
 			}
 		}
 
@@ -312,7 +312,7 @@ static void keyboard_dispatch() {
 	}
 
 	if (keyboard_run_handlers(res)) {
-		//kdebug("Scancode atrapado por un handler\n");
+		kdebug("Scancode atrapado por un handler\n");
 		running = FALSE;
 		return;
 	}
@@ -342,13 +342,13 @@ static void keyboard_dispatch() {
 void keyboard_init() {
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0);
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0);
-	keyboard_catch(0x36, keyboard_caps_handler, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0);
+	keyboard_catch(0x3A, keyboard_caps_handler,FALSE ,0, 0);
+	keyboard_catch(0x2A, keyboard_caps_handler,FALSE , 0, 0);
+	keyboard_catch(0x36, keyboard_caps_handler,FALSE , 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler,FALSE , 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler,FALSE , 0, 0);
 
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0);
+	keyboard_catch(0x0E, keyboard_backspace_handler,FALSE , 0, 0);
 }
 
 void keyboard_irq_handler(uint64_t s) {
@@ -363,7 +363,7 @@ void keyboard_irq_handler(uint64_t s) {
 	keyboard_dispatch();
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid) {
+int keyboard_catch(uint64_t scancode, dka_handler handler, bool ignore, unsigned int console, pid_t pid) {
 
 	int index;
 
@@ -374,6 +374,8 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console,
 	tmp->pid = pid;
 	tmp->console = console;
 	tmp->wildcard = (scancode == 0);
+	tmp->ignore=ignore;
+
 
 	index = dka_catched_len;
 	dka_catched_scancodes[index] = tmp;

@@ -49,6 +49,7 @@ int sys_read(FD fd, char* s, int len) {
 
 	kdebug("Esperando entrada\n");
 
+//FIXME
 	input_waitforline();
 
 	kdebug("Entrada recibida!\n");
@@ -63,6 +64,10 @@ int sys_read(FD fd, char* s, int len) {
 	}
 
 	s[i] = 0;
+
+	kdebug("Enviando cadena: ");
+	kdebugs(s);
+	kdebug_nl();
 
 	return i;
 }
@@ -80,7 +85,7 @@ void sys_free(void* m) {
 }
 
 uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid);
+	return keyboard_catch(scancode, handler, FALSE, task_get_current()->console, task_get_current()->pid);
 }
 
 void sys_clear_indexed_line(int index) {
