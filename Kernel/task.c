@@ -18,8 +18,11 @@ static pid_t getnewpid() {
 
 void task_init() {
 
-	task_t *init = task_create(NULL, "init", 0, NULL);
+	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
+		task_t *task = task_create(NULL, "init", 0, NULL);
 
+		task_setconsole(task, i);
+	}
 }
 
 static void task_add(task_t *task) {
@@ -46,6 +49,10 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task_add(task);
 
 	return task;
+}
+
+void task_setconsole(task_t *task, console_t console) {
+	task->console = console;
 }
 
 task_t* task_get_current() {
