@@ -55,7 +55,6 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	message->size = size;
 	message->msg = malloc(size);
 	memcpy(message->msg, msg, size);
-
 	message->next = NULL;
 
 	if (msgqueue->first == NULL) {
@@ -66,6 +65,10 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	}
 
 	msgqueue->size++;
+
+	//kdebug("Encolando mensaje. Size: ");
+	//kdebug_base(msgqueue->size, 10);
+	//kdebug_nl();
 }
 
 void msgqueue_undo(msgqueue_t *msgqueue) {
@@ -78,9 +81,17 @@ void msgqueue_undo(msgqueue_t *msgqueue) {
 
 	msgqueue->first = message->next;
 
+	if (msgqueue->first == NULL) {
+		msgqueue->last == NULL;
+	}
+
 	msgqueue->size--;
 
 	message_delete(message);
+
+	//kdebug("Deshaciendo agragado de mensaje. Nuevo size: ");
+	// kdebug_base(msgqueue->size, 10);
+	// kdebug_nl();
 }
 
 void* msgqueue_deq(msgqueue_t *msgqueue) {
@@ -97,9 +108,18 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 
 	msgqueue->first = message->next;
 
+	if (msgqueue->first == NULL) {
+		//kdebug("Ultimo mensaje de la cola eliminado.\n");
+		msgqueue->last == NULL;
+	}
+
 	message_delete(message);
 
 	msgqueue->size--;
+
+	//kdebug("Desencolando mensaje. Size: ");
+	// kdebug_base(msgqueue->size, 10);
+	// kdebug_nl();
 
 	return msg;
 }
@@ -109,14 +129,19 @@ void* msgqueue_peeklast(msgqueue_t *msgqueue) {
 	void* msg;
 	message_t *message;
 
-	if (msgqueue->last == NULL) {
+	message = msgqueue->last;
+
+	if (msgqueue->size == 0) {
+		//kdebug("Espiando cola vacia.\n");
 		return NULL;
 	}
 
-	message = msgqueue->last;
-
 	msg = malloc(message->size);
 	memcpy(msg, message->msg, message->size);
+
+	//kdebug("Espiando ultimo mensaje. Size: ");
+	// kdebug_base(msgqueue->size, 10);
+	// kdebug_nl();
 
 	return msg;
 }

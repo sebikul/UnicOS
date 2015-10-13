@@ -7,6 +7,7 @@
 #include "types.h"
 #include "msgqueue.h"
 #include "input.h"
+#include "kernel.h"
 
 #define FIRST_BIT_ON(c) (0x80 | c)
 
@@ -220,7 +221,7 @@ static void keyboard_caps_handler(uint64_t s) {
 static void keyboard_backspace_handler(uint64_t s) {
 
 	if (input_size() == 0) {
-		video_write_line(KERNEL_CONSOLE, "Cola vacia");
+		//video_write_line(KERNEL_CONSOLE, "Cola vacia");
 		return;
 	}
 
@@ -240,12 +241,37 @@ static void keyboard_backspace_handler(uint64_t s) {
 	video_update_cursor();
 }
 
+static bool keyboard_run_handlers(uint64_t scode) {
+
+	if (dka_catched_len > 0) {
+
+		bool catched = FALSE;
+
+		for (int i = 0; i < dka_catched_len; i++) {
+			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == scode) {
+
+				dka_catched_scancodes[i]->handler(scode);
+				catched = TRUE;
+			}
+		}
+
+		if (catched) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+
+}
+
 static void keyboard_dispatch() {
 
 	uint64_t *scancode;
 	uint64_t res = 0;
 	int reps;
 	char c;
+
+	//TODO Atomic
 	static volatile bool running = FALSE;
 
 	if (running) {
@@ -255,7 +281,7 @@ static void keyboard_dispatch() {
 	running = TRUE;
 
 	if (msgqueue_size(kbdqueue) == 0) {
-		running=FALSE;
+		running = FALSE;
 		return;
 	}
 
@@ -285,28 +311,17 @@ static void keyboard_dispatch() {
 		free(scancode);
 	}
 
-	if (dka_catched_len > 0) {
-
-		bool catched = FALSE;
-
-		for (int i = 0; i < dka_catched_len; i++) {
-			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == res) {
-
-				dka_catched_scancodes[i]->handler(res);
-				catched = TRUE;
-			}
-		}
-
-		if (catched) {
-			running = FALSE;
-			return;
-		}
+	if (keyboard_run_handlers(res)) {
+		//kdebug("Scancode atrapado por un handler\n");
+		running = FALSE;
+		return;
 	}
 
 	scancode_t t = keyboard_scancodes[keyboard_distribution][res];
 
 	if (t.ascii == NOCHAR) {
-		running=FALSE;
+		//kdebug("Recibido caracter NOCHAR\n");
+		running = FALSE;
 		return;
 	}
 

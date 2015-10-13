@@ -47,9 +47,11 @@ int sys_read(FD fd, char* s, int len) {
 
 	int i = 0;
 
+	kdebug("Esperando entrada\n");
+
 	input_waitforline();
 
-	//video_write_line(KERNEL_CONSOLE, "Linea nueva");
+	kdebug("Entrada recibida!\n");
 
 	while (i < len) {
 		s[i] = input_getc();
