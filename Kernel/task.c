@@ -9,7 +9,6 @@
 static task_t *first = NULL;
 static task_t *current = NULL;
 
-static pid_t current_pid = 0;
 static pid_t nextpid = 0;
 
 static void* const shellCodeModuleAddress = (void*)0x400000;
@@ -51,10 +50,6 @@ static inline void task_add(task_t *task) {
 	}
 }
 
-static void task_set_state(task_t *task, task_state_t newstate) {
-	task->state = newstate;
-}
-
 void task_init() {
 
 	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
@@ -86,9 +81,9 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->stack = malloc(STACK_SIZE);
 	task->rsp = task->stack + STACK_SIZE - 1;
 
-	intsoff();
+	//intsoff();
 	task_add(task);
-	intson();
+	//intson();
 
 	return task;
 }
@@ -113,12 +108,24 @@ task_t* task_next() {
 	task_t *task = current->next;
 
 	while (task->state != TASK_RUNNING) {
-		task = task->next
+		task = task->next;
 	}
 
 	return task;
 }
 
+void task_reschedule() {
+	current = task_next();
+}
+
 task_t* task_get_current() {
 	return current;
+}
+
+void task_save_current_stack(void* rsp) {
+	current->rsp = rsp;
+}
+
+void* task_get_current_stack() {
+	return current->rsp;
 }

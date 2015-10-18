@@ -8,7 +8,7 @@ static uint32_t readUint32(uint8_t ** address);
 
 void loadModules(void * payloadStart, void ** targetModuleAddress)
 {
-	int i;
+	uint32_t i;
 	uint8_t * currentModule = (uint8_t*)payloadStart;
 	uint32_t moduleCount = readUint32(&currentModule);
 

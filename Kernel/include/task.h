@@ -37,4 +37,9 @@ task_t* task_get_current();
 
 task_t* task_next();
 
+void task_reschedule();
+
+void task_save_current_stack(void* rsp);
+void* task_get_current_stack();
+
 #endif

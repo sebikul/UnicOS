@@ -20,6 +20,8 @@ void kdebug_nl();
 
 void active_screensaver();
 
+void reschedule();
+
 void intson();
 void intsoff();
 

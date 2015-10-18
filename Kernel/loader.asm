@@ -1,9 +1,10 @@
-global loader
-global intson
-global intsoff
-global hang
-extern main
-extern initializeKernelBinary
+global		loader
+global		intson
+global		intsoff
+global		hang
+extern		main
+extern		initializeKernelBinary
+extern 		_kdebug
 
 extern 		main
 extern 		initializeKernelBinary
@@ -11,6 +12,10 @@ extern 		initializeKernelBinary
 extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
+
+extern 		task_save_current_stack
+extern 		task_get_current_stack
+extern 		task_reschedule
 
 %macro pusha 0
 		push 		r15
@@ -53,15 +58,17 @@ loader:
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
 		mov			rsp, 	rax					; Set up the stack with the returned address
+		mov 		[stack],  rsp				; Direccion del stack del kernel
 		push 		rax
 
 		call 		set_interrupt_handlers
 		call 		init_pic
 		call		main
 
+stack 	resq	0
 
 hang:
-		cli
+		call 		intsoff
 		hlt										; halt machine should kernel return
 		jmp 		hang
 
@@ -122,10 +129,23 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		iretq
 
+align 16
 pit_handler:
 		pusha
 
+		mov 		rdi,	 rsp
+		call 		task_save_current_stack		; Guardamos el stack de la tarea actual en task->rsp
+
+		mov 		rsp, 	[stack]
+
 		call 		irq0_handler
+
+		call 		task_reschedule 			; Cambia current en task.c
+
+		mov 		[stack], 	rsp
+
+		call 		task_get_current_stack		; Deja en %rax la direccion del stack de la tarea anterior
+		mov			rsp,	 rax
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
@@ -159,19 +179,18 @@ keyboard_done:
 		pop 		rdi
 		iretq
 
-init_pic:
-	; Enable specific interrupts
-	in al, 0x21
-	mov al, 11111000b		; Enable Cascade, Keyboard
-	out 0x21, al
+init_pic:										; Enable specific interrupts
+		in 			al, 	0x21
+		mov 		al, 	11111000b			; Enable Cascade, Keyboard
+		out 		0x21,	 al
 
-	sti				; Enable interrupts
-	ret
+		;call 		intson						; Enable interrupts
+		ret
 
 intson:
-	sti
-	ret
+		sti
+		ret
 
 intsoff:
-	cli
-	ret
+		cli
+		ret

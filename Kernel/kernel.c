@@ -33,8 +33,6 @@ uint64_t screensaver_wait_time = 20;
 uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
-typedef int (*EntryPoint)();
-
 void load_kernel_modules();
 
 void clearBSS(void * bssAddress, uint64_t bssSize) {
@@ -62,7 +60,7 @@ void* initializeKernelBinary() {
 	video_init();
 	input_init();
 
-	intson();
+	//intson();
 
 	kdebug("Kernel inicializado\n");
 
@@ -116,6 +114,7 @@ int main() {
 
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
+	intson();
 
 	// for (uint64_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
@@ -123,11 +122,11 @@ int main() {
 	// 	video_write_nl(i);
 	// }
 
-	// while(1);
+	while(1);
 
 	//video_write_line(KERNEL_CONSOLE, "Calling shell module...");
 	//video_write_nl(KERNEL_CONSOLE);
-	//((EntryPoint)shellCodeModuleAddress)();
+	//((task_entry_point)shellCodeModuleAddress)(0, NULL);
 
 	return 0;
 }
@@ -156,7 +155,7 @@ void active_screensaver() {
 
 void irq0_handler() {
 
-	//kdebug("PIT\n");
+	kdebug("PIT\n");
 
 	pit_timer++;
 	screensaver_timer--;
@@ -164,89 +163,6 @@ void irq0_handler() {
 	if (screensaver_timer == 0 && !screensaver_is_active) {
 		active_screensaver();
 	}
-}
-
-uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8) {
-
-	//kdebug("Despachando syscall int 80h\n");
-
-	switch (rdi) {
-
-	case SYSCALL_RTC:
-		sys_rtc_get((time_t*)rsi);
-		break;
-
-	case SYSCALL_RTC_SET:
-		sys_rtc_set((time_t*)rsi);
-		break;
-
-	case SYSCALL_READ:
-		return sys_read((FD)rsi, (char*)rdx, rcx);
-		break;
-
-	case SYSCALL_WRITE:
-		sys_write((FD)rsi, (char*)rdx, rcx);
-		break;
-
-	case SYSCALL_MALLOC:
-		return (uint64_t) sys_malloc(rsi);
-		break;
-
-	case SYSCALL_CALLOC:
-		return (uint64_t) sys_calloc(rsi);
-		break;
-
-	case SYSCALL_FREE:
-		sys_free((void*)rsi);
-		break;
-
-	case SYSCALL_KEYBOARD_CATCH:
-		return sys_keyboard_catch(rsi, (dka_handler) rdx);
-		break;
-
-	case SYSCALL_VIDEO_CLR_INDEXED_LINE:
-		sys_clear_indexed_line(rsi);
-		break;
-
-	case SYSCALL_KEYBOARD_REPLACE_BUFFER:
-		sys_keyboard_replace_buffer((char*)rsi);
-		break;
-
-	case SYSCALL_GET_COLOR:
-		return (uint64_t) sys_get_color();
-		break;
-
-	case SYSCALL_SET_COLOR:
-		sys_set_color((color_t) rdi);
-		break;
-
-	case SYSCALL_SET_KBD_DISTRIBUTION:
-		sys_kbd_set_distribution(rdi);
-		break;
-
-	case SYSCALL_SCREENSAVER_TIMER:
-		sys_set_screensaver_timer(rdi);
-		break;
-
-	case SYSCALL_SCREENSAVER_TRIGGER:
-		sys_screensaver_trigger();
-		break;
-
-	case SYSCALL_CLEAR_SCREEN:
-		sys_clear_screen();
-		break;
-
-	case SYSCALL_EXIT:
-		hang();
-		break;
-
-	case SYSCALL_KEYBOARD_CLEAR_HANDLER:
-		sys_keyboard_clear_handler(rdi);
-		break;
-	}
-
-	return 0;
-
 }
 
 void _kdebug(const char* s) {
