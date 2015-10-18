@@ -81,8 +81,10 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	}
 
 	task->name = malloc(strlen(name) + 1);
-
 	memcpy(task->name, name, strlen(name) + 1);
+
+	task->stack = malloc(STACK_SIZE);
+	task->esp = task->stack + STACK_SIZE - 1;
 
 	intsoff();
 	task_add(task);

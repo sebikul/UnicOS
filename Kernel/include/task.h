@@ -16,6 +16,8 @@ typedef struct task_t{
 
 	char *name;
 	void *stack;
+	void *esp;
+
 	pid_t pid;
 	task_state_t state;
 	uint8_t console;

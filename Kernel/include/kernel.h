@@ -1,6 +1,12 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
+#define KB(s) ((s) << 10)
+#define MB(s) (KB(s) << 10)
+
+#define STACK_SIZE MB(1)
+
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
