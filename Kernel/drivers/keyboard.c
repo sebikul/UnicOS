@@ -263,6 +263,8 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	return FALSE;
 }
 
+static volatile bool running = FALSE;
+
 static void keyboard_dispatch() {
 
 	uint64_t *scancode;
@@ -271,8 +273,7 @@ static void keyboard_dispatch() {
 	char c;
 
 	//TODO Atomic
-	static volatile bool running = FALSE;
-
+// 
 	if (running) {
 		return;
 	}
@@ -304,9 +305,13 @@ static void keyboard_dispatch() {
 	free(scancode);
 
 	for (int i = 0; i < reps; i++) {
-		res << sizeof(char);
 		scancode = msgqueue_deq(kbdqueue);
-		res |= (*scancode);
+
+		kdebug("Leido scancode: 0x");
+		kdebug_base(*scancode, 16);
+		kdebug_nl();
+
+		res = (res << 8 ) | (*scancode);
 		free(scancode);
 	}
 
