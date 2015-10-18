@@ -84,7 +84,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	memcpy(task->name, name, strlen(name) + 1);
 
 	task->stack = malloc(STACK_SIZE);
-	task->esp = task->stack + STACK_SIZE - 1;
+	task->rsp = task->stack + STACK_SIZE - 1;
 
 	intsoff();
 	task_add(task);
@@ -97,8 +97,26 @@ void task_ready(task_t *task) {
 	task->state = TASK_RUNNING;
 }
 
+void task_pause(task_t *task) {
+	task->state = TASK_PAUSED;
+}
+
+void task_sleep(task_t *task) {
+	task->state = TASK_SLEEPING;
+}
+
 void task_setconsole(task_t *task, console_t console) {
 	task->console = console;
+}
+
+task_t* task_next() {
+	task_t *task = current->next;
+
+	while (task->state != TASK_RUNNING) {
+		task = task->next
+	}
+
+	return task;
 }
 
 task_t* task_get_current() {

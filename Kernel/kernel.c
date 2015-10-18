@@ -49,7 +49,7 @@ void * getStackBase() {
 	       );
 }
 
-void * initializeKernelBinary() {
+void* initializeKernelBinary() {
 
 	load_kernel_modules();
 

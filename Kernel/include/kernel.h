@@ -4,7 +4,7 @@
 #define KB(s) ((s) << 10)
 #define MB(s) (KB(s) << 10)
 
-#define STACK_SIZE MB(1)
+#define STACK_SIZE KB(32)
 
 
 #define STR_HELPER(x) #x

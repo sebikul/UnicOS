@@ -16,7 +16,7 @@ typedef struct task_t{
 
 	char *name;
 	void *stack;
-	void *esp;
+	void *rsp;
 
 	pid_t pid;
 	task_state_t state;
@@ -27,7 +27,14 @@ typedef uint64_t (*task_entry_point)(int argc, char** argv);
 
 void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);
-task_t* task_get_current();
+
+void task_ready(task_t *task);
+void task_pause(task_t *task);
+void task_sleep(task_t *task);
+
 void task_setconsole(task_t *task, console_t console);
+task_t* task_get_current();
+
+task_t* task_next();
 
 #endif
