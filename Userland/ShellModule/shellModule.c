@@ -38,7 +38,7 @@ static void initialize_command_list();
 static void initialize_names();
 static void calloc_cmd(int i, char* str);
 
-int main() {
+int main(int argc, char** argv) {
 
 	static char buffer[CMD_BUFFER_SIZE] = {0};
 

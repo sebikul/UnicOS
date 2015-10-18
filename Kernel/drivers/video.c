@@ -130,11 +130,11 @@ color_t video_get_color(console_t console) {
 	return get_screen(console)->color;
 }
 
-static uint16_t video_get_full_char_at(console_t console, int row, int col) {
+static inline uint16_t video_get_full_char_at(console_t console, int row, int col) {
 	return get_screen(console)->screen[row * SCREEN_WIDTH + col];
 }
 
-static void video_write_full_char_at(console_t console, uint16_t c, int row, int col) {
+static inline void video_write_full_char_at(console_t console, uint16_t c, int row, int col) {
 	get_screen(console)->screen[row * SCREEN_WIDTH + col] = c;
 
 	video_sync_console_at(console, row, col);
@@ -188,7 +188,7 @@ static void video_write_full_char(console_t console, uint16_t c) {
 	}
 }
 
-inline void video_write_char_at(console_t console , const char c, int row, int col) {
+void video_write_char_at(console_t console , const char c, int row, int col) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t
@@ -198,7 +198,7 @@ inline void video_write_char_at(console_t console , const char c, int row, int c
 	video_write_full_char_at(console, c_16 | (color_16 << 8), row, col);
 }
 
-inline void video_write_char(console_t console, const char c) {
+void video_write_char(console_t console, const char c) {
 
 	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
 	//se necesitan guardar los valores en uint16_t

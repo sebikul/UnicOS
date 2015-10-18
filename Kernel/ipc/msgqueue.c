@@ -19,7 +19,6 @@ struct msgqueue {
 	message_t *last;
 	uint32_t size;
 	uint32_t maxsize;
-	volatile bool running;
 };
 
 static void message_delete(message_t * message) {
@@ -42,7 +41,6 @@ msgqueue_t* msgqueue_create(uint32_t maxsize) {
 	msgqueue->last = NULL;
 	msgqueue->size = 0;
 	msgqueue->maxsize = maxsize;
-	msgqueue->running = FALSE;
 
 	return msgqueue;
 }
@@ -50,9 +48,6 @@ msgqueue_t* msgqueue_create(uint32_t maxsize) {
 void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 
 	intsoff();
-
-	while (msgqueue->running);
-	msgqueue->running = TRUE;
 
 	if (msgqueue->size == msgqueue->maxsize) {
 		return;
@@ -78,17 +73,12 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	//kdebug_base(msgqueue->size, 10);
 	//kdebug_nl();
 
-	msgqueue->running = FALSE;
-
 	intson();
 }
 
 void msgqueue_undo(msgqueue_t *msgqueue) {
 
-intsoff();
-
-	while (msgqueue->running);
-	msgqueue->running = TRUE;
+	intsoff();
 
 	message_t *message = msgqueue->first;
 
@@ -99,7 +89,7 @@ intsoff();
 	msgqueue->first = message->next;
 
 	if (msgqueue->first == NULL) {
-		msgqueue->last == NULL;
+		msgqueue->last = NULL;
 	}
 
 	msgqueue->size--;
@@ -110,8 +100,6 @@ intsoff();
 	// kdebug_base(msgqueue->size, 10);
 	// kdebug_nl();
 
-	msgqueue->running = FALSE;
-
 	intson();
 }
 
@@ -120,10 +108,7 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	void* msg;
 	message_t *message;
 
-intsoff();
-
-	while (msgqueue->running);
-	msgqueue->running = TRUE;
+	intsoff();
 
 	while (msgqueue->first == NULL);
 
@@ -136,7 +121,7 @@ intsoff();
 
 	if (msgqueue->first == NULL) {
 		//kdebug("Ultimo mensaje de la cola eliminado.\n");
-		msgqueue->last == NULL;
+		msgqueue->last = NULL;
 	}
 
 	message_delete(message);
@@ -146,7 +131,7 @@ intsoff();
 	//kdebug("Desencolando mensaje. Size: ");
 	// kdebug_base(msgqueue->size, 10);
 	// kdebug_nl();
-	msgqueue->running = FALSE;
+
 	intson();
 
 	return msg;
@@ -176,10 +161,7 @@ void* msgqueue_peeklast(msgqueue_t *msgqueue) {
 
 void msgqueue_clear(msgqueue_t *msgqueue) {
 
-intsoff();
-
-	while (msgqueue->running);
-	msgqueue->running = TRUE;
+	intsoff();
 
 	if (msgqueue->first == NULL) {
 		return;
@@ -192,7 +174,6 @@ intsoff();
 
 	msgqueue->size = 0;
 
-	msgqueue->running = FALSE;
 	intson();
 }
 
@@ -206,14 +187,10 @@ int msgqueue_size(msgqueue_t *msgqueue) {
 
 void msgqueue_delete(msgqueue_t *msgqueue) {
 
-	while (msgqueue->running);
-	msgqueue->running = TRUE;
-
 	if (msgqueue->first != NULL) {
 		message_deep_delete(msgqueue->first);
 	}
 
-	msgqueue->running = FALSE;
 
 	free(msgqueue);
 }

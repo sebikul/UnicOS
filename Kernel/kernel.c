@@ -60,8 +60,6 @@ void * initializeKernelBinary() {
 	serial_init();
 	keyboard_init();
 	video_init();
-
-	task_init();
 	input_init();
 
 	intson();
@@ -116,9 +114,20 @@ int main() {
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)shellCodeModuleAddress);
 	video_write_nl(KERNEL_CONSOLE);
 
-	video_write_line(KERNEL_CONSOLE, "Calling shell module...");
-	video_write_nl(KERNEL_CONSOLE);
-	((EntryPoint)shellCodeModuleAddress)();
+	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
+	task_init();
+
+	// for (uint64_t i = 0; i < VIRTUAL_CONSOLES; i++) {
+	// 	video_write_string(i, "Console #: ");
+	// 	video_write_dec(i, i);
+	// 	video_write_nl(i);
+	// }
+
+	// while(1);
+
+	//video_write_line(KERNEL_CONSOLE, "Calling shell module...");
+	//video_write_nl(KERNEL_CONSOLE);
+	//((EntryPoint)shellCodeModuleAddress)();
 
 	return 0;
 }
@@ -146,6 +155,8 @@ void active_screensaver() {
 }
 
 void irq0_handler() {
+
+	//kdebug("PIT\n");
 
 	pit_timer++;
 	screensaver_timer--;
@@ -190,7 +201,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_KEYBOARD_CATCH:
-		return sys_keyboard_catch(rsi,(dka_handler) rdx);
+		return sys_keyboard_catch(rsi, (dka_handler) rdx);
 		break;
 
 	case SYSCALL_VIDEO_CLR_INDEXED_LINE:

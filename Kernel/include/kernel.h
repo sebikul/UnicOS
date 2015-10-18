@@ -12,7 +12,6 @@ void kdebug_char(char c);
 void kdebug_base(uint64_t value, uint32_t base);
 void kdebug_nl();
 
-
 void active_screensaver();
 
 void intson();
