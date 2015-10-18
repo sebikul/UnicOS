@@ -84,7 +84,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_EXIT:
-		hang();
+		//hang();
 		break;
 
 	case SYSCALL_KEYBOARD_CLEAR_HANDLER:

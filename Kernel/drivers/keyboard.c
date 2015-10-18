@@ -272,8 +272,6 @@ static void keyboard_dispatch() {
 	int reps;
 	char c;
 
-	//TODO Atomic
-// 
 	if (running) {
 		return;
 	}

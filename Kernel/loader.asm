@@ -5,6 +5,7 @@ global		hang
 extern		main
 extern		initializeKernelBinary
 extern 		_kdebug
+global 		savestack
 
 extern 		main
 extern 		initializeKernelBinary
@@ -15,42 +16,31 @@ extern 		irq80_handler
 
 extern 		task_save_current_stack
 extern 		task_get_current_stack
-extern 		task_reschedule
+extern 		task_next
+extern 		task_get_current
 
-%macro pusha 0
-		push 		r15
-		push 		r14
-		push 		r13
-		push 		r12
-		push 		r11
-		push 		r10
-		push 		r9
-		push 		r8
-		push 		rbp
+%macro pusha 0 								; ABI Registers: No permiten llamar a funciones en C sin corromper nada
 		push 		rax
-		push 		rbx
 		push 		rcx
 		push 		rdx
-		push 		rsi
 		push 		rdi
+		push 		rsi
+		push 		r8 
+		push 		r9 
+		push 		r10
+		push 		r11
 %endmacro
 
 %macro popa 0
-		pop 		rdi
+		pop 		r11
+		pop 		r10
+		pop 		r9 
+		pop 		r8 
 		pop 		rsi
+		pop 		rdi
 		pop 		rdx
 		pop 		rcx
-		pop 		rbx
 		pop 		rax
-		pop 		rbp
-		pop 		r8
-		pop 		r9
-		pop 		r10
-		pop 		r11
-		pop 		r12
-		pop 		r13
-		pop 		r14
-		pop 		r15
 %endmacro
 
 
@@ -58,19 +48,12 @@ loader:
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
 		mov			rsp, 	rax					; Set up the stack with the returned address
-		mov 		[stack],  rsp				; Direccion del stack del kernel
 		push 		rax
 
 		call 		set_interrupt_handlers
 		call 		init_pic
 		call		main
-
-stack 	resq	0
-
-hang:
-		call 		intsoff
-		hlt										; halt machine should kernel return
-		jmp 		hang
+		hlt										; Halt hasta la primera interrupcion
 
 
 IDTR64:											; Interrupt Descriptor Table Register
@@ -133,19 +116,37 @@ align 16
 pit_handler:
 		pusha
 
-		mov 		rdi,	 rsp
-		call 		task_save_current_stack		; Guardamos el stack de la tarea actual en task->rsp
+		;mov 		rdi,	 rsp
+		;call 		task_save_current_stack		; Guardamos el stack de la tarea actual en task->rsp
+		; mov 		rsp, 	[stack]				; Entramos al stack del kernel
 
-		mov 		rsp, 	[stack]
+		call 		task_get_current 			; En rax tenemos la tarea actual. Hay que guardar el contexto
+
+		add 		rax, 	8
+		mov 		[rax + 0x0], rbp 
+		mov 		[rax + 0x8], rbx 
+		mov 		[rax + 0x10], r12 
+		mov 		[rax + 0x18], r13 
+		mov 		[rax + 0x20], r14 
+		mov 		[rax + 0x28], r15 
+		mov 		[rax + 0x30], rsp 			; Ya guardamos el contexto. Hay que cambiar de tarea y restarurar el anterior
 
 		call 		irq0_handler
 
-		call 		task_reschedule 			; Cambia current en task.c
+		call 		task_next		 			; Cambia current en task.c. Deja la tarea nueva en rax
 
-		mov 		[stack], 	rsp
+		add 		rax, 	8
+		mov 		rbp, [rax + 0x0]
+		mov 		rbx, [rax + 0x8]
+		mov 		r12, [rax + 0x10]
+		mov 		r13, [rax + 0x18]
+		mov 		r14, [rax + 0x20]
+		mov 		r15, [rax + 0x28]
+		mov 		rsp, [rax + 0x30]
 
-		call 		task_get_current_stack		; Deja en %rax la direccion del stack de la tarea anterior
-		mov			rsp,	 rax
+		; mov 		[stack], rsp				; Salimos del stack del kernel
+		;call 		task_get_current_stack		; Deja en %rax la direccion del stack de la tarea anterior
+		;mov			rsp,	 rax
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al

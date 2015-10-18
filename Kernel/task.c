@@ -25,6 +25,10 @@ static uint64_t task_shell(int argc, char** argv) {
 
 	while (TRUE) {
 
+		kdebug("Running shell. argc: ");
+		kdebug_base(argc, 10);
+		kdebug_nl();
+
 		uint8_t console = task_get_current()->console;
 
 		video_clear_screen(console);
@@ -52,7 +56,7 @@ static inline void task_add(task_t *task) {
 
 void task_init() {
 
-	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
+	for (int i = 1; i < VIRTUAL_CONSOLES; i++) {
 		task_t *task = task_create(task_shell, "init_shell", 0, NULL);
 
 		task_setconsole(task, i);
@@ -65,6 +69,8 @@ void task_init() {
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
 
 	task_t *task = malloc(sizeof(task_t));
+	irq_ctx_t *irq_ctx;
+	void *stack;
 
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
@@ -78,8 +84,21 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->name = malloc(strlen(name) + 1);
 	memcpy(task->name, name, strlen(name) + 1);
 
-	task->stack = malloc(STACK_SIZE);
-	task->rsp = task->stack + STACK_SIZE - 1;
+	stack = malloc(STACK_SIZE);
+	stack = stack + STACK_SIZE;
+
+	irq_ctx = (irq_ctx_t *) (stack - sizeof(irq_ctx_t));
+
+	irq_ctx->rip = (uintptr_t) func;
+	irq_ctx->rdi = argc;
+	irq_ctx->rsi = (uintptr_t) argv;
+
+	irq_ctx->cs = 0x08;
+	irq_ctx->rflags = 0x200;
+	irq_ctx->rsp = stack;
+	irq_ctx->ss = 0x0;
+
+	task->pcb.rsp=(uintptr_t) irq_ctx;
 
 	//intsoff();
 	task_add(task);
@@ -114,18 +133,6 @@ task_t* task_next() {
 	return task;
 }
 
-void task_reschedule() {
-	current = task_next();
-}
-
 task_t* task_get_current() {
 	return current;
-}
-
-void task_save_current_stack(void* rsp) {
-	current->rsp = rsp;
-}
-
-void* task_get_current_stack() {
-	return current->rsp;
 }

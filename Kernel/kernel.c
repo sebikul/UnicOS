@@ -114,15 +114,16 @@ int main() {
 
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
+	//savestack();
 	intson();
+
+	while(TRUE);
 
 	// for (uint64_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
 	// 	video_write_dec(i, i);
 	// 	video_write_nl(i);
 	// }
-
-	while(1);
 
 	//video_write_line(KERNEL_CONSOLE, "Calling shell module...");
 	//video_write_nl(KERNEL_CONSOLE);
@@ -155,7 +156,7 @@ void active_screensaver() {
 
 void irq0_handler() {
 
-	kdebug("PIT\n");
+	//kdebug("PIT\n");
 
 	pit_timer++;
 	screensaver_timer--;
