@@ -12,16 +12,48 @@ extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
 
+%macro pusha 0
+		push 		r15
+		push 		r14
+		push 		r13
+		push 		r12
+		push 		r11
+		push 		r10
+		push 		r9
+		push 		r8
+		push 		rbp
+		push 		rax
+		push 		rbx
+		push 		rcx
+		push 		rdx
+		push 		rsi
+		push 		rdi
+%endmacro
+
+%macro popa 0
+		pop 		rdi
+		pop 		rsi
+		pop 		rdx
+		pop 		rcx
+		pop 		rbx
+		pop 		rax
+		pop 		rbp
+		pop 		r8
+		pop 		r9
+		pop 		r10
+		pop 		r11
+		pop 		r12
+		pop 		r13
+		pop 		r14
+		pop 		r15
+%endmacro
+
 
 loader:
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
 		mov			rsp, 	rax					; Set up the stack with the returned address
 		push 		rax
-
-		;mov 		rdi, msg_init 				;Inicializando IDT
-		;call 		video_write_line
-		;call 		video_write_nl
 
 		call 		set_interrupt_handlers
 		call 		init_pic
@@ -38,10 +70,6 @@ IDTR64:											; Interrupt Descriptor Table Register
 		dw 			256*16-1					; limit of IDT (size minus one) (4096 bytes - 1)
 		dq 			0x0000000000000000			; linear address of IDT
 
-
-msg_init:			db "Inicializando IDT", 0
-msg_test:			db "Mensaje IDT de prueba", 0
-msg_test_len		equ $-msg_test
 
 ; create_gate
 ; rax = address of handler
@@ -81,8 +109,7 @@ set_interrupt_handlers:
 
 align 16
 soft_interrupt:									; Interrupciones de software, int 80h
-		push 		rdi
-		;push 		rax
+		pusha
 
 		call 		irq80_handler
 
@@ -90,22 +117,20 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		mov 		al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 		pop 		rax
-		
-		pop 		rdi
+	
+		popa
+
 		iretq
 
-
 pit_handler:
-		push 		rdi
-		push 		rax
+		pusha
 
 		call 		irq0_handler
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
-		pop 		rax
-		pop 		rdi
+		popa
 		iretq
 
 align 16
@@ -141,7 +166,6 @@ init_pic:
 	out 0x21, al
 
 	sti				; Enable interrupts
-
 	ret
 
 intson:
