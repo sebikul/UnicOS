@@ -14,48 +14,78 @@ extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
 
-extern 		task_save_current_stack
-extern 		task_get_current_stack
+extern 		task_save_stack
+extern 		task_restore_stack
 extern 		task_next
 extern 		task_get_current
+extern 		video_write_hex
+
+extern 		stack_init
+extern 		kernel_stack
+extern 		kdebug_base
+extern 		kdebug_nl
+
+extern 		scheduler_u2k
+extern 		scheduler_k2u
 
 %macro pusha 0 								; ABI Registers: No permiten llamar a funciones en C sin corromper nada
-		push 		rax
-		push 		rcx
-		push 		rdx
-		push 		rdi
-		push 		rsi
-		push 		r8 
-		push 		r9 
-		push 		r10
-		push 		r11
+		push		rax
+		push		rbx
+		push		rcx
+		push		rdx
+		push		rbp
+		push		rdi
+		push		rsi
+		push		r8
+		push		r9
+		push		r10
+		push		r11
+		push		r12
+		push		r13
+		push		r14
+		push		r15
+		push		fs
+		push		gs
 %endmacro
 
 %macro popa 0
-		pop 		r11
-		pop 		r10
-		pop 		r9 
-		pop 		r8 
-		pop 		rsi
-		pop 		rdi
-		pop 		rdx
-		pop 		rcx
-		pop 		rax
+		pop			gs
+		pop			fs
+		pop			r15
+		pop			r14
+		pop			r13
+		pop			r12
+		pop			r11
+		pop			r10
+		pop			r9
+		pop			r8
+		pop			rsi
+		pop			rdi
+		pop			rbp
+		pop			rdx
+		pop			rcx
+		pop			rbx
+		pop			rax
 %endmacro
 
 
 loader:
 		cli
+
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
-		mov			rsp, 	rax					; Set up the stack with the returned address
+		call 		stack_init
+		mov 		rsp, rax
 		push 		rax
 
 		call 		set_interrupt_handlers
 		call 		init_pic
 		call		main
 		sti
-		hlt										; Halt hasta la primera interrupcion
+halt:
+		hlt
+		jmp halt
+	;	hlt										; Halt hasta la primera interrupcion
 
 IDTR64:											; Interrupt Descriptor Table Register
 		dw 			256*16-1					; limit of IDT (size minus one) (4096 bytes - 1)
@@ -114,50 +144,26 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		iretq
 
 msg: 		db 'END PIT',10,0
+msg1: 		db 'Stack en: 0x',0
 
 
-align 16
 pit_handler:
 		pusha
+		cli
 
-		;mov 		rdi,	 rsp
-		;call 		task_save_current_stack		; Guardamos el stack de la tarea actual en task->rsp
-		; mov 		rsp, 	[stack]				; Entramos al stack del kernel
-
-		call 		task_get_current 			; En rax tenemos la tarea actual. Hay que guardar el contexto
-
-		add 		rax, 	8
-		mov 		[rax + 0x0], rbp 
-		mov 		[rax + 0x8], rbx 
-		mov 		[rax + 0x10], r12 
-		mov 		[rax + 0x18], r13 
-		mov 		[rax + 0x20], r14 
-		mov 		[rax + 0x28], r15 
-		mov 		[rax + 0x30], rsp 			; Ya guardamos el contexto. Hay que cambiar de tarea y restarurar el anterior
+		mov 		rdi,	 rsp
+		call 		scheduler_u2k
+		mov 		rsp, 	rax
 
 		call 		irq0_handler
 
-		call 		task_next		 			; Cambia current en task.c. Deja la tarea nueva en rax
-
-		add 		rax, 	8
-		mov 		rbp, [rax + 0x0]
-		mov 		rbx, [rax + 0x8]
-		mov 		r12, [rax + 0x10]
-		mov 		r13, [rax + 0x18]
-		mov 		r14, [rax + 0x20]
-		mov 		r15, [rax + 0x28]
-		mov 		rsp, [rax + 0x30]
-
-		mov 		rdi, msg
-		call 		_kdebug
-
-		; mov 		[stack], rsp				; Salimos del stack del kernel
-		;call 		task_get_current_stack		; Deja en %rax la direccion del stack de la tarea anterior
-		;mov			rsp,	 rax
+		call  		scheduler_k2u
+		mov			rsp,	 rax
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
+		sti
 		popa
 		iretq
 

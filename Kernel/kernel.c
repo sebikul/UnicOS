@@ -33,21 +33,22 @@ uint64_t screensaver_wait_time = 20;
 uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
+uintptr_t kernel_stack=NULL;
+
 void load_kernel_modules();
 
 void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase() {
-	return (void*)(
-	           (uint64_t)&endOfKernel
-	           + PageSize * 8				//The size of the stack itself, 32KiB
-	           - sizeof(uint64_t)			//Begin at the top of the stack
-	       );
+uintptr_t stack_init(){
+	kernel_stack = malloc(STACK_SIZE);
+	kernel_stack = kernel_stack+ STACK_SIZE;
+
+	return kernel_stack;
 }
 
-void* initializeKernelBinary() {
+void initializeKernelBinary() {
 
 	//gdt_init();
 
@@ -60,11 +61,7 @@ void* initializeKernelBinary() {
 	video_init();
 	input_init();
 
-	//intson();
-
 	kdebug("Kernel inicializado\n");
-
-	// interrupts on
 
 	video_write_line(KERNEL_CONSOLE, "[x64BareBones]");
 
@@ -90,7 +87,6 @@ void* initializeKernelBinary() {
 
 	video_write_line(KERNEL_CONSOLE, "Kernel cargado.");
 
-	return getStackBase();
 }
 
 void load_kernel_modules() {
@@ -105,6 +101,10 @@ void load_kernel_modules() {
 }
 
 void main() {
+
+	video_write_string(KERNEL_CONSOLE, "-->Kernel Stack at: 0x");
+	video_write_hex(KERNEL_CONSOLE, (uint64_t)kernel_stack);
+	video_write_nl(KERNEL_CONSOLE);
 
 	video_write_line(KERNEL_CONSOLE, "[Kernel Main]");
 

@@ -14,6 +14,8 @@ static pid_t nextpid = 1;
 static void* const shellCodeModuleAddress = (void*)0x400000;
 static void* const shellDataModuleAddress = (void*)0x500000;
 
+extern uintptr_t kernel_stack;
+
 static pid_t getnewpid() {
 	pid_t pid = nextpid;
 	nextpid++;
@@ -21,9 +23,9 @@ static pid_t getnewpid() {
 	return pid;
 }
 
-static uint64_t task_shell(int argc, char** argv) {
+static uint64_t task_shell() {
 
-	//while (TRUE) {
+	while (TRUE);// {
 
 		kdebug("Running shell pid#: ");
 
@@ -42,6 +44,8 @@ static uint64_t task_shell(int argc, char** argv) {
 		kdebug_base(shellCodeModuleAddress, 16);
 		kdebug_nl();
 
+
+		//intson();
 		//WHY????
 		//intson();
 		//TODO Ver si se deberia copiar el codigo por cada task
@@ -78,7 +82,7 @@ void task_init() {
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
 
 	task_t *task = malloc(sizeof(task_t));
-	irq_ctx_t *irq_ctx;
+	context_t *context;
 	void *stack;
 
 	task->state = TASK_PAUSED;
@@ -94,20 +98,34 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	memcpy(task->name, name, strlen(name) + 1);
 
 	stack = malloc(STACK_SIZE);
-	stack = stack + STACK_SIZE;
+	stack = stack + STACK_SIZE-sizeof(context_t)-1;
+	task->stack = stack;
 
-	irq_ctx = (irq_ctx_t *) (stack - sizeof(irq_ctx_t));
+	context = (context_t *) stack;
 
-	irq_ctx->rip = (uintptr_t) func;
-	irq_ctx->rdi = argc;
-	irq_ctx->rsi = (uintptr_t) argv;
-
-	irq_ctx->cs = 0x08;
-	irq_ctx->rflags = 0x58;
-	irq_ctx->rsp = stack;
-	irq_ctx->ss = 0x0;
-
-	task->pcb.rsp = (uintptr_t) irq_ctx;
+	context->gs =		0x001;
+	context->fs =		0x002;
+	context->r15 =	0x003;
+	context->r14 =	0x004;
+	context->r13 =	0x005;
+	context->r12 =	0x006;
+	context->r11 =	0x007;
+	context->r10 =	0x008;
+	context->r9 =		0x009;
+	context->r8 =		0x00A;
+	context->rsi =	0x00B;
+	context->rdi =	0x00C;
+	context->rbp =	0x00D;
+	context->rdx =	0x00E;
+	context->rcx =	0x00F;
+	context->rbx =	0x010;
+	context->rax =	0x011;
+	context->rip =	(uint64_t)task_shell;
+	context->cs =		0x008;
+	context->rflags = 0x202;
+	context->rsp =	(uint64_t)&(context->base);
+	context->ss = 	0x000;
+	context->base =	0x000;
 
 	task_add(task);
 
@@ -130,6 +148,16 @@ void task_setconsole(task_t *task, console_t console) {
 	task->console = console;
 }
 
+uintptr_t task_save_stack(uintptr_t stack){
+	current->stack = stack;
+
+	return kernel_stack;
+}
+
+uintptr_t task_restore_stack(){
+	return current->stack;
+}
+
 task_t* task_next() {
 	task_t *task = current->next;
 	task_t *first = current;
@@ -143,7 +171,7 @@ task_t* task_next() {
 		//TODO Retornar null task
 	}
 
-	return task;
+	current = task;
 }
 
 task_t* task_get_current() {
