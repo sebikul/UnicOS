@@ -1,11 +1,11 @@
 global		loader
 global		intson
 global		intsoff
-global		hang
+global 		gdt_flush
+
 extern		main
 extern		initializeKernelBinary
 extern 		_kdebug
-global 		savestack
 
 extern 		main
 extern 		initializeKernelBinary
@@ -45,6 +45,7 @@ extern 		task_get_current
 
 
 loader:
+		cli
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
 		mov			rsp, 	rax					; Set up the stack with the returned address
@@ -53,8 +54,8 @@ loader:
 		call 		set_interrupt_handlers
 		call 		init_pic
 		call		main
+		sti
 		hlt										; Halt hasta la primera interrupcion
-
 
 IDTR64:											; Interrupt Descriptor Table Register
 		dw 			256*16-1					; limit of IDT (size minus one) (4096 bytes - 1)
@@ -112,6 +113,9 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		iretq
 
+msg: 		db 'END PIT',10,0
+
+
 align 16
 pit_handler:
 		pusha
@@ -143,6 +147,9 @@ pit_handler:
 		mov 		r14, [rax + 0x20]
 		mov 		r15, [rax + 0x28]
 		mov 		rsp, [rax + 0x30]
+
+		mov 		rdi, msg
+		call 		_kdebug
 
 		; mov 		[stack], rsp				; Salimos del stack del kernel
 		;call 		task_get_current_stack		; Deja en %rax la direccion del stack de la tarea anterior
@@ -195,3 +202,7 @@ intson:
 intsoff:
 		cli
 		ret
+
+gdt_flush:
+	lgdt [rdi]
+	ret

@@ -50,6 +50,7 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	intsoff();
 
 	if (msgqueue->size == msgqueue->maxsize) {
+		intson();
 		return;
 	}
 
@@ -83,6 +84,7 @@ void msgqueue_undo(msgqueue_t *msgqueue) {
 	message_t *message = msgqueue->first;
 
 	if (message == NULL) {
+		intson();
 		return;
 	}
 
@@ -164,6 +166,7 @@ void msgqueue_clear(msgqueue_t *msgqueue) {
 	intsoff();
 
 	if (msgqueue->first == NULL) {
+		intson();
 		return;
 	}
 
@@ -190,8 +193,6 @@ void msgqueue_delete(msgqueue_t *msgqueue) {
 	if (msgqueue->first != NULL) {
 		message_deep_delete(msgqueue->first);
 	}
-
-
 	free(msgqueue);
 }
 

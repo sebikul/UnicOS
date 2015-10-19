@@ -9,7 +9,7 @@
 static task_t *first = NULL;
 static task_t *current = NULL;
 
-static pid_t nextpid = 0;
+static pid_t nextpid = 1;
 
 static void* const shellCodeModuleAddress = (void*)0x400000;
 static void* const shellDataModuleAddress = (void*)0x500000;
@@ -23,22 +23,31 @@ static pid_t getnewpid() {
 
 static uint64_t task_shell(int argc, char** argv) {
 
-	while (TRUE) {
+	//while (TRUE) {
 
-		kdebug("Running shell. argc: ");
-		kdebug_base(argc, 10);
+		kdebug("Running shell pid#: ");
+
+		kdebug_base(current->pid, 10);
 		kdebug_nl();
 
 		uint8_t console = task_get_current()->console;
 
-		video_clear_screen(console);
+		//video_clear_screen(console);
 
 		video_write_string(console, "Console #: ");
 		video_write_dec(console, console);
 		video_write_nl(console);
+
+		kdebug("Ejecutando shell en 0x");
+		kdebug_base(shellCodeModuleAddress, 16);
+		kdebug_nl();
+
+		//WHY????
+		//intson();
 		//TODO Ver si se deberia copiar el codigo por cada task
-		((task_entry_point)shellCodeModuleAddress)(argc, argv);
-	}
+		//((task_entry_point)shellCodeModuleAddress)(argc, argv);
+		while(TRUE); //Simulamos la consola
+	//}
 
 	return 0;
 }
@@ -94,15 +103,13 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	irq_ctx->rsi = (uintptr_t) argv;
 
 	irq_ctx->cs = 0x08;
-	irq_ctx->rflags = 0x200;
+	irq_ctx->rflags = 0x58;
 	irq_ctx->rsp = stack;
 	irq_ctx->ss = 0x0;
 
-	task->pcb.rsp=(uintptr_t) irq_ctx;
+	task->pcb.rsp = (uintptr_t) irq_ctx;
 
-	//intsoff();
 	task_add(task);
-	//intson();
 
 	return task;
 }
@@ -125,9 +132,15 @@ void task_setconsole(task_t *task, console_t console) {
 
 task_t* task_next() {
 	task_t *task = current->next;
+	task_t *first = current;
 
-	while (task->state != TASK_RUNNING) {
+	while (task->state != TASK_RUNNING && task != current) {
 		task = task->next;
+	}
+
+	if(task==current){
+		kdebug("No hay tareas para ejecutar...\n");
+		//TODO Retornar null task
 	}
 
 	return task;

@@ -49,11 +49,11 @@ void * getStackBase() {
 
 void* initializeKernelBinary() {
 
+	//gdt_init();
+
 	load_kernel_modules();
 
 	clearBSS(&bss, &endOfKernel - &bss);
-
-	intsoff();
 
 	serial_init();
 	keyboard_init();
@@ -104,7 +104,7 @@ void load_kernel_modules() {
 
 }
 
-int main() {
+void main() {
 
 	video_write_line(KERNEL_CONSOLE, "[Kernel Main]");
 
@@ -114,10 +114,6 @@ int main() {
 
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
-	//savestack();
-	intson();
-
-	while(TRUE);
 
 	// for (uint64_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
@@ -125,11 +121,12 @@ int main() {
 	// 	video_write_nl(i);
 	// }
 
+	//intson();
+	//while(TRUE);
+
 	//video_write_line(KERNEL_CONSOLE, "Calling shell module...");
 	//video_write_nl(KERNEL_CONSOLE);
 	//((task_entry_point)shellCodeModuleAddress)(0, NULL);
-
-	return 0;
 }
 
 //retorna si se debe ignorar lo tecleado
@@ -146,7 +143,6 @@ bool screensaver_reset_timer() {
 	screensaver_timer = 18 * screensaver_wait_time;
 
 	return ret;
-
 }
 
 void active_screensaver() {
@@ -156,7 +152,7 @@ void active_screensaver() {
 
 void irq0_handler() {
 
-	//kdebug("PIT\n");
+	kdebug("PIT\n");
 
 	pit_timer++;
 	screensaver_timer--;
