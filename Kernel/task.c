@@ -25,7 +25,7 @@ static pid_t getnewpid() {
 
 static uint64_t task_shell() {
 
-	while (TRUE);// {
+	//while (TRUE);// {
 
 		kdebug("Running shell pid#: ");
 
@@ -69,7 +69,7 @@ static inline void task_add(task_t *task) {
 
 void task_init() {
 
-	for (int i = 1; i < VIRTUAL_CONSOLES; i++) {
+	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
 		task_t *task = task_create(task_shell, "init_shell", 0, NULL);
 
 		task_setconsole(task, i);
@@ -83,7 +83,6 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 
 	task_t *task = malloc(sizeof(task_t));
 	context_t *context;
-	void *stack;
 
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
@@ -97,11 +96,10 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->name = malloc(strlen(name) + 1);
 	memcpy(task->name, name, strlen(name) + 1);
 
-	stack = malloc(STACK_SIZE);
-	stack = stack + STACK_SIZE-sizeof(context_t)-1;
-	task->stack = stack;
+	task->stack = malloc(STACK_SIZE);
+	task->stack = task->stack + STACK_SIZE - sizeof(context_t);
 
-	context = (context_t *) stack;
+	context = (context_t *) task->stack;
 
 	context->gs =		0x001;
 	context->fs =		0x002;
