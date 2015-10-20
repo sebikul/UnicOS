@@ -2,6 +2,7 @@ global		loader
 global		intson
 global		intsoff
 global 		gdt_flush
+global 		halt
 
 extern		main
 extern		initializeKernelBinary
@@ -143,13 +144,16 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		iretq
 
-msg: 		db 'END PIT',10,0
-msg1: 		db 'Stack en: 0x',0
+msg: 		db 'START PIT',10 ,0
+msg1: 		db 'END PIT',10 ,0
 
 
 pit_handler:
 		pusha
 		cli
+
+		mov rdi, msg
+		call _kdebug
 
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
@@ -159,6 +163,9 @@ pit_handler:
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
+
+		mov rdi, msg1
+		call _kdebug
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al

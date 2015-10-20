@@ -151,9 +151,6 @@ void active_screensaver() {
 }
 
 void irq0_handler() {
-
-	kdebug("PIT\n");
-
 	pit_timer++;
 	screensaver_timer--;
 

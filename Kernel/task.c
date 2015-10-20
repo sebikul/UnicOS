@@ -15,6 +15,8 @@ static void* const shellCodeModuleAddress = (void*)0x400000;
 static void* const shellDataModuleAddress = (void*)0x500000;
 
 extern uintptr_t kernel_stack;
+extern void halt();
+
 
 static pid_t getnewpid() {
 	pid_t pid = nextpid;
@@ -67,9 +69,20 @@ static inline void task_add(task_t *task) {
 	}
 }
 
+static void null_task(){
+	while(TRUE){
+		halt();
+	}
+}
+
 void task_init() {
 
-	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
+	task_t *task = task_create(null_task, "null_task", 0, NULL);
+
+	task_setconsole(task, 0);
+	task_ready(task);
+
+	for (int i = 1; i < VIRTUAL_CONSOLES; i++) {
 		task_t *task = task_create(task_shell, "init_shell", 0, NULL);
 
 		task_setconsole(task, i);
