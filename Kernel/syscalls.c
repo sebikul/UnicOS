@@ -109,6 +109,10 @@ void sys_write(FD fd, char* s, uint64_t len) {
 
 	switch (fd) {
 	case FD_STDOUT:
+		kdebug("Writing to console ");
+		kdebug_base(task_get_current()->console,10);
+		kdebug_nl();
+
 		video_write_string(task_get_current()->console, s);
 		break;
 
@@ -131,8 +135,8 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	kdebug("Esperando entrada\n");
 
-//FIXME
-	input_waitforline();
+	task_pause(task_get_current());
+	reschedule();
 
 	kdebug("Entrada recibida!\n");
 

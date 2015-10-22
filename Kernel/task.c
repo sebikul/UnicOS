@@ -6,6 +6,7 @@
 
 static task_t *last = NULL;
 static task_t *current = NULL;
+static task_t *null_task=NULL;
 
 static pid_t nextpid = 1;
 
@@ -51,17 +52,17 @@ static uint64_t task_shell(int argc, char** argv) {
 		kdebug_base(task_get_current()->pid, 10);
 		kdebug_nl();
 
-		if (task_get_current()->pid == 4) {
-			kdebug("Rescheduling task with pid: ");
-			kdebug_base(task_get_current()->pid, 10);
-			kdebug_nl();
-			reschedule();
-			kdebug("Returned again\n");
-		}
+		// if (task_get_current()->pid == 4) {
+		// 	kdebug("Rescheduling task with pid: ");
+		// 	kdebug_base(task_get_current()->pid, 10);
+		// 	kdebug_nl();
+		// 	reschedule();
+		// 	kdebug("Returned again\n");
+		// }
 
-		while (TRUE);
+		//while (TRUE);
 
-		//((task_entry_point)shellCodeModuleAddress)(argc, argv);
+		((task_entry_point)shellCodeModuleAddress)(argc, argv);
 
 	}
 
@@ -81,7 +82,7 @@ static inline void task_add(task_t *task) {
 	//first = task;
 }
 
-void null_task() {
+static void null_task_func() {
 	while (TRUE) {
 		// kdebug("Looping NULL. pid: ");
 
@@ -99,10 +100,10 @@ void task_init() {
 		task_ready(task);
 	}
 
-	// task_t *task = task_create(null_task, "null_task", 0, NULL);
+	null_task = task_create(null_task_func, "null_task", 0, NULL);
 
-	// task_setconsole(task, 0);
-	// task_ready(task);
+	task_setconsole(null_task, 0);
+	task_ready(null_task);
 
 	//Seteamos la tarea nula como la actual
 	//current = task;
@@ -193,8 +194,9 @@ void task_next() {
 	}
 
 	if (task == current) {
-		kdebug("No hay tareas para ejecutar...\n");
-		//TODO Retornar null task
+		//kdebug("No hay tareas para ejecutar...\n");
+		current = null_task;
+		return;
 	}
 
 	current = task;
