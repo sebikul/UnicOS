@@ -17,6 +17,7 @@ typedef struct {
 	int row;
 	int column;
 	uint16_t screen[SCREEN_SIZE];
+	unsigned short cursor;
 	color_t color;
 } screen_t;
 

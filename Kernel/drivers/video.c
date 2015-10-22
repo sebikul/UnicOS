@@ -9,7 +9,7 @@
 static char buffer[128] = { 0 };
 
 static screen_t consoles[VIRTUAL_CONSOLES + 1] = {{0}};
-static uint8_t current_console = 0;
+static console_t current_console = 0;
 
 static uint8_t screensaver_backup;
 
@@ -25,12 +25,20 @@ screen_t* get_screen(console_t console) {
 
 static inline void video_sync_console_at(console_t console, int row, int col) {
 
+	if (console != current_console) {
+		return;
+	}
+
 	screen_t *screen = get_screen(console);
 
 	screen_mem[row * SCREEN_WIDTH + col] = screen->screen[row * SCREEN_WIDTH + col];
 }
 
 static inline void video_sync_console(console_t console) {
+
+	if (console != current_console) {
+		return;
+	}
 
 	screen_t *screen = get_screen(console);
 
@@ -46,25 +54,22 @@ static void video_fn_handler(uint64_t s) {
 	if (0x3b <= s && s <= 0x41) {
 		int newconsole = s - 0x3b;
 
-		kdebug("New virtual console: ");
-		kdebug_base(newconsole, 10);
-		kdebug_nl();
-
-		video_change_console(newconsole);
+		video_change_console((console_t)newconsole);
 		input_change_console(newconsole);
 	}
 }
 
 void video_init() {
 
-	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
+	for (console_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 
-		screen_t *screen = &consoles[i];
+		current_console = i;
 
-		screen->color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
+		consoles[i].color = BUILD_COLOR(COLOR_WHITE, COLOR_BLACK);
 
-		screen->row = 0;
-		screen->column = 0;
+		consoles[i].row = 0;
+		consoles[i].column = 0;
+		consoles[i].cursor = 0;
 
 		video_clear_screen(i);
 	}
@@ -280,14 +285,14 @@ void video_update_cursor() {
 
 	screen_t *screen = get_screen(current_console);
 
-	unsigned short position = (screen->row * 80) + screen->column;
+	screen->cursor = (screen->row * 80) + screen->column;
 
 	// cursor LOW port to vga INDEX register
 	outb(0x3D4, 0x0F);
-	outb(0x3D5, (unsigned char)(position & 0xFF));
+	outb(0x3D5, (unsigned char)(screen->cursor & 0xFF));
 	// cursor HIGH port to vga INDEX register
 	outb(0x3D4, 0x0E);
-	outb(0x3D5, (unsigned char )((position >> 8) & 0xFF));
+	outb(0x3D5, (unsigned char )((screen->cursor >> 8) & 0xFF));
 }
 
 void video_write_dec(console_t console, uint64_t value) {
@@ -310,15 +315,17 @@ void video_write_base(console_t console, uint64_t value, uint32_t base) {
 
 void video_change_console(uint8_t console) {
 
-	screen_t *screen = &consoles[console];
+
+	kdebug("New virtual console: ");
+	kdebug_base(console, 10);
+	kdebug_nl();
+
 
 	current_console = console;
 
-	memcpy(screen_mem, screen->screen, 2 * SCREEN_SIZE);
+	video_sync_console(console);
 
-	// for (int i = 0; i < (SCREEN_HEIGHT * SCREEN_WIDTH); i++) {
-	// 	screen_mem[i] = screen->screen[i];
-	// }
+	//memcpy(screen_mem, consoles[console].screen, sizeof(screen_mem) * SCREEN_SIZE);
 
 	video_update_cursor();
 }
