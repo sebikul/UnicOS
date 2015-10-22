@@ -33,7 +33,7 @@ uint64_t screensaver_wait_time = 20;
 uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
-uintptr_t kernel_stack=NULL;
+uintptr_t kernel_stack = NULL;
 
 void load_kernel_modules();
 
@@ -41,9 +41,9 @@ void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
 
-uintptr_t stack_init(){
+uintptr_t stack_init() {
 	kernel_stack = malloc(STACK_SIZE);
-	kernel_stack = kernel_stack+ STACK_SIZE;
+	kernel_stack = kernel_stack + STACK_SIZE;
 
 	return kernel_stack;
 }
@@ -115,7 +115,7 @@ void main() {
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
 
-	// for (uint64_t i = 0; i < VIRTUAL_CONSOLES; i++) {
+	// for (console_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
 	// 	video_write_dec(i, i);
 	// 	video_write_nl(i);
@@ -127,6 +127,8 @@ void main() {
 	//video_write_line(KERNEL_CONSOLE, "Calling shell module...");
 	//video_write_nl(KERNEL_CONSOLE);
 	//((task_entry_point)shellCodeModuleAddress)(0, NULL);
+
+	//while(TRUE);
 }
 
 //retorna si se debe ignorar lo tecleado
@@ -151,6 +153,7 @@ void active_screensaver() {
 }
 
 void irq0_handler() {
+
 	pit_timer++;
 	screensaver_timer--;
 

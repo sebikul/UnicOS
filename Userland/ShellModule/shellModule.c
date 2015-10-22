@@ -38,11 +38,13 @@ static void initialize_command_list();
 static void initialize_names();
 static void calloc_cmd(int i, char* str);
 
-int main(int argc, char** argv) {
+uint64_t main(int argc, char** argv) {
 
 	static char buffer[CMD_BUFFER_SIZE] = {0};
 
 	memset(&bss, 0, &endOfBinary - &bss);
+
+	printf("Initializing shell\n");
 
 	initialize_command_list();
 	initialize_names();
@@ -50,7 +52,7 @@ int main(int argc, char** argv) {
 	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
 	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
 
-	while (1) {
+	while (TRUE) {
 
 		printf("\n%s@%s $ ", user_name, host_name);
 
@@ -59,7 +61,6 @@ int main(int argc, char** argv) {
 		}
 
 		command_dispatcher(buffer);
-
 	}
 
 	//Test if BSS is properly set up

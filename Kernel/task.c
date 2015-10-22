@@ -4,9 +4,7 @@
 #include "string.h"
 #include "kernel.h"
 
-#define MAX_TASKS 1024
-
-static task_t *first = NULL;
+static task_t *last = NULL;
 static task_t *current = NULL;
 
 static pid_t nextpid = 1;
@@ -15,8 +13,20 @@ static void* const shellCodeModuleAddress = (void*)0x400000;
 static void* const shellDataModuleAddress = (void*)0x500000;
 
 extern uintptr_t kernel_stack;
-extern void halt();
 
+#define DUMP_LIST_FROM_CURRENT() {\
+	task_t *task = (current == NULL) ? last : current->next;\
+	task_t *task2 = task;\
+	_kdebug(" Lista: ");\
+	do {\
+		_kdebug(" --> 0x");\
+		kdebug_base(task2, 16);\
+		task2 = task2->next;\
+	} while (task != task2);\
+	_kdebug(" --> 0x");\
+	kdebug_base(task2, 16);\
+	kdebug_nl();\
+}\
 
 static pid_t getnewpid() {
 	pid_t pid = nextpid;
@@ -25,14 +35,9 @@ static pid_t getnewpid() {
 	return pid;
 }
 
-static uint64_t task_shell() {
+static uint64_t task_shell(int argc, char** argv) {
 
-	//while (TRUE);// {
-
-		kdebug("Running shell pid#: ");
-
-		kdebug_base(current->pid, 10);
-		kdebug_nl();
+	while (TRUE) {
 
 		uint8_t console = task_get_current()->console;
 
@@ -42,54 +47,65 @@ static uint64_t task_shell() {
 		video_write_dec(console, console);
 		video_write_nl(console);
 
-		kdebug("Ejecutando shell en 0x");
-		kdebug_base(shellCodeModuleAddress, 16);
+		kdebug("Running task with pid: ");
+		kdebug_base(task_get_current()->pid, 10);
 		kdebug_nl();
 
+		if (task_get_current()->pid == 4) {
+			kdebug("Rescheduling task with pid: ");
+			kdebug_base(task_get_current()->pid, 10);
+			kdebug_nl();
+			reschedule();
+			kdebug("Returned again\n");
+		}
 
-		//intson();
-		//WHY????
-		//intson();
-		//TODO Ver si se deberia copiar el codigo por cada task
+		while (TRUE);
+
 		//((task_entry_point)shellCodeModuleAddress)(argc, argv);
-		while(TRUE); //Simulamos la consola
-	//}
+
+	}
 
 	return 0;
 }
 
 static inline void task_add(task_t *task) {
 
-	if (first == NULL) {
+	if (last == NULL) {
 		task->next = task;
-		first = task;
+		last = task;
 	} else {
-		task->next = first->next;
-		first->next = task;
+		task->next = last->next;
+		last->next = task;
 	}
+
+	//first = task;
 }
 
-static void null_task(){
-	while(TRUE){
-		halt();
+void null_task() {
+	while (TRUE) {
+		// kdebug("Looping NULL. pid: ");
+
+		// kdebug_base(current->pid, 10);
+		// kdebug_nl();
 	}
 }
 
 void task_init() {
 
-	task_t *task = task_create(null_task, "null_task", 0, NULL);
-
-	task_setconsole(task, 0);
-	task_ready(task);
-
-	for (int i = 1; i < VIRTUAL_CONSOLES; i++) {
+	for (int i = 0; i < VIRTUAL_CONSOLES; i++) {
 		task_t *task = task_create(task_shell, "init_shell", 0, NULL);
 
 		task_setconsole(task, i);
 		task_ready(task);
 	}
 
-	current = first;
+	// task_t *task = task_create(null_task, "null_task", 0, NULL);
+
+	// task_setconsole(task, 0);
+	// task_ready(task);
+
+	//Seteamos la tarea nula como la actual
+	//current = task;
 }
 
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
@@ -114,31 +130,39 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 
 	context = (context_t *) task->stack;
 
-	context->gs =		0x001;
-	context->fs =		0x002;
+	context->gs = 0x001;
+	context->fs = 0x002;
 	context->r15 =	0x003;
 	context->r14 =	0x004;
 	context->r13 =	0x005;
 	context->r12 =	0x006;
 	context->r11 =	0x007;
 	context->r10 =	0x008;
-	context->r9 =		0x009;
-	context->r8 =		0x00A;
-	context->rsi =	0x00B;
-	context->rdi =	0x00C;
+	context->r9 = 0x009;
+	context->r8 = 0x00A;
+	context->rsi =	argv;
+	context->rdi =	argc;
 	context->rbp =	0x00D;
 	context->rdx =	0x00E;
 	context->rcx =	0x00F;
 	context->rbx =	0x010;
 	context->rax =	0x011;
-	context->rip =	(uint64_t)task_shell;
-	context->cs =		0x008;
+	context->rip =	(uint64_t)func;
+	context->cs = 0x008;
 	context->rflags = 0x202;
-	context->rsp =	(uint64_t)&(context->base);
-	context->ss = 	0x000;
+	context->rsp =	(uint64_t) & (context->base);
+	context->ss = 0x000;
 	context->base =	0x000;
 
 	task_add(task);
+
+	kdebug("New task: pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" at 0x");
+	kdebug_base(task, 16);
+	kdebug_nl();
+
+	//DUMP_LIST_FROM_CURRENT()
 
 	return task;
 }
@@ -159,30 +183,27 @@ void task_setconsole(task_t *task, console_t console) {
 	task->console = console;
 }
 
-uintptr_t task_save_stack(uintptr_t stack){
-	current->stack = stack;
+void task_next() {
+	task_t *task = (current == NULL) ? last : current->next;
 
-	return kernel_stack;
-}
-
-uintptr_t task_restore_stack(){
-	return current->stack;
-}
-
-task_t* task_next() {
-	task_t *task = current->next;
-	task_t *first = current;
+	//DUMP_LIST_FROM_CURRENT();
 
 	while (task->state != TASK_RUNNING && task != current) {
 		task = task->next;
 	}
 
-	if(task==current){
+	if (task == current) {
 		kdebug("No hay tareas para ejecutar...\n");
 		//TODO Retornar null task
 	}
 
 	current = task;
+
+	kdebug("Next task is pid#: ");
+
+	kdebug_base(current->pid, 10);
+	kdebug_nl();
+
 }
 
 task_t* task_get_current() {

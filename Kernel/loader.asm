@@ -3,6 +3,7 @@ global		intson
 global		intsoff
 global 		gdt_flush
 global 		halt
+global 		reschedule
 
 extern		main
 extern		initializeKernelBinary
@@ -15,12 +16,6 @@ extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
 
-extern 		task_save_stack
-extern 		task_restore_stack
-extern 		task_next
-extern 		task_get_current
-extern 		video_write_hex
-
 extern 		stack_init
 extern 		kernel_stack
 extern 		kdebug_base
@@ -29,7 +24,7 @@ extern 		kdebug_nl
 extern 		scheduler_u2k
 extern 		scheduler_k2u
 
-%macro pusha 0 								; ABI Registers: No permiten llamar a funciones en C sin corromper nada
+%macro pusha 0
 		push		rax
 		push		rbx
 		push		rcx
@@ -69,7 +64,6 @@ extern 		scheduler_k2u
 		pop			rax
 %endmacro
 
-
 loader:
 		cli
 
@@ -83,10 +77,10 @@ loader:
 		call 		init_pic
 		call		main
 		sti
+
 halt:
 		hlt
-		jmp halt
-	;	hlt										; Halt hasta la primera interrupcion
+		jmp halt								; Halt hasta la primera interrupcion
 
 IDTR64:											; Interrupt Descriptor Table Register
 		dw 			256*16-1					; limit of IDT (size minus one) (4096 bytes - 1)
@@ -132,28 +126,22 @@ set_interrupt_handlers:
 align 16
 soft_interrupt:									; Interrupciones de software, int 80h
 		pusha
+		cli
 
 		call 		irq80_handler
-
-		push 		rax
-		mov 		al, 	0x20				; Acknowledge the IRQ
-		out 		0x20, 	al
-		pop 		rax
 	
+		sti
 		popa
-
 		iretq
 
-msg: 		db 'START PIT',10 ,0
-msg1: 		db 'END PIT',10 ,0
-
-
+align 16
 pit_handler:
 		pusha
 		cli
 
-		mov rdi, msg
-		call _kdebug
+		; call kdebug_nl
+		; mov rdi, msg
+		; call _kdebug
 
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
@@ -164,14 +152,50 @@ pit_handler:
 		call  		scheduler_k2u
 		mov			rsp,	 rax
 
-		mov rdi, msg1
-		call _kdebug
+		; mov rdi, msg1
+		; call _kdebug
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
 		sti
 		popa
+		iretq
+
+msg1:
+db "Rescheduling task",10,0
+
+reschedule:
+		;Simulamos una interrpucion
+		pop 		QWORD[ret_addr] 			;Direccion de retorno
+		push  		rsp	
+		pushf 									;Se pushean los flags
+
+		mov 		[cs_addr], 	cs 				;Stack Segment
+		push 		QWORD[cs_addr]
+
+		push 		QWORD[ret_addr] 			;Direccion de retorno
+
+		;En este momento el stack contiene:
+		;
+		; > red_addr
+		;	cs
+		;	rflags
+		;	rsp
+
+		pusha
+
+		mov 		rdi,	 rsp
+		call 		scheduler_u2k
+		mov 		rsp, 	rax
+
+		mov 		rdi, msg1
+		call 		_kdebug
+
+		call  		scheduler_k2u
+		mov			rsp,	 rax
+		popa
+		
 		iretq
 
 align 16
@@ -205,7 +229,6 @@ init_pic:										; Enable specific interrupts
 		mov 		al, 	11111000b			; Enable Cascade, Keyboard
 		out 		0x21,	 al
 
-		;call 		intson						; Enable interrupts
 		ret
 
 intson:
@@ -217,5 +240,13 @@ intsoff:
 		ret
 
 gdt_flush:
-	lgdt [rdi]
-	ret
+		lgdt [rdi]
+		ret
+
+section .data
+
+ret_addr:
+		resq 1
+
+cs_addr:
+		resq 1

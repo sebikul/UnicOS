@@ -36,7 +36,7 @@ typedef struct {
 	uint64_t rsp;
 	uint64_t ss;
 	uint64_t base;
-} context_t;
+} __attribute__((packed)) context_t;
 
 typedef struct task_t {
 	struct task_t *next;
@@ -61,9 +61,6 @@ void task_sleep(task_t *task);
 void task_setconsole(task_t *task, console_t console);
 task_t* task_get_current();
 
-task_t* task_next();
-
-uintptr_t task_save_stack(uintptr_t stack);
-uintptr_t task_restore_stack();
+void task_next();
 
 #endif
