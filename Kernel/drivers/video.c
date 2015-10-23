@@ -315,11 +315,9 @@ void video_write_base(console_t console, uint64_t value, uint32_t base) {
 
 void video_change_console(uint8_t console) {
 
-
 	kdebug("New virtual console: ");
 	kdebug_base(console, 10);
 	kdebug_nl();
-
 
 	current_console = console;
 
@@ -328,6 +326,10 @@ void video_change_console(uint8_t console) {
 	//memcpy(screen_mem, consoles[console].screen, sizeof(screen_mem) * SCREEN_SIZE);
 
 	video_update_cursor();
+}
+
+console_t video_current_console(){
+	return current_console;
 }
 
 void video_trigger_restore() {

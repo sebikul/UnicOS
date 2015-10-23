@@ -51,4 +51,6 @@ void video_trigger_screensaver();
 
 void video_change_console(uint8_t console);
 
+console_t video_current_console();
+
 #endif

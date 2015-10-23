@@ -63,4 +63,7 @@ task_t* task_get_current();
 
 void task_next();
 
+void task_set_foreground(task_t *task, console_t console);
+task_t* task_get_foreground(console_t console);
+
 #endif

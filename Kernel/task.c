@@ -6,7 +6,8 @@
 
 static task_t *last = NULL;
 static task_t *current = NULL;
-static task_t *null_task=NULL;
+static task_t *null_task = NULL;
+static task_t *foreground[VIRTUAL_CONSOLES] = {NULL};
 
 static pid_t nextpid = 1;
 
@@ -97,6 +98,7 @@ void task_init() {
 		task_t *task = task_create(task_shell, "init_shell", 0, NULL);
 
 		task_setconsole(task, i);
+		task_set_foreground(task, i);
 		task_ready(task);
 	}
 
@@ -206,6 +208,14 @@ void task_next() {
 	kdebug_base(current->pid, 10);
 	kdebug_nl();
 
+}
+
+void task_set_foreground(task_t *task, console_t console) {
+	foreground[console] = task;
+}
+
+task_t* task_get_foreground(console_t console) {
+	return foreground[console];
 }
 
 task_t* task_get_current() {

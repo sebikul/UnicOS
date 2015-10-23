@@ -26,6 +26,11 @@ void input_add(char c) {
 	kdebug_nl();
 
 	msgqueue_add(input_focus, &c, sizeof(char));
+
+	if (c == '\n') {
+		task_t *foreground_task = task_get_foreground(video_current_console());
+		task_ready(foreground_task);
+	}
 }
 
 char input_getc() {
