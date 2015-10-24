@@ -64,15 +64,15 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SET_COLOR:
-		sys_set_color((color_t) rdi);
+		sys_set_color((color_t) rsi);
 		break;
 
 	case SYSCALL_SET_KBD_DISTRIBUTION:
-		sys_kbd_set_distribution(rdi);
+		sys_kbd_set_distribution(rsi);
 		break;
 
 	case SYSCALL_SCREENSAVER_TIMER:
-		sys_set_screensaver_timer(rdi);
+		sys_set_screensaver_timer(rsi);
 		break;
 
 	case SYSCALL_SCREENSAVER_TRIGGER:
