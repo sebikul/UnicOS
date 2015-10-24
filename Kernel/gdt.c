@@ -17,7 +17,7 @@ typedef struct {
 	uint32_t base_h 	: 8;
 } __attribute__((packed)) gdt_entry_t;
 
-static gdt_entry_t gdt[128]={0};
+static gdt_entry_t gdt[32]={0};
 
 typedef struct {
 	uint16_t limit;
@@ -31,22 +31,22 @@ static gdtptr_t gdtptr = {
 
 void gdt_set_entry(uint32_t id, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags) {
 
-	gdt_entry_t entry = {0};
-
-	entry.limit_l = limit & 0xFFFF;
-	entry.base_l = base  & 0xFFFFFF;
-	entry.type = access & 0xF;
-	entry.sys = 1;
-	entry.dpl = (access >> 5) & 3;
-	entry.present = (access >> 7) & 1;
-	entry.limit_h = (limit >> 16) & 0xF;
-	entry.avil = 1;
-	entry.longmode = (flags >> 1) & 1;
-	entry.size = ((flags >> 1) & 1) ? 0 : ((flags >> 2) & 1);
-	entry.gran = (flags >> 3) & 1;
-	entry.base_h  = base >> 24;
-
-	gdt[id] = entry;
+	gdt[id] = 
+		(gdt_entry_t)
+		{
+			.limit_l	= limit & 0xFFFF,
+			.base_l	= base  & 0xFFFFFF,
+			.type		= access & 0xF,
+			.sys    = 1,	// Always one for Non system descriptors
+			.dpl		= (access >> 5) & 3,
+			.present	= (access >> 7) & 1,
+			.limit_h = (limit >> 16) & 0xF,
+			.avil	= 1,
+			.longmode	= (flags >> 1) & 1,
+			.size		= ((flags >> 1) & 1)?0:((flags >> 2) & 1),
+			.gran		= (flags >> 3) & 1,
+			.base_h  = base >> 24,
+		};
 }
 
 #define ACC_TYPE_CS 0xA
@@ -65,8 +65,8 @@ void gdt_init(){
 	gdt_set_entry(0, 0, 0, 0, 0);	// Null decriptor
 	gdt_set_entry(1, 0, -1, ACC_TYPE_CS | ACC_DPL0 | ACC_PRESENT, FLAGS_L); // Kernel CS
 	gdt_set_entry(2, 0, -1, ACC_TYPE_DS | ACC_DPL0 | ACC_PRESENT, FLAGS_L); // Kernel DS
-	gdt_set_entry(3, 0, -1, ACC_TYPE_CS | ACC_DPL3 | ACC_PRESENT, FLAGS_L);	// User CS
-	gdt_set_entry(4, 0, -1, ACC_TYPE_DS | ACC_DPL3 | ACC_PRESENT, FLAGS_L); // User DS
+	//gdt_set_entry(3, 0, -1, ACC_TYPE_CS | ACC_DPL3 | ACC_PRESENT, FLAGS_L);	// User CS
+	//gdt_set_entry(4, 0, -1, ACC_TYPE_DS | ACC_DPL3 | ACC_PRESENT, FLAGS_L); // User DS
 
 	gdt_flush(gdtptr);
 }
