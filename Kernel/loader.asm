@@ -139,10 +139,6 @@ pit_handler:
 		pusha
 		cli
 
-		; call kdebug_nl
-		; mov rdi, msg
-		; call _kdebug
-
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
@@ -151,9 +147,6 @@ pit_handler:
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
-
-		; mov rdi, msg1
-		; call _kdebug
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
@@ -168,12 +161,14 @@ db "Rescheduling task",10,0
 reschedule:
 		;Simulamos una interrpucion
 		pop 		QWORD[ret_addr] 			;Direccion de retorno
+
+		mov 		QWORD[ss_addr], 	ss 		;Stack Segment
+		push 		QWORD[ss_addr]
+
 		push  		rsp	
 		pushf 									;Se pushean los flags
-
-		mov 		[cs_addr], 	cs 				;Stack Segment
+		mov 		QWORD[cs_addr], 	cs 		;Code Segment
 		push 		QWORD[cs_addr]
-
 		push 		QWORD[ret_addr] 			;Direccion de retorno
 
 		;En este momento el stack contiene:
@@ -194,8 +189,8 @@ reschedule:
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
+
 		popa
-		
 		iretq
 
 align 16
@@ -247,6 +242,7 @@ section .data
 
 ret_addr:
 		resq 1
-
 cs_addr:
+		resq 1
+ss_addr:
 		resq 1
