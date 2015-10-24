@@ -130,8 +130,11 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		call 		irq80_handler
 	
+		mov 		QWORD[ret_addr], rax
+
 		sti
 		popa
+		mov 		rax, QWORD[ret_addr]
 		iretq
 
 align 16
