@@ -8,6 +8,7 @@ typedef struct message message_t;
 
 struct message {
 	message_t *next;
+	message_t *prev;
 	void *msg;
 	int size;
 };
@@ -60,11 +61,13 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	message->msg = malloc(size);
 	memcpy(message->msg, msg, size);
 	message->next = NULL;
+	message->prev = NULL;
 
 	if (msgqueue->first == NULL) {
 		msgqueue->first = msgqueue->last = message;
 	} else {
 		msgqueue->last->next = message;
+		message->prev = msgqueue->last;
 		msgqueue->last = message;
 	}
 
@@ -81,17 +84,17 @@ void msgqueue_undo(msgqueue_t *msgqueue) {
 
 	intsoff();
 
-	message_t *message = msgqueue->first;
+	message_t *message = msgqueue->last;
 
 	if (message == NULL) {
 		intson();
 		return;
 	}
 
-	msgqueue->first = message->next;
+	msgqueue->last = message->prev;
 
-	if (msgqueue->first == NULL) {
-		msgqueue->last = NULL;
+	if (msgqueue->last == NULL) {
+		msgqueue->first = NULL;
 	}
 
 	msgqueue->size--;
