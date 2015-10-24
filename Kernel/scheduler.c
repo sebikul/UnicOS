@@ -1,7 +1,5 @@
 
 #include <stdint.h>
-
-#include "kernel.h"
 #include "task.h"
 
 extern uintptr_t kernel_stack;

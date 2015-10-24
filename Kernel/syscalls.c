@@ -1,4 +1,4 @@
-
+#include <stdint.h>
 #include "syscalls.h"
 #include "types.h"
 #include "video.h"
@@ -88,7 +88,11 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_KEYBOARD_CLEAR_HANDLER:
-		sys_keyboard_clear_handler(rdi);
+		sys_keyboard_clear_handler(rsi);
+		break;
+
+	case SYSCALL_KDEBUG:
+		sys_kdebug((char*)rsi);
 		break;
 	}
 
@@ -110,7 +114,7 @@ void sys_write(FD fd, char* s, uint64_t len) {
 	switch (fd) {
 	case FD_STDOUT:
 		kdebug("Writing to console ");
-		kdebug_base(task_get_current()->console,10);
+		kdebug_base(task_get_current()->console, 10);
 		kdebug_nl();
 
 		video_write_string(task_get_current()->console, s);
@@ -135,8 +139,8 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	kdebug("Esperando entrada\n");
 
-	task_pause(task_get_current());
-	reschedule();
+	task_sleep(task_get_current());
+	//reschedule();
 
 	kdebug("Entrada recibida!\n");
 
@@ -151,8 +155,9 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	s[i] = 0;
 
-	kdebug("Enviando cadena: ");
 	kdebugs(s);
+	kdebug("Caracteres ingresados: ");
+	kdebug_base(i,10);
 	kdebug_nl();
 
 	return i;
@@ -214,4 +219,8 @@ void sys_screensaver_trigger() {
 
 void sys_keyboard_clear_handler(uint64_t handler) {
 	keyboard_clear_handler(handler);
+}
+
+void sys_kdebug(char *str) {
+	_kdebug(str);
 }

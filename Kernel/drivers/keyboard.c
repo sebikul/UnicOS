@@ -360,7 +360,7 @@ void keyboard_irq_handler(uint64_t s) {
 		return;
 	}
 
-	kdebug("IRQ del teclado\n");
+	//kdebug("IRQ del teclado\n");
 
 	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
 

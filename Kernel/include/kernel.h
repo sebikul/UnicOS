@@ -6,12 +6,11 @@
 
 #define STACK_SIZE KB(128)
 
-
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
 #define kdebug(str) _kdebug(__FILE__ ":" STR(__LINE__) ": " str)
-#define kdebugs(str) (_kdebug(""), _kdebug(s))
+#define kdebugs(str) (kdebug(""), _kdebug(str), kdebug_nl())
 
 void _kdebug(const char* s);
 void kdebug_char(char c);

@@ -22,8 +22,9 @@ typedef enum { SYSCALL_RTC,
                SYSCALL_SCREENSAVER_TRIGGER,
                SYSCALL_CLEAR_SCREEN,
                SYSCALL_EXIT,
-               SYSCALL_KEYBOARD_CLEAR_HANDLER
-             } syscall_t;
+               SYSCALL_KEYBOARD_CLEAR_HANDLER,
+               SYSCALL_KDEBUG
+} syscall_t;
 
 void sys_write(FD fd, char* s, uint64_t len);
 uint64_t sys_read(FD fd, char* s, uint64_t len);
@@ -44,5 +45,11 @@ void sys_screensaver_trigger();
 void sys_exit();
 void sys_keyboard_clear_handler(uint64_t index);
 void hang();
+void sys_kdebug(char* str);
+
+#define sSTR_HELPER(x) #x
+#define sSTR(x) sSTR_HELPER(x)
+#define ksysdebug(str) sys_kdebug(__FILE__ ":" sSTR(__LINE__) ": " str)
+#define ksysdebugs(str) (ksysdebug(""), sys_kdebug(str), sys_kdebug("\n"))
 
 #endif

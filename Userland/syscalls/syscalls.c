@@ -80,3 +80,7 @@ void sys_exit() {
 void sys_keyboard_clear_handler(uint64_t index) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, (uint64_t)index);
 }
+
+void sys_kdebug(char* str){
+	syscall((uint64_t)SYSCALL_KDEBUG, str);
+}

@@ -57,11 +57,11 @@ static uint64_t task_shell(int argc, char** argv) {
 		// 	kdebug("Rescheduling task with pid: ");
 		// 	kdebug_base(task_get_current()->pid, 10);
 		// 	kdebug_nl();
-		// 	reschedule();
+		// 	task_sleep(task_get_current());
 		// 	kdebug("Returned again\n");
 		// }
 
-		//while (TRUE);
+		// while (TRUE);
 
 		((task_entry_point)shellCodeModuleAddress)(argc, argv);
 
@@ -180,6 +180,7 @@ void task_pause(task_t *task) {
 
 void task_sleep(task_t *task) {
 	task->state = TASK_SLEEPING;
+	reschedule();
 }
 
 void task_setconsole(task_t *task, console_t console) {
