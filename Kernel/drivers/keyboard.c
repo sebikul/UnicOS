@@ -335,7 +335,7 @@ static void keyboard_dispatch() {
 
 	input_add(c);
 
-	video_write_char(KERNEL_CONSOLE, c);
+	video_write_char(video_current_console(), c);
 	video_update_cursor();
 
 	running = FALSE;
