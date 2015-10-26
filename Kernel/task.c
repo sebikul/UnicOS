@@ -83,13 +83,15 @@ static inline void task_add(task_t *task) {
 	//first = task;
 }
 
-static void null_task_func() {
+static uint64_t null_task_func(int argc, char** argv) {
 	while (TRUE) {
 		// kdebug("Looping NULL. pid: ");
 
 		// kdebug_base(current->pid, 10);
 		// kdebug_nl();
 	}
+
+	return 0;
 }
 
 void task_init() {
@@ -143,7 +145,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	context->r10 =	0x008;
 	context->r9 = 0x009;
 	context->r8 = 0x00A;
-	context->rsi =	argv;
+	context->rsi =	(uint64_t)argv;
 	context->rdi =	argc;
 	context->rbp =	0x00D;
 	context->rdx =	0x00E;
@@ -162,7 +164,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	kdebug("New task: pid=");
 	kdebug_base(task->pid, 10);
 	_kdebug(" at 0x");
-	kdebug_base(task, 16);
+	kdebug_base((uint64_t) task, 16);
 	kdebug_nl();
 
 	//DUMP_LIST_FROM_CURRENT()

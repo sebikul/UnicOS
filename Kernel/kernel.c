@@ -33,7 +33,7 @@ uint64_t screensaver_wait_time = 20;
 uint64_t screensaver_timer = 0;
 bool screensaver_is_active = FALSE;
 
-uintptr_t kernel_stack = NULL;
+void *kernel_stack = NULL;
 
 void load_kernel_modules();
 
@@ -41,7 +41,7 @@ void clearBSS(void * bssAddress, uint64_t bssSize) {
 	memset(bssAddress, 0, bssSize);
 }
 
-uintptr_t stack_init() {
+void* stack_init() {
 	kernel_stack = malloc(STACK_SIZE);
 	kernel_stack = kernel_stack + STACK_SIZE;
 

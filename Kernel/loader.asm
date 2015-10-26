@@ -5,10 +5,6 @@ global 		gdt_flush
 global 		halt
 global 		reschedule
 
-extern		main
-extern		initializeKernelBinary
-extern 		_kdebug
-
 extern 		main
 extern 		initializeKernelBinary
 
@@ -17,9 +13,6 @@ extern 		irq0_handler
 extern 		irq80_handler
 
 extern 		stack_init
-extern 		kernel_stack
-extern 		kdebug_base
-extern 		kdebug_nl
 
 extern 		scheduler_u2k
 extern 		scheduler_k2u
@@ -158,9 +151,6 @@ pit_handler:
 		popa
 		iretq
 
-msg1:
-db "Rescheduling task",10,0
-
 reschedule:
 		;Simulamos una interrpucion
 		pop 		QWORD[ret_addr] 			;Direccion de retorno
@@ -186,9 +176,6 @@ reschedule:
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
-
-		mov 		rdi, msg1
-		call 		_kdebug
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
@@ -241,7 +228,7 @@ gdt_flush:
 		lgdt [rdi]
 		ret
 
-section .data
+section .bss
 
 ret_addr:
 		resq 1

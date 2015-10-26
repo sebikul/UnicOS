@@ -285,9 +285,7 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
 			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
 			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
-			bool is_scode_equal = (dka_catched_scancodes[i]->scancode == scode);
 			bool is_console_equal = (video_current_console() == dka_catched_scancodes[i]->console);
-
 
 			if (!is_wildcard) {
 				if (is_range) {
@@ -316,8 +314,6 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			} else {
 				catched = TRUE;
 			}
-
-
 		}
 
 		if (catched) {
