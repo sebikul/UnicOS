@@ -63,4 +63,7 @@ typedef enum {
 
 typedef void (*dka_handler)(uint64_t s);
 
+typedef uint64_t (*task_entry_point)(int argc, char** argv);
+typedef uint64_t pid_t;
+
 #endif

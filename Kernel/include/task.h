@@ -2,13 +2,12 @@
 #include "video.h"
 #include "mem.h"
 #include "string.h"
+#include "types.h"
 
 #ifndef TASK_H
 #define TASK_H
 
-typedef uint64_t pid_t;
-
-typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING} task_state_t;
+typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_STOPPED} task_state_t;
 
 typedef struct {
 	uint64_t gs;
@@ -35,6 +34,7 @@ typedef struct {
 	uint64_t rflags;
 	uint64_t rsp;
 	uint64_t ss;
+	
 	uint64_t base;
 } __attribute__((packed)) context_t;
 
@@ -48,8 +48,6 @@ typedef struct task_t {
 	task_state_t state;
 	uint8_t console;
 } task_t;
-
-typedef uint64_t (*task_entry_point)(int argc, char** argv);
 
 void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);

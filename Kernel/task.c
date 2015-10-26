@@ -113,6 +113,31 @@ void task_init() {
 	//current = task;
 }
 
+static void wrapper(task_entry_point func, int argc, char **argv) {
+
+	uint64_t retval;
+	task_t *task;
+
+	retval = func(argc, argv);
+
+	intsoff();
+
+		kdebug("La tarea finalizo\n");
+
+	task = task_get_current();
+	video_write_nl(task->console);
+
+	free(task->name);
+	free(task->stack);
+
+	task->state = TASK_STOPPED;
+
+	intson();
+
+	reschedule();
+
+}
+
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
 
 	task_t *task = malloc(sizeof(task_t));
@@ -145,14 +170,14 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	context->r10 =	0x008;
 	context->r9 = 0x009;
 	context->r8 = 0x00A;
-	context->rsi =	(uint64_t)argv;
-	context->rdi =	argc;
+	context->rsi =	(uint64_t)argc;
+	context->rdi =	(uint64_t)func;
 	context->rbp =	0x00D;
-	context->rdx =	0x00E;
+	context->rdx =	(uint64_t)argv;
 	context->rcx =	0x00F;
 	context->rbx =	0x010;
 	context->rax =	0x011;
-	context->rip =	(uint64_t)func;
+	context->rip =	(uint64_t)wrapper;
 	context->cs = 0x008;
 	context->rflags = 0x202;
 	context->rsp =	(uint64_t) & (context->base);
@@ -161,7 +186,9 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 
 	task_add(task);
 
-	kdebug("New task: pid=");
+	kdebug("New task: '");
+	_kdebug(name);
+	_kdebug("' pid=");
 	kdebug_base(task->pid, 10);
 	_kdebug(" at 0x");
 	kdebug_base((uint64_t) task, 16);
@@ -223,4 +250,19 @@ task_t* task_get_foreground(console_t console) {
 
 task_t* task_get_current() {
 	return current;
+}
+
+task_t* task_find_by_pid(pid_t pid) {
+
+	task_t *task = last->next;
+
+	while (task->pid != pid && task != last) {
+		task = task->next;
+	}
+
+	if (task == last && task->pid != pid) {
+		return NULL;
+	}
+
+	return task;
 }
