@@ -7,9 +7,10 @@
 #define KEYBOARD_BUFFER_SIZE 128
 #define NOCHAR (char)0
 
-#define KEYBOARD_IGNORE 		(1<<1)
-#define KEYBOARD_RANGE 			(1<<2)
-#define KEYBOARD_WILDCARD 		(1<<3)
+#define KEYBOARD_IGNORE 		(1<<1) 		//Ignora el handler y ejecuta el resto de los handlers. Caso contrario frena al ejcutar el primero
+#define KEYBOARD_RANGE 			(1<<2)		//Divide al scancode en un rango de scancodes a analizar
+#define KEYBOARD_WILDCARD 		(1<<3)		//No analiza el scancode recibido
+#define KEYBOARD_ALLCONSOLES 	(1<<4)
 
 typedef struct {
 	bool caps;

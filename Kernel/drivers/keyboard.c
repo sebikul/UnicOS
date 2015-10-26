@@ -253,7 +253,10 @@ static bool keyboard_run_handlers(uint64_t scode) {
 				continue;
 			}
 
-			if ((dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD) || (dka_catched_scancodes[i]->scancode == scode && video_current_console() == dka_catched_scancodes[i]->console) ) {
+			if ((dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD) ||
+				 (dka_catched_scancodes[i]->scancode == scode && 
+				 	(video_current_console() == dka_catched_scancodes[i]->console || 
+				 	(dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES) )) ) {
 
 				kdebug("Ejecutando handler en consola: ");
 				kdebug_base(video_current_console(), 10);
@@ -353,13 +356,13 @@ static void keyboard_dispatch() {
 void keyboard_init() {
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, 0);
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
 	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
 
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, 0);
+	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES);
 }
 
 void keyboard_irq_handler(uint64_t s) {
