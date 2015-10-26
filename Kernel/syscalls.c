@@ -176,7 +176,7 @@ void sys_free(void* m) {
 }
 
 uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	return keyboard_catch(scancode, handler, FALSE, task_get_current()->console, task_get_current()->pid);
+	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, 0);
 }
 
 void sys_clear_indexed_line(uint64_t index) {

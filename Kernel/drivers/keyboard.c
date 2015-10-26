@@ -221,11 +221,11 @@ static void keyboard_caps_handler(uint64_t s) {
 static void keyboard_backspace_handler(uint64_t s) {
 
 	if (input_size() == 0) {
-		//video_write_line(KERNEL_CONSOLE, "Cola vacia");
+		kdebug("Cola vacia. No se desencola nada.\n");
 		return;
 	}
 
-	screen_t *screen = get_screen(task_get_current()->console);
+	screen_t *screen = get_screen(video_current_console());
 
 	if (screen->column == 0) {
 		screen->column = SCREEN_WIDTH - 1;
@@ -236,7 +236,7 @@ static void keyboard_backspace_handler(uint64_t s) {
 
 	input_undo();
 
-	video_write_char_at(KERNEL_CONSOLE, ' ', screen->row, screen->column);
+	video_write_char_at(video_current_console(), ' ', screen->row, screen->column);
 
 	video_update_cursor();
 }
@@ -248,10 +248,19 @@ static bool keyboard_run_handlers(uint64_t scode) {
 		bool catched = FALSE;
 
 		for (int i = 0; i < dka_catched_len; i++) {
-			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == scode) {
+
+			if(dka_catched_scancodes[i]==NULL){
+				continue;
+			}
+
+			if ((dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD) || (dka_catched_scancodes[i]->scancode == scode && video_current_console() == dka_catched_scancodes[i]->console) ) {
+
+				kdebug("Ejecutando handler en consola: ");
+				kdebug_base(video_current_console(), 10);
+				kdebug_nl();
 
 				dka_catched_scancodes[i]->handler(scode);
-				catched = (!dka_catched_scancodes[i]->ignore || catched);
+				catched = (!(dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) || catched);
 			}
 		}
 
@@ -344,13 +353,13 @@ static void keyboard_dispatch() {
 void keyboard_init() {
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	keyboard_catch(0x3A, keyboard_caps_handler,FALSE ,0, 0);
-	keyboard_catch(0x2A, keyboard_caps_handler,FALSE , 0, 0);
-	keyboard_catch(0x36, keyboard_caps_handler,FALSE , 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler,FALSE , 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler,FALSE , 0, 0);
+	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, 0);
 
-	keyboard_catch(0x0E, keyboard_backspace_handler,FALSE , 0, 0);
+	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, 0);
 }
 
 void keyboard_irq_handler(uint64_t s) {
@@ -367,7 +376,7 @@ void keyboard_irq_handler(uint64_t s) {
 	keyboard_dispatch();
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, bool ignore, unsigned int console, pid_t pid) {
+int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags) {
 
 	int index;
 
@@ -377,9 +386,7 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, bool ignore, unsigned
 	tmp->handler = handler;
 	tmp->pid = pid;
 	tmp->console = console;
-	tmp->wildcard = (scancode == 0);
-	tmp->ignore=ignore;
-
+	tmp->flags = flags;
 
 	index = dka_catched_len;
 	dka_catched_scancodes[index] = tmp;
