@@ -109,7 +109,7 @@ void video_init() {
 
 	video_change_console(0);
 
-	keyboard_catch(0x00, video_fn_handler, 0, 0, KEYBOARD_IGNORE | KEYBOARD_WILDCARD);
+	keyboard_catch( ((uint64_t)0x41 << 32) | 0x3b, video_fn_handler, 0, 0, KEYBOARD_IGNORE | KEYBOARD_RANGE | KEYBOARD_ALLCONSOLES);
 
 
 }

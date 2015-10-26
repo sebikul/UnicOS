@@ -241,6 +241,35 @@ static void keyboard_backspace_handler(uint64_t s) {
 	video_update_cursor();
 }
 
+static inline bool keyboard_is_scode_in_range(uint64_t range, uint64_t scode) {
+
+	uint32_t low, high;
+
+	// kdebug("Full rango: 0x");
+	// kdebug_base(range, 16);
+	// _kdebug("\t");
+
+	low = (uint32_t) range;
+	high = (uint32_t) (range >> 32);
+
+	// kdebug("Analizando rango: 0x");
+	// kdebug_base(low, 16);
+	// _kdebug(" <= ");
+	// kdebug_base(scode, 16);
+	// _kdebug(" <= 0x");
+	// kdebug_base(high, 16);
+
+	// if (low <= scode && scode <= high) {
+	// 	_kdebug("\t TRUE");
+	// } else {
+	// 	_kdebug("\t FALSE");
+	// }
+
+	// kdebug_nl();
+
+	return (low <= scode && scode <= high);
+}
+
 static bool keyboard_run_handlers(uint64_t scode) {
 
 	if (dka_catched_len > 0) {
@@ -249,22 +278,46 @@ static bool keyboard_run_handlers(uint64_t scode) {
 
 		for (int i = 0; i < dka_catched_len; i++) {
 
-			if(dka_catched_scancodes[i]==NULL){
+			if (dka_catched_scancodes[i] == NULL) {
 				continue;
 			}
 
-			if ((dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD) ||
-				 (dka_catched_scancodes[i]->scancode == scode && 
-				 	(video_current_console() == dka_catched_scancodes[i]->console || 
-				 	(dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES) )) ) {
+			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
+			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
+			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
+			bool is_scode_equal = (dka_catched_scancodes[i]->scancode == scode);
+			bool is_console_equal = (video_current_console() == dka_catched_scancodes[i]->console);
 
-				kdebug("Ejecutando handler en consola: ");
-				kdebug_base(video_current_console(), 10);
-				kdebug_nl();
 
-				dka_catched_scancodes[i]->handler(scode);
-				catched = (!(dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) || catched);
+			if (!is_wildcard) {
+				if (is_range) {
+					if (!keyboard_is_scode_in_range(dka_catched_scancodes[i]->scancode, scode)) {
+						continue;
+					}
+				} else {
+					if (dka_catched_scancodes[i]->scancode != scode) {
+						continue;
+					}
+				}
 			}
+
+			if (!is_all_consoles && !is_console_equal) {
+				continue;
+			}
+
+			kdebug("Ejecutando handler en consola: ");
+			kdebug_base(video_current_console(), 10);
+			kdebug_nl();
+
+			dka_catched_scancodes[i]->handler(scode);
+
+			if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
+				continue;
+			} else {
+				catched = TRUE;
+			}
+
+
 		}
 
 		if (catched) {
