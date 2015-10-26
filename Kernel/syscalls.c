@@ -94,6 +94,13 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 	case SYSCALL_KDEBUG:
 		sys_kdebug((char*)rsi);
 		break;
+
+	case SYSCALL_TASK_CREATE:
+		return sys_task_create((task_entry_point) rsi, (char*) rdx, (int)rcx, (char**) r8);
+		break;
+
+	case SYSCALL_TASK_READY:
+		sys_task_ready((pid_t) rsi);
 	}
 
 	return 0;
@@ -113,10 +120,9 @@ void sys_write(FD fd, char* s, uint64_t len) {
 
 	switch (fd) {
 	case FD_STDOUT:
-		kdebug("Writing to console ");
-		kdebug_base(task_get_current()->console, 10);
-		kdebug_nl();
-
+		// kdebug("Writing to console ");
+		// kdebug_base(task_get_current()->console, 10);
+		// kdebug_nl();
 		video_write_string(task_get_current()->console, s);
 		break;
 
@@ -204,7 +210,6 @@ void sys_kbd_set_distribution(keyboard_distrib d) {
 }
 
 void sys_set_screensaver_timer(uint64_t t) {
-
 	screensaver_wait_time = t;
 	screensaver_reset_timer();
 }
@@ -224,4 +229,23 @@ void sys_keyboard_clear_handler(uint64_t handler) {
 
 void sys_kdebug(char *str) {
 	_kdebug(str);
+}
+
+pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
+	task_t *task;
+	pid_t pid;
+
+	task = task_create(func, name, argc, argv);
+	task_setconsole(task, task_get_current()->console);
+
+	return task->pid;
+}
+
+void sys_task_ready(pid_t pid) {
+	task_t * task = task_find_by_pid(pid);
+
+	if (task == NULL) {
+		return;
+	}
+	task_ready(task);
 }

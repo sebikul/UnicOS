@@ -84,3 +84,11 @@ void sys_keyboard_clear_handler(uint64_t index) {
 void sys_kdebug(char* str){
 	syscall((uint64_t)SYSCALL_KDEBUG, str);
 }
+
+pid_t sys_create_task(task_entry_point func, const char* name, int argc, char** argv) {
+	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
+}
+
+void sys_task_ready(pid_t pid){
+	syscall((uint64_t)SYSCALL_TASK_READY, pid);
+}

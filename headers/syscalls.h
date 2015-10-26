@@ -23,7 +23,9 @@ typedef enum { SYSCALL_RTC,
                SYSCALL_CLEAR_SCREEN,
                SYSCALL_EXIT,
                SYSCALL_KEYBOARD_CLEAR_HANDLER,
-               SYSCALL_KDEBUG
+               SYSCALL_KDEBUG,
+               SYSCALL_TASK_CREATE,
+               SYSCALL_TASK_READY
 } syscall_t;
 
 void sys_write(FD fd, char* s, uint64_t len);
@@ -46,6 +48,9 @@ void sys_exit();
 void sys_keyboard_clear_handler(uint64_t index);
 void hang();
 void sys_kdebug(char* str);
+
+pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv);
+void sys_task_ready(pid_t pid);
 
 #define sSTR_HELPER(x) #x
 #define sSTR(x) sSTR_HELPER(x)
