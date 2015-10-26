@@ -48,7 +48,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_KEYBOARD_CATCH:
-		return sys_keyboard_catch(rsi, (dka_handler) rdx);
+		return sys_keyboard_catch(rsi, (dka_handler) rdx, rcx);
 		break;
 
 	case SYSCALL_VIDEO_CLR_INDEXED_LINE:
@@ -157,7 +157,7 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	kdebugs(s);
 	kdebug("Caracteres ingresados: ");
-	kdebug_base(i,10);
+	kdebug_base(i, 10);
 	kdebug_nl();
 
 	return i;
@@ -175,8 +175,11 @@ void sys_free(void* m) {
 	free(m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, 0);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags) {
+	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
+	flags = flags & ~KEYBOARD_ALLCONSOLES;
+	
+	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, flags);
 }
 
 void sys_clear_indexed_line(uint64_t index) {

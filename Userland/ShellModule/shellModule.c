@@ -49,8 +49,8 @@ uint64_t main(int argc, char** argv) {
 	initialize_command_list();
 	initialize_names();
 
-	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
-	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
+	sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
+	sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
 
 	while (TRUE) {
 

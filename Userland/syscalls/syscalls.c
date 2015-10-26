@@ -25,23 +25,23 @@ void sys_rtc_set(time_t* t) {
 }
 
 void* sys_malloc(uint64_t len) {
-	return (void*)syscall((uint64_t)SYSCALL_MALLOC, (uint64_t)len);
+	return (void*)syscall((uint64_t)SYSCALL_MALLOC, len);
 }
 
 void* sys_calloc(uint64_t len) {
-	return (void*)syscall((uint64_t)SYSCALL_CALLOC, (uint64_t)len);
+	return (void*)syscall((uint64_t)SYSCALL_CALLOC, len);
 }
 
 void sys_free(void* m) {
 	syscall((uint64_t)SYSCALL_FREE, (uint64_t)m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler) {
-	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, (uint64_t)scancode, (uint64_t)handler);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags) {
+	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, scancode, (uint64_t)handler, flags);
 }
 
 void sys_clear_indexed_line(uint64_t index) {
-	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE, (uint64_t)index);
+	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE, index);
 }
 
 void sys_keyboard_replace_buffer(char* s) {
@@ -78,7 +78,7 @@ void sys_exit() {
 }
 
 void sys_keyboard_clear_handler(uint64_t index) {
-	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, (uint64_t)index);
+	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, index);
 }
 
 void sys_kdebug(char* str){

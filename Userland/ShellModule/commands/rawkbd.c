@@ -24,7 +24,7 @@ void command_rawkbd(int argc, char** argv) {
 	_exit = 0;
 
 	printf("Installing keyboard handler...\n");
-	index = sys_keyboard_catch(0x0, keyboard_handler);
+	index = sys_keyboard_catch(0x0, keyboard_handler, KEYBOARD_IGNORE|KEYBOARD_WILDCARD);
 
 	while (!_exit);
 
