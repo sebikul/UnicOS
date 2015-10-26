@@ -86,7 +86,6 @@ void initializeKernelBinary() {
 	screensaver_reset_timer();
 
 	video_write_line(KERNEL_CONSOLE, "Kernel cargado.");
-
 }
 
 void load_kernel_modules() {
@@ -97,7 +96,6 @@ void load_kernel_modules() {
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-
 }
 
 void main() {
@@ -136,11 +134,13 @@ bool screensaver_reset_timer() {
 
 	bool ret = FALSE;
 
+	kdebug("Reseteando timer del screensaver\n");
+
 	if (screensaver_is_active) {
+		kdebug("Saliendo del screensaver\n");
 		ret = TRUE;
 		screensaver_is_active = FALSE;
 		video_trigger_restore();
-
 	}
 	screensaver_timer = 18 * screensaver_wait_time;
 
@@ -150,6 +150,7 @@ bool screensaver_reset_timer() {
 void active_screensaver() {
 	screensaver_is_active = TRUE;
 	video_trigger_screensaver();
+	kdebug("Activando screensaver\n");
 }
 
 void irq0_handler() {
