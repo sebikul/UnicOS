@@ -81,7 +81,7 @@ void sys_keyboard_clear_handler(uint64_t index) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, index);
 }
 
-void sys_kdebug(char* str){
+void sys_kdebug(char* str) {
 	syscall((uint64_t)SYSCALL_KDEBUG, str);
 }
 
@@ -89,6 +89,14 @@ pid_t sys_create_task(task_entry_point func, const char* name, int argc, char** 
 	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
 }
 
-void sys_task_ready(pid_t pid){
+void sys_task_ready(pid_t pid) {
 	syscall((uint64_t)SYSCALL_TASK_READY, pid);
+}
+
+void sys_task_join(pid_t pid, pid_t otherpid) {
+	syscall((uint64_t) SYSCALL_TASK_JOIN, pid, otherpid);
+}
+
+pid_t sys_task_get_pid(){
+	return (pid_t)syscall((uint64_t)SYSCALL_TASK_GET_PID);
 }

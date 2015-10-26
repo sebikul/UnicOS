@@ -121,11 +121,14 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 	retval = func(argc, argv);
 
 	intsoff();
-
-		kdebug("La tarea finalizo\n");
+	kdebug("La tarea finalizo\n");
 
 	task = task_get_current();
-	video_write_nl(task->console);
+	video_write_line(task->console, "La tarea ha finalizado\n");
+
+	if (task->join != NULL) {
+		task_ready(task->join);
+	}
 
 	free(task->name);
 	free(task->stack);
@@ -135,7 +138,6 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 	intson();
 
 	reschedule();
-
 }
 
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
@@ -145,6 +147,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
+	task->join = NULL;
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;
@@ -212,6 +215,19 @@ void task_sleep(task_t *task) {
 	reschedule();
 }
 
+void task_join(task_t *task, task_t *other) {
+
+	kdebug("Sending task with pid=");
+	kdebug_base(other->pid, 10);
+	_kdebug(" to sleep. Waiting for task with pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" to exit.");
+	kdebug_nl();
+
+	task->join = other;
+	other->state = TASK_JOINING;
+}
+
 void task_setconsole(task_t *task, console_t console) {
 	task->console = console;
 }
@@ -237,6 +253,7 @@ void task_next() {
 
 	kdebug_base(current->pid, 10);
 	kdebug_nl();
+}
 
 }
 

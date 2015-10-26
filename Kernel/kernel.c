@@ -134,7 +134,7 @@ bool screensaver_reset_timer() {
 
 	bool ret = FALSE;
 
-	kdebug("Reseteando timer del screensaver\n");
+	//kdebug("Reseteando timer del screensaver\n");
 
 	if (screensaver_is_active) {
 		kdebug("Saliendo del screensaver\n");

@@ -101,6 +101,14 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	case SYSCALL_TASK_READY:
 		sys_task_ready((pid_t) rsi);
+		break;
+
+	case SYSCALL_TASK_JOIN:
+		sys_task_join((pid_t) rsi, (pid_t) rdx);
+		break;
+
+	case SYSCALL_TASK_GET_PID:
+		return sys_task_get_pid();
 	}
 
 	return 0;
@@ -146,7 +154,6 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 	kdebug("Esperando entrada\n");
 
 	task_sleep(task_get_current());
-	//reschedule();
 
 	kdebug("Entrada recibida!\n");
 
@@ -233,7 +240,6 @@ void sys_kdebug(char *str) {
 
 pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
 	task_t *task;
-	pid_t pid;
 
 	task = task_create(func, name, argc, argv);
 	task_setconsole(task, task_get_current()->console);
@@ -242,10 +248,25 @@ pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** 
 }
 
 void sys_task_ready(pid_t pid) {
-	task_t * task = task_find_by_pid(pid);
+	task_t *task = task_find_by_pid(pid);
 
 	if (task == NULL) {
 		return;
 	}
 	task_ready(task);
+}
+
+void sys_task_join(pid_t pid, pid_t otherpid) {
+	task_t *task = task_find_by_pid(pid);
+	task_t *shell = task_find_by_pid(otherpid);
+	//task_t *shell = task_get_for_console(task->console);
+
+	if (task == NULL) {
+		return;
+	}
+	task_join(task, shell);
+}
+
+pid_t sys_task_get_pid() {
+	return task_get_current()->pid;
 }
