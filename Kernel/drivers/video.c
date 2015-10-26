@@ -11,7 +11,7 @@ static char buffer[128] = { 0 };
 static screen_t consoles[VIRTUAL_CONSOLES + 1] = {{0}};
 static console_t current_console = 0;
 
-static uint8_t screensaver_backup;
+console_t screensaver_backup;
 
 static uint16_t* screen_mem = (uint16_t*)0xB8000;
 
@@ -74,44 +74,42 @@ void video_init() {
 		video_clear_screen(i);
 	}
 
-// //SCREENSAVER
+//SCREENSAVER
 
-// 	video_set_color(VIRTUAL_CONSOLES, COLOR_LIGHT_BROWN, COLOR_RED);
+	video_set_color(VIRTUAL_CONSOLES, COLOR_LIGHT_BROWN, COLOR_RED);
 
-// 	video_write_string(VIRTUAL_CONSOLES,
-// 	                   "                  ___                                                           "
-// 	                   "      ___        /  /\\                                                          "
-// 	                   "     /  /\\      /  /::\\                                                         "
-// 	                   "    /  /:/     /  /:/\\:\\                                                        "
-// 	                   "   /  /:/     /  /:/~/:/                                                        "
-// 	                   "  /  /::\\    /__/:/ /:/                                                         "
-// 	                   " /__/:/\\:\\   \\  \\:\\/:/                                                          "
-// 	                   " \\__\\/  \\:\\   \\  \\::/                                                           "
-// 	                   "      \\  \\:\\   \\  \\:\\                                                           "
-// 	                   "       \\__\\/    \\  \\:\\                                                          "
-// 	                   "                 \\__\\/                                                          "
-// 	                   "      ___           ___                         ___                             "
-// 	                   "     /  /\\         /  /\\          ___          /__/\\        ___                 "
-// 	                   "    /  /::\\       /  /::\\        /  /\\         \\  \\:\\      /  /\\                "
-// 	                   "   /  /:/\\:\\     /  /:/\\:\\      /  /::\\         \\  \\:\\    /  /:/                "
-// 	                   "  /  /:/~/::\\   /  /:/~/:/     /  /:/\\:\\    ___  \\  \\:\\  /__/::\\                "
-// 	                   " /__/:/ /:/\\:\\ /__/:/ /:/___  /  /:/~/::\\  /__/\\  \\__\\:\\ \\__\\/\\:\\__             "
-// 	                   " \\  \\:\\/:/__\\/ \\  \\:\\/:::::/ /__/:/ /:/\\:\\ \\  \\:\\ /  /:/    \\  \\:\\/\\            "
-// 	                   "  \\  \\::/       \\  \\::/~~~~  \\  \\:\\/:/__\\/  \\  \\:\\  /:/      \\__\\::/            "
-// 	                   "   \\  \\:\\        \\  \\:\\       \\  \\::/        \\  \\:\\/:/       /__/:/             "
-// 	                   "    \\  \\:\\        \\  \\:\\       \\__\\/          \\  \\::/        \\__\\/              "
-// 	                   "     \\__\\/         \\__\\/                       \\__\\/                            "
-// 	                   "                                                                                "
-// 	                   "                                                                                "
-// 	                  );
+	video_write_string(VIRTUAL_CONSOLES,
+	                   "                  ___                                                           "
+	                   "      ___        /  /\\                                                          "
+	                   "     /  /\\      /  /::\\                                                         "
+	                   "    /  /:/     /  /:/\\:\\                                                        "
+	                   "   /  /:/     /  /:/~/:/                                                        "
+	                   "  /  /::\\    /__/:/ /:/                                                         "
+	                   " /__/:/\\:\\   \\  \\:\\/:/                                                          "
+	                   " \\__\\/  \\:\\   \\  \\::/                                                           "
+	                   "      \\  \\:\\   \\  \\:\\                                                           "
+	                   "       \\__\\/    \\  \\:\\                                                          "
+	                   "                 \\__\\/                                                          "
+	                   "      ___           ___                         ___                             "
+	                   "     /  /\\         /  /\\          ___          /__/\\        ___                 "
+	                   "    /  /::\\       /  /::\\        /  /\\         \\  \\:\\      /  /\\                "
+	                   "   /  /:/\\:\\     /  /:/\\:\\      /  /::\\         \\  \\:\\    /  /:/                "
+	                   "  /  /:/~/::\\   /  /:/~/:/     /  /:/\\:\\    ___  \\  \\:\\  /__/::\\                "
+	                   " /__/:/ /:/\\:\\ /__/:/ /:/___  /  /:/~/::\\  /__/\\  \\__\\:\\ \\__\\/\\:\\__             "
+	                   " \\  \\:\\/:/__\\/ \\  \\:\\/:::::/ /__/:/ /:/\\:\\ \\  \\:\\ /  /:/    \\  \\:\\/\\            "
+	                   "  \\  \\::/       \\  \\::/~~~~  \\  \\:\\/:/__\\/  \\  \\:\\  /:/      \\__\\::/            "
+	                   "   \\  \\:\\        \\  \\:\\       \\  \\::/        \\  \\:\\/:/       /__/:/             "
+	                   "    \\  \\:\\        \\  \\:\\       \\__\\/          \\  \\::/        \\__\\/              "
+	                   "     \\__\\/         \\__\\/                       \\__\\/                            "
+	                   "                                                                                "
+	                   "                                                                                "
+	                  );
 
-//	video_update_screen_color(VIRTUAL_CONSOLES);
+	video_update_screen_color(VIRTUAL_CONSOLES);
 
 	video_change_console(0);
 
 	keyboard_catch( ((uint64_t)0x41 << 32) | 0x3b, video_fn_handler, 0, 0, KEYBOARD_IGNORE | KEYBOARD_RANGE | KEYBOARD_ALLCONSOLES);
-
-
 }
 
 void video_update_screen_color(console_t console) {
@@ -149,9 +147,9 @@ void video_clear_screen(console_t console) {
 
 	screen_t *screen = get_screen(console);
 
-	for (int i = 0; i < SCREEN_HEIGHT; i++) {
+	for (int i = 0; i <= SCREEN_HEIGHT; i++) {
 
-		for (int j = 0; j < SCREEN_WIDTH; j++) {
+		for (int j = 0; j <= SCREEN_WIDTH; j++) {
 			video_write_char(console, ' ');
 		}
 	}
@@ -312,7 +310,6 @@ void video_write_base(console_t console, uint64_t value, uint32_t base) {
 	video_write_string(console, buffer);
 }
 
-
 void video_change_console(uint8_t console) {
 
 	kdebug("New virtual console: ");
@@ -323,23 +320,18 @@ void video_change_console(uint8_t console) {
 
 	video_sync_console(console);
 
-	//memcpy(screen_mem, consoles[console].screen, sizeof(screen_mem) * SCREEN_SIZE);
-
 	video_update_cursor();
 }
 
-console_t video_current_console(){
+console_t video_current_console() {
 	return current_console;
 }
 
 void video_trigger_restore() {
-
 	video_change_console(screensaver_backup);
-
 }
 
 void video_trigger_screensaver() {
-
+	screensaver_backup = current_console;
 	video_change_console(VIRTUAL_CONSOLES);
-
 }

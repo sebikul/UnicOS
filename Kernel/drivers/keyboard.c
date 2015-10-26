@@ -416,8 +416,7 @@ void keyboard_init() {
 
 void keyboard_irq_handler(uint64_t s) {
 
-	if (!screensaver_enter_flag && screensaver_reset_timer()) {
-		screensaver_enter_flag = FALSE;
+	if (screensaver_reset_timer()) {
 		return;
 	}
 

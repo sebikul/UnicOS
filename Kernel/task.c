@@ -45,9 +45,9 @@ static uint64_t task_shell(int argc, char** argv) {
 
 		//video_clear_screen(console);
 
-		video_write_string(console, "Console #: ");
-		video_write_dec(console, console);
-		video_write_nl(console);
+		// video_write_string(console, "Console #: ");
+		// video_write_dec(console, console);
+		// video_write_nl(console);
 
 		kdebug("Running task with pid: ");
 		kdebug_base(task_get_current()->pid, 10);

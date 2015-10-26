@@ -9,6 +9,7 @@ void command_screensaver(int argc, char** argv) {
 	case 1:
 
 		sys_screensaver_trigger();
+		//TODO Esperar a que se despierte del screensaver para devolver. Sino la shell, al escribir en la consola vuelve a despertar al sistema
 		break;
 
 	case 3:
