@@ -1,10 +1,13 @@
 #include <libc.h>
 #include <types.h>
 #include <syscalls.h>
-
+#include "commands.h"
 #include "string.h"
 
-void command_set_distribution(int argc , char** argv) {
+COMMAND_HELP(set_distribution, "[keyboard set] Recibe una distribucion de teclado [usa | latin] y la setea.");
+
+COMMAND_START(set_distribution) {
+
 	if (argc != 3) {
 		fprintf(FD_STDERR, "Cantidad invalida de argumentos.\n");
 		return;
@@ -23,4 +26,5 @@ void command_set_distribution(int argc , char** argv) {
 	} else {
 		fprintf(FD_STDERR, "Comando invalido. Comando disponible [keyboard set].\n");
 	}
+
 }

@@ -1,10 +1,15 @@
 #include <libc.h>
-
+#include "commands.h"
 #include "string.h"
+
+COMMAND_HELP(time, "[time] Muestra la hora en pantalla.\n"
+             "\t[time set] Permite setear fecha y hora del sistema.\n"
+             "\t Recuerde que el formato del año debe ser de 1 o 2 digitos solamente y el siglo sera siempre el 21.\n"
+             " Ej: time set 21 10 5 20 3 15 setea la hora a las 21:10:05 del 20/03/2015.");
 
 static int checkDate(int hour, int minute, int second, int day, int month, int year);
 
-void command_time(int argc, char** argv) {
+COMMAND_START(time) {
 
 	time_t* t = time();
 	int hour;
@@ -58,7 +63,6 @@ void command_time(int argc, char** argv) {
 	default:
 		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
-
 }
 
 static int checkDate(int hour, int minute, int second, int day, int month, int year) {

@@ -170,6 +170,7 @@ reschedule:
 		;	cs
 		;	rflags
 		;	rsp
+		; 	ss
 
 		pusha
 

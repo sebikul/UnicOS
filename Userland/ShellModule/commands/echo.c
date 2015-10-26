@@ -1,7 +1,9 @@
-
 #include <libc.h>
+#include "commands.h"
 
-void command_echo(int argc, char** argv) {
+COMMAND_HELP(echo,"[echo] Permite mostrar un mensaje en pantalla.\nEj: echo Prueba. muestra Prueba en la pantalla.");
+
+COMMAND_START(echo) {
 
 	if (argc != 1) {
 		for (int i = 1; i < argc; i++) {
@@ -10,9 +12,4 @@ void command_echo(int argc, char** argv) {
 	} else {
 		printf("\n");
 	}
-
 }
-
-
-
-

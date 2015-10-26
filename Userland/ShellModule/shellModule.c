@@ -22,8 +22,7 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
-static int cmd_count = 12;
-static char** cmd_list;
+command_list_t* cmdlist;
 
 char* user_name;
 char* host_name;
@@ -34,9 +33,9 @@ void keyboard_uparrow_handler(uint64_t s);
 void keyboard_downarrow_handler(uint64_t s);
 
 void command_dispatcher(char* command);
-static void initialize_command_list();
+
+static void print_commands_struct();
 static void initialize_names();
-static void calloc_cmd(int i, char* str);
 
 uint64_t main(int argc, char** argv) {
 
@@ -46,8 +45,26 @@ uint64_t main(int argc, char** argv) {
 
 	ksysdebug("Initializing shell\n");
 
-	initialize_command_list();
+	cmdlist = malloc(sizeof(command_list_t));
+	cmdlist->count = 0;
+	cmdlist->commands = malloc(32 * sizeof(command_t));
+
+	COMMAND_INIT(help);
+	COMMAND_INIT(echo);
+	COMMAND_INIT(set_distribution);
+	COMMAND_INIT(time);
+	COMMAND_INIT(user_name);
+	COMMAND_INIT(host_name);
+	COMMAND_INIT(color);
+	COMMAND_INIT(refresh);
+	COMMAND_INIT(screensaver);
+	COMMAND_INIT(exit);
+	COMMAND_INIT(clear);
+	COMMAND_INIT(rawkbd);
+
 	initialize_names();
+
+	print_commands_struct();
 
 	sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
 	sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
@@ -129,68 +146,20 @@ void command_dispatcher(char* command) {
 		argc++;
 	}
 
-	int cmd = 0;
+	for (int cmd = 0; cmd < cmdlist->count; cmd++) {
+		// ksysdebug("Comparando ");
+		// ksysdebugs(cmdlist->commands[cmd]->name);
+		// ksysdebug(" con ");
+		// ksysdebugs(argv[0]);
 
-	for (; cmd < cmd_count; cmd++) {
-		if (strcmp(argv[0], cmd_list[cmd]) == 0) {
-			break;
+		if (strcmp(cmdlist->commands[cmd]->name, argv[0]) == 0) {
+			pid_t pid = sys_create_task(cmdlist->commands[cmd]->func, cmdlist->commands[cmd]->name, argc, argv);
+			sys_task_ready(pid);
+			return;
 		}
 	}
 
-	switch (cmd) {
-
-	case 0: //echo
-		command_echo(argc, argv);
-		break;
-
-	case 1: //help
-		command_help(argc, argv, cmd_list, cmd_count);
-		break;
-
-	case 2: //time
-		command_time(argc, argv);
-		break;
-
-	case 3: //color
-		command_color(argc, argv);
-		break;
-
-	case 4:
-		command_set_distribution(argc, argv);
-		break;
-
-	case 5: //exit
-		command_exit();
-		break;
-
-	case 6: //clear
-		command_clear(argc);
-		break;
-
-	case 7: //refresh
-		command_refresh();
-		break;
-
-	case 8: //user
-		command_user_name(argc, argv);
-		break;
-
-	case 9: //host
-		command_host_name(argc, argv);
-		break;
-
-	case 10: //screensaver
-		command_screensaver(argc, argv);
-		break;
-
-	case 11:
-		command_rawkbd(argc, argv);
-		break;
-
-	default:
-
-		fprintf(FD_STDERR, "Comando no encontrado.");
-	}
+	fprintf(FD_STDERR, "Comando no encontrado.");
 }
 
 void keyboard_uparrow_handler(uint64_t s) {
@@ -236,26 +205,13 @@ void keyboard_downarrow_handler(uint64_t s) {
 	sys_keyboard_replace_buffer(shell_history[current_history]);
 }
 
-static void initialize_command_list() {
-	cmd_list = calloc(cmd_count * sizeof(char*));
-	calloc_cmd(0, "echo");
-	calloc_cmd(1, "help");
-	calloc_cmd(2, "time");
-	calloc_cmd(3, "color");
-	calloc_cmd(4, "keyboard");
-	calloc_cmd(5, "exit");
-	calloc_cmd(6, "clear");
-	calloc_cmd(7, "refresh");
-	calloc_cmd(8, "user");
-	calloc_cmd(9, "host");
-	calloc_cmd(10, "screensaver");
-	calloc_cmd(11, "rawkbd");
-}
+static void print_commands_struct() {
 
-static void calloc_cmd(int i, char* str) {
-	int len = strlen(str);
-	cmd_list[i] = calloc(len * sizeof(char));
-	strcpy(cmd_list[i], str);
+	printf("Commands: [\n");
+	for (int i = 0; i < cmdlist->count; i++) {
+		printf("\t%s\n", cmdlist->commands[i]->name);
+	}
+	printf("]");
 }
 
 static void initialize_names() {
