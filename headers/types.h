@@ -51,6 +51,11 @@ typedef struct {
 
 typedef uint8_t color_t;
 
+#define KEYBOARD_IGNORE 		(1<<1) 		//Decide si se debe imprimir el scancode en pantalla o no. Si por lo menos un handler lo tiene desactivado entonces se muestra.
+#define KEYBOARD_RANGE 			(1<<2)		//Divide al scancode en un rango de scancodes a analizar
+#define KEYBOARD_WILDCARD 		(1<<3)		//No analiza el scancode recibido
+#define KEYBOARD_ALLCONSOLES 	(1<<4)
+
 typedef enum {
 	KEYBOARD_USA,
 	KEYBOARD_LATIN

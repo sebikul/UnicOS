@@ -8,12 +8,6 @@
 #define NOCHAR (char)0
 
 typedef struct {
-	char scancode;
-	char ascii;
-	char caps;
-} scancode;
-
-typedef struct {
 	bool caps;
 	bool ctrl;
 	bool alt;
@@ -22,17 +16,17 @@ typedef struct {
 typedef struct {
 	uint64_t scancode;
 	dka_handler handler;
-	unsigned int console;
 	pid_t pid;
-	bool wildcard;
+	uint64_t flags;
+	console_t console;
 } dka_catch;
 
-
+void keyboard_init();
 int keyboard_wait_for_buffer(int len);
 char keyboard_get_char_from_buffer();
-int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid);
+int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags);
 void keyboard_clear_handler(int index);
-void keyboard_replace_last_written(char* s);
+void keyboard_replace_buffer(char* s);
 void keyboard_set_distribution(keyboard_distrib d);
 
 #endif

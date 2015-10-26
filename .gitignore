@@ -13,3 +13,5 @@ unicos.sublime-workspace
 Userland/syscalls/lib/libsyscalls.a
 
 *.a
+
+last_run.log

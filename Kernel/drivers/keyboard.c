@@ -1,31 +1,23 @@
 //TODO: fix caps-shift for SO
 
 #include <stdint.h>
-#include <video.h>
-#include <keyboard.h>
-#include <mem.h>
-#include <types.h>
+#include "video.h"
+#include "keyboard.h"
+#include "mem.h"
+#include "types.h"
+#include "msgqueue.h"
+#include "input.h"
+#include "kernel.h"
 
 #define FIRST_BIT_ON(c) (0x80 | c)
 
-extern bool screensaver_is_active;
+typedef struct {
+	char scancode;
+	char ascii;
+	char caps;
+} scancode_t;
 
-char keyboard_kbuffer[KEYBOARD_BUFFER_SIZE] = {0};
-
-int keyboard_wpos = 0;
-int keyboard_written = 0;
-
-static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
-
-static bool read_eof = FALSE;
-static kstatus keyboard_status = {FALSE,//caps
-                                  FALSE,//ctrl
-                                  FALSE//alt
-                                 };
-
-static bool screensaver_enter_flag = FALSE;
-
-scancode keyboard_scancodes[][256] = {
+scancode_t keyboard_scancodes[][256] = {
 	{	//USA
 		{0x00 , NOCHAR, NOCHAR}, //empty,
 		{0x01 , NOCHAR, NOCHAR}, //esc
@@ -55,7 +47,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x19, 'p', 'P'},
 		{0x1a, '[', '{'},
 		{0x1b, ']', '}'},
-		{0x1c, NOCHAR, NOCHAR},//enter
+		{0x1c, '\n', '\n'},//enter
 		{0x1d, NOCHAR, NOCHAR},//left ctrl
 		{0x1e, 'a', 'A'},
 		{0x1f, 's', 'S'},
@@ -143,7 +135,7 @@ scancode keyboard_scancodes[][256] = {
 		{0x19, 'p', 'P'},
 		{0x1a, NOCHAR, NOCHAR},
 		{0x1b, '+', '*'},
-		{0x1c, NOCHAR, NOCHAR},//enter
+		{0x1c, '\n', '\n'},//enter
 		{0x1d, NOCHAR, NOCHAR},//left ctrl
 		{0x1e, 'a', 'A'},
 		{0x1f, 's', 'S'},
@@ -208,31 +200,32 @@ scancode keyboard_scancodes[][256] = {
 	}
 };
 
+extern bool screensaver_is_active;
+
+static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
+
+static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE};
+
+static bool screensaver_enter_flag = FALSE;
+
+static msgqueue_t* kbdqueue;
+
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 static int dka_catched_len = 0;
 
-static bool keyboard_buffer_write(char c) {
 
-	int pos = (keyboard_wpos + keyboard_written) % KEYBOARD_BUFFER_SIZE;
-
-	if (pos == keyboard_wpos && keyboard_written != 0) {
-		//buffer lleno
-		return FALSE;
-	}
-
-	keyboard_kbuffer[pos] = c;
-	keyboard_written++;
-
-	return TRUE;
+static void keyboard_caps_handler(uint64_t s) {
+	keyboard_status.caps = !keyboard_status.caps;
 }
 
-static void keyboard_buffer_delete() {
+static void keyboard_backspace_handler(uint64_t s) {
 
-	if (keyboard_written == 0) {
+	if (input_size() == 0) {
+		kdebug("Cola vacia. No se desencola nada.\n");
 		return;
 	}
 
-	screen_t *screen = get_screen(task_get_current()->console);
+	screen_t *screen = get_screen(video_current_console());
 
 	if (screen->column == 0) {
 		screen->column = SCREEN_WIDTH - 1;
@@ -241,125 +234,200 @@ static void keyboard_buffer_delete() {
 		screen->column--;
 	}
 
-	keyboard_written--;
+	input_undo();
 
-	video_write_char_at(KERNEL_CONSOLE, ' ', screen->row, screen->column);
+	video_write_char_at(video_current_console(), ' ', screen->row, screen->column);
 
 	video_update_cursor();
 }
 
-void keyboard_replace_last_written(char* s) {
+static inline bool keyboard_is_scode_in_range(uint64_t range, uint64_t scode) {
 
-	keyboard_written = 0;
+	uint32_t low, high;
 
-	while (*s != 0) {
-		keyboard_buffer_write(*s);
-		s++;
-	}
+	// kdebug("Full rango: 0x");
+	// kdebug_base(range, 16);
+	// _kdebug("\t");
+
+	low = (uint32_t) range;
+	high = (uint32_t) (range >> 32);
+
+	// kdebug("Analizando rango: 0x");
+	// kdebug_base(low, 16);
+	// _kdebug(" <= ");
+	// kdebug_base(scode, 16);
+	// _kdebug(" <= 0x");
+	// kdebug_base(high, 16);
+
+	// if (low <= scode && scode <= high) {
+	// 	_kdebug("\t TRUE");
+	// } else {
+	// 	_kdebug("\t FALSE");
+	// }
+
+	// kdebug_nl();
+
+	return (low <= scode && scode <= high);
 }
 
-
-int keyboard_wait_for_buffer(int len) {
-
-	keyboard_written = 0;
-	read_eof = FALSE;
-
-	while (keyboard_written < len && !read_eof) ;
-
-	return keyboard_written;
-}
-
-char keyboard_get_char_from_buffer() {
-
-	char ret = keyboard_kbuffer[keyboard_wpos];
-
-	keyboard_wpos++;
-
-	keyboard_wpos = keyboard_wpos % KEYBOARD_BUFFER_SIZE;
-
-	return ret;
-}
-
-static void keyboard_write_char(char c) {
-
-	if (keyboard_buffer_write(c)) {
-		video_write_char(KERNEL_CONSOLE, c);
-	}
-}
-
-void keyboard_irq_handler(uint64_t s) {
-
-	if (!screensaver_enter_flag && screensaver_reset_timer()) {
-		screensaver_enter_flag = FALSE;
-		return;
-	}
+static bool keyboard_run_handlers(uint64_t scode) {
 
 	if (dka_catched_len > 0) {
 
 		bool catched = FALSE;
 
 		for (int i = 0; i < dka_catched_len; i++) {
-			if (dka_catched_scancodes[i]->wildcard || dka_catched_scancodes[i]->scancode == s) {
 
-				dka_catched_scancodes[i]->handler(s);
+			if (dka_catched_scancodes[i] == NULL) {
+				continue;
+			}
+
+			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
+			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
+			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
+			bool is_console_equal = (video_current_console() == dka_catched_scancodes[i]->console);
+
+			if (!is_wildcard) {
+				if (is_range) {
+					if (!keyboard_is_scode_in_range(dka_catched_scancodes[i]->scancode, scode)) {
+						continue;
+					}
+				} else {
+					if (dka_catched_scancodes[i]->scancode != scode) {
+						continue;
+					}
+				}
+			}
+
+			if (!is_all_consoles && !is_console_equal) {
+				continue;
+			}
+
+			kdebug("Ejecutando handler en consola: ");
+			kdebug_base(video_current_console(), 10);
+			kdebug_nl();
+
+			dka_catched_scancodes[i]->handler(scode);
+
+			if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
+				continue;
+			} else {
 				catched = TRUE;
 			}
 		}
 
 		if (catched) {
-			return;
+			return TRUE;
 		}
 	}
 
-	scancode t = keyboard_scancodes[keyboard_distribution][s];
-
-	if (t.ascii == NOCHAR) {
-
-		switch (s) {
-		case 0x3a://caps
-			keyboard_status.caps = !keyboard_status.caps;
-			break;
-
-		case FIRST_BIT_ON(0x1c):
-			if (screensaver_enter_flag) {
-				screensaver_enter_flag = FALSE;
-				return;
-			}
-			break;
-
-		case 0x1c: //enter
-			read_eof = TRUE;
-			screensaver_enter_flag = TRUE;
-			break;
-
-		case 0x0E://backspace
-			keyboard_buffer_delete();
-			break;
-
-		case 0x2a:
-		case 0x36://shift
-			keyboard_status.caps = !keyboard_status.caps;
-			break;
-
-		case FIRST_BIT_ON(0x2a):
-		case FIRST_BIT_ON(0x36)://shift
-			keyboard_status.caps = !keyboard_status.caps;
-			break;
-		}
-
-	} else {
-
-		if (keyboard_status.caps) {
-			keyboard_write_char(t.caps);
-		} else {
-			keyboard_write_char(t.ascii);
-		}
-
-		video_update_cursor();
-	}
+	return FALSE;
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console, pid_t pid) {
+static volatile bool running = FALSE;
+
+static void keyboard_dispatch() {
+
+	uint64_t *scancode;
+	uint64_t res = 0;
+	int reps;
+	char c;
+
+	if (running) {
+		return;
+	}
+
+	running = TRUE;
+
+	if (msgqueue_size(kbdqueue) == 0) {
+		running = FALSE;
+		return;
+	}
+
+	scancode = msgqueue_deq(kbdqueue);
+
+	switch (*scancode) {
+	case 0xE0:
+		reps = 1;
+		break;
+
+	case 0xE1:
+		reps = 2;
+		break;
+
+	default:
+		reps = 0;
+		break;
+	}
+
+	res = *scancode;
+	free(scancode);
+
+	for (int i = 0; i < reps; i++) {
+		scancode = msgqueue_deq(kbdqueue);
+
+		kdebug("Leido scancode: 0x");
+		kdebug_base(*scancode, 16);
+		kdebug_nl();
+
+		res = (res << 8 ) | (*scancode);
+		free(scancode);
+	}
+
+	if (keyboard_run_handlers(res)) {
+		kdebug("Scancode atrapado por un handler\n");
+		running = FALSE;
+		return;
+	}
+
+	scancode_t t = keyboard_scancodes[keyboard_distribution][res];
+
+	if (t.ascii == NOCHAR) {
+		//kdebug("Recibido caracter NOCHAR\n");
+		running = FALSE;
+		return;
+	}
+
+	if (keyboard_status.caps) {
+		c = t.caps;
+	} else {
+		c = t.ascii;
+	}
+
+	input_add(c);
+
+	video_write_char(video_current_console(), c);
+	video_update_cursor();
+
+	running = FALSE;
+}
+
+void keyboard_init() {
+	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
+
+	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+
+	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+}
+
+void keyboard_irq_handler(uint64_t s) {
+
+	if (screensaver_reset_timer()) {
+		return;
+	}
+
+	//kdebug("IRQ del teclado\n");
+
+	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
+
+	keyboard_dispatch();
+}
+
+int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags) {
 
 	int index;
 
@@ -369,7 +437,7 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console,
 	tmp->handler = handler;
 	tmp->pid = pid;
 	tmp->console = console;
-	tmp->wildcard = (scancode == 0);
+	tmp->flags = flags;
 
 	index = dka_catched_len;
 	dka_catched_scancodes[index] = tmp;
@@ -378,9 +446,9 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, unsigned int console,
 	return index;
 }
 
-void keyboard_clear_handler(int index){
+void keyboard_clear_handler(int index) {
 	free(dka_catched_scancodes[index]);
-	dka_catched_scancodes[index]=NULL;
+	dka_catched_scancodes[index] = NULL;
 }
 
 void keyboard_set_distribution(keyboard_distrib d) {

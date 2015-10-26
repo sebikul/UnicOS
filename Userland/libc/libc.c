@@ -6,15 +6,11 @@
 #include "string.h"
 
 void* malloc(int len) {
-
 	return sys_malloc(len);
-
 }
 
 void* calloc(int len) {
-
 	return sys_calloc(len);
-
 }
 
 void free(void* m) {
@@ -98,7 +94,6 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 								str[j] = chartowrite;
 								j++;
 							}
-
 						}
 
 						//k: posicion en el argumento
@@ -108,10 +103,8 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 							j++;
 							k++;
 						}
-
 						i++;
 						break;
-
 					}
 
 					case 'c': {
@@ -122,7 +115,6 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						j++;
 						i++;
 						break;
-
 					}
 
 					case 'x': {
@@ -132,15 +124,15 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						int arg = va_arg(ap, int);
 						uint32_t digits = uintToBase(arg, buffer, 16);
 
-						for (int i = 0; i < digits; i++) {
+						for (uint32_t i = 0; i < digits; i++) {
 							str[j] = buffer[i];
 							j++;
 						}
 
 						i++;
 						break;
-
 					}
+
 					case '0': {
 						if (!flag_zero) {
 							flag_zero = TRUE;
@@ -165,11 +157,9 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						flag = TRUE;
 						break;
 					}
-
 					}
 
 				} while (flag);
-
 			}
 
 		} else if (fmt[i] != 0) {
@@ -180,13 +170,11 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 			str[j] = fmt[i];
 			break;
 		}
-
 	}
 
 	sys_write(fd, str, j);
 
 	free(str);
-
 }
 
 void fprintf(FD fd, char* fmt, ...) {
@@ -197,7 +185,6 @@ void fprintf(FD fd, char* fmt, ...) {
 	vfprintf(fd, fmt, ap);
 
 	va_end(ap);
-
 }
 
 void printf(char* fmt, ...) {
@@ -208,11 +195,9 @@ void printf(char* fmt, ...) {
 	vfprintf(FD_STDOUT, fmt, ap);
 
 	va_end(ap);
-
 }
 
 void putchar(char c) {
-
 	sys_write(FD_STDOUT, &c, 1);
 }
 
@@ -230,10 +215,7 @@ int getchar() {
 }
 
 int scanf(char* c, int len) {
-
-	char read = sys_read(FD_STDOUT, c, len);
-
-	return read;
+	return (int)sys_read(FD_STDOUT, c, len);
 }
 
 char* strcat(char* str1, char* str2) {
@@ -247,12 +229,15 @@ char* strcat(char* str1, char* str2) {
 
 time_t* time() {
 
+//FIXME
+	//	time_t t = {0};
+
+	//sys_rtc_get(&t);
 	time_t* t = (time_t*)calloc(sizeof(time_t));
 
 	sys_rtc_get(t);
 
 	return t;
-
 }
 
 void set_time(time_t * t) {
@@ -267,7 +252,6 @@ void set_color(vga_color fg, vga_color bg) {
 	color_t t = BUILD_COLOR(fg, bg);
 
 	sys_set_color(t);
-
 }
 
 char* itoc(int number) {
@@ -299,7 +283,6 @@ char* itoc(int number) {
 	}
 
 	return c;
-
 }
 
 bool string_numeric(char* str) {

@@ -38,19 +38,21 @@ static void initialize_command_list();
 static void initialize_names();
 static void calloc_cmd(int i, char* str);
 
-int main() {
+uint64_t main(int argc, char** argv) {
 
 	static char buffer[CMD_BUFFER_SIZE] = {0};
 
 	memset(&bss, 0, &endOfBinary - &bss);
 
+	ksysdebug("Initializing shell\n");
+
 	initialize_command_list();
 	initialize_names();
 
-	sys_keyboard_catch(0x48, keyboard_uparrow_handler);
-	sys_keyboard_catch(0x50, keyboard_downarrow_handler);
+	sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
+	sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
 
-	while (1) {
+	while (TRUE) {
 
 		printf("\n%s@%s $ ", user_name, host_name);
 
@@ -58,10 +60,9 @@ int main() {
 			continue;
 		}
 
-		putchar('\n');
+		ksysdebugs(buffer);
 
 		command_dispatcher(buffer);
-
 	}
 
 	//Test if BSS is properly set up
@@ -95,7 +96,6 @@ void command_dispatcher(char* command) {
 		//alocamos espacio para el argumento que estamos parseando
 		argv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
 
-
 		//copiamos el puntero a la cadena por comodidad, para poder modificarlo
 		char* pos = argv[argc];
 
@@ -127,7 +127,6 @@ void command_dispatcher(char* command) {
 		}
 
 		argc++;
-
 	}
 
 	int cmd = 0;
@@ -192,10 +191,11 @@ void command_dispatcher(char* command) {
 
 		fprintf(FD_STDERR, "Comando no encontrado.");
 	}
-
 }
 
 void keyboard_uparrow_handler(uint64_t s) {
+
+	ksysdebug("Flecha arriba\n");
 
 	if (current_history == 0) {
 		return;
@@ -208,10 +208,11 @@ void keyboard_uparrow_handler(uint64_t s) {
 	printf("%s@%s $ %s", user_name, host_name, shell_history[current_history]);
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
-
 }
 
 void keyboard_downarrow_handler(uint64_t s) {
+
+	ksysdebug("Flecha abajo\n");
 
 	if (current_history == max_history - 1 || max_history == 0) {
 
@@ -233,7 +234,6 @@ void keyboard_downarrow_handler(uint64_t s) {
 	printf("%s@%s $ %s", user_name, host_name, shell_history[current_history]);
 
 	sys_keyboard_replace_buffer(shell_history[current_history]);
-
 }
 
 static void initialize_command_list() {
@@ -250,14 +250,12 @@ static void initialize_command_list() {
 	calloc_cmd(9, "host");
 	calloc_cmd(10, "screensaver");
 	calloc_cmd(11, "rawkbd");
-
 }
 
 static void calloc_cmd(int i, char* str) {
 	int len = strlen(str);
 	cmd_list[i] = calloc(len * sizeof(char));
 	strcpy(cmd_list[i], str);
-
 }
 
 static void initialize_names() {

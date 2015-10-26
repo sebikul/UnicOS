@@ -1,63 +1,84 @@
-global loader
-extern main
-extern initializeKernelBinary
+global		loader
+global		intson
+global		intsoff
+global 		gdt_flush
+global 		halt
+global 		reschedule
 
 extern 		main
 extern 		initializeKernelBinary
 
-extern		video_write_line
-extern 		video_write_nl
 extern 		keyboard_irq_handler
 extern 		irq0_handler
+extern 		irq80_handler
 
-;SYSCALLS
-extern 		sys_write
-extern 		sys_read
-extern 		sys_rtc_get
-extern 		sys_rtc_set
-extern 		sys_malloc
-extern 		sys_calloc
-extern 		sys_free
-extern 		sys_keyboard_catch
-extern 		sys_clear_indexed_line
-extern 		sys_keyboard_replace_buffer
-extern 		sys_get_color
-extern 		sys_set_color
-extern 		sys_kbd_set_distribution
-extern 		sys_set_screensaver_timer
-extern		sys_clear_screen
-extern 		sys_screensaver_trigger
-extern 		sys_keyboard_clear_handler
+extern 		stack_init
+
+extern 		scheduler_u2k
+extern 		scheduler_k2u
+
+%macro pusha 0
+		push		rax
+		push		rbx
+		push		rcx
+		push		rdx
+		push		rbp
+		push		rdi
+		push		rsi
+		push		r8
+		push		r9
+		push		r10
+		push		r11
+		push		r12
+		push		r13
+		push		r14
+		push		r15
+		push		fs
+		push		gs
+%endmacro
+
+%macro popa 0
+		pop			gs
+		pop			fs
+		pop			r15
+		pop			r14
+		pop			r13
+		pop			r12
+		pop			r11
+		pop			r10
+		pop			r9
+		pop			r8
+		pop			rsi
+		pop			rdi
+		pop			rbp
+		pop			rdx
+		pop			rcx
+		pop			rbx
+		pop			rax
+%endmacro
 
 loader:
+		cli
+
 		call 		initializeKernelBinary		; Set up the kernel binary, and get thet stack address
 
-		mov			rsp, 	rax					; Set up the stack with the returned address
+		call 		stack_init
+		mov 		rsp, rax
 		push 		rax
-
-		;mov 		rdi, msg_init 				;Inicializando IDT
-		;call 		video_write_line
-		;call 		video_write_nl
 
 		call 		set_interrupt_handlers
 		call 		init_pic
 		call		main
+		sti
 
-
-hang:
-		cli
-		hlt										; halt machine should kernel return
-		jmp 		hang
-
+halt:
+		hlt
+		jmp halt								; Halt hasta la primera interrupcion
 
 IDTR64:											; Interrupt Descriptor Table Register
 		dw 			256*16-1					; limit of IDT (size minus one) (4096 bytes - 1)
 		dq 			0x0000000000000000			; linear address of IDT
 
-
-msg_init:			db "Inicializando IDT", 0
-msg_test:			db "Mensaje IDT de prueba", 0
-msg_test_len		equ $-msg_test
 
 ; create_gate
 ; rax = address of handler
@@ -97,175 +118,69 @@ set_interrupt_handlers:
 
 align 16
 soft_interrupt:									; Interrupciones de software, int 80h
-		push 		rdi
-		;push 		rax
+		pusha
+		cli
 
-		cmp 		rdi,	1
-		jz			int_sys_rtc
+		call 		irq80_handler
+	
+		mov 		QWORD[ret_addr], rax
 
-		cmp 		rdi,	2
-		jz			int_sys_rtc_set
-
-		cmp			rdi, 	3
-		jz 			int_sys_read
-
-		cmp			rdi, 	4
-		jz			int_sys_write
-
-		cmp 		rdi,	5
-		jz 			int_malloc
-
-		cmp 		rdi,	6
-		jz 			int_calloc
-
-		cmp 		rdi,	7
-		jz 			int_free
-
-		cmp 		rdi, 	8
-		jz 			int_keyboard_catch
-
-		cmp 		rdi, 	9
-		jz 			int_video_clr_indexed_line
-
-		cmp 		rdi, 	10
-		jz 			int_keyboard_replace_buffer
-
-		cmp			rdi,	11
-		jz			int_sys_get_color
-
-		cmp 		rdi,	12
-		jz			int_sys_set_color
-
-		cmp 		rdi,	14
-		jz			int_sys_kbd_set_distribution
-
-		cmp 		rdi, 	15
-		jz 			int_sys_set_screensaver_timer
-
-		cmp 		rdi, 	16
-		jz 			int_sys_screensaver_trigger
-
-		cmp			rdi,	17
-		jz			int_sys_clear_screen
-
-		cmp			rdi,	18
-		jz			hang
-
-		cmp			rdi,	19
-		jz			int_keyboard_clear_handler
-
-		jmp 		soft_interrupt_done 		; La syscall no existe
-
-int_sys_rtc:
-		call 		prepare_params
-		call 		sys_rtc_get
-		jmp			soft_interrupt_done
-
-int_sys_rtc_set:
-		call 		prepare_params
-		call 		sys_rtc_set
-		jmp 		soft_interrupt_done
-
-int_sys_write:
-		call 		prepare_params
-		call 		sys_write
-		jmp 		soft_interrupt_done
-int_sys_read:
-		call 		prepare_params
-		call 		sys_read
-		jmp 		soft_interrupt_done
-
-int_malloc:
-		call 		prepare_params
-		call 		sys_malloc
-		jmp 		soft_interrupt_done
-int_calloc:
-		call 		prepare_params
-		call 		sys_calloc
-		jmp 		soft_interrupt_done
-int_free:
-		call 		prepare_params
-		call 		sys_free
-		jmp 		soft_interrupt_done
-
-int_keyboard_catch:
-		call 		prepare_params
-		call 		sys_keyboard_catch
-		jmp 		soft_interrupt_done
-
-int_video_clr_indexed_line:
-		call 		prepare_params
-		call 		sys_clear_indexed_line
-		jmp 		soft_interrupt_done
-
-int_keyboard_replace_buffer:
-		call 		prepare_params
-		call 		sys_keyboard_replace_buffer
-		jmp 		soft_interrupt_done
-
-int_sys_get_color:
-		call 		prepare_params
-		call		sys_get_color
-		jmp			soft_interrupt_done
-
-int_sys_set_color:
-		call 		prepare_params
-		call		sys_set_color
-		jmp 		soft_interrupt_done
-
-int_sys_kbd_set_distribution:
-		call 		prepare_params
-		call		sys_kbd_set_distribution
-		jmp 		soft_interrupt_done
-
-int_sys_set_screensaver_timer:
-		call 		prepare_params
-		call		sys_set_screensaver_timer
-		jmp 		soft_interrupt_done
-
-int_sys_clear_screen:
-		call 		prepare_params
-		call 		sys_clear_screen
-		jmp			soft_interrupt_done
-
-int_sys_screensaver_trigger:
-		call 		prepare_params
-		call		sys_screensaver_trigger
-		jmp 		soft_interrupt_done
-
-int_keyboard_clear_handler:
-		call 		prepare_params
-		call 		sys_keyboard_clear_handler
-		jmp 		soft_interrupt_done
-
-soft_interrupt_done:
-		push 		rax
-		mov 		al, 	0x20				; Acknowledge the IRQ
-		out 		0x20, 	al
-
-		pop 		rax
-		pop 		rdi
+		sti
+		popa
+		mov 		rax, QWORD[ret_addr]
 		iretq
 
-prepare_params:
-		mov 		rdi,	rsi
-		mov 		rsi,	rdx
-		mov 		rdx,	rcx
-		mov			rcx,	r8
-
-		ret
-
+align 16
 pit_handler:
-		push 		rdi
-		push 		rax
+		pusha
+		cli
+
+		mov 		rdi,	 rsp
+		call 		scheduler_u2k
+		mov 		rsp, 	rax
 
 		call 		irq0_handler
+
+		call  		scheduler_k2u
+		mov			rsp,	 rax
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
-		pop 		rax
-		pop 		rdi
+		sti
+		popa
+		iretq
+
+reschedule:
+		;Simulamos una interrpucion
+		pop 		QWORD[ret_addr] 			;Direccion de retorno
+
+		mov 		QWORD[ss_addr], 	ss 		;Stack Segment
+		push 		QWORD[ss_addr]
+
+		push  		rsp	
+		pushf 									;Se pushean los flags
+		mov 		QWORD[cs_addr], 	cs 		;Code Segment
+		push 		QWORD[cs_addr]
+		push 		QWORD[ret_addr] 			;Direccion de retorno
+
+		;En este momento el stack contiene:
+		;
+		; > red_addr
+		;	cs
+		;	rflags
+		;	rsp
+
+		pusha
+
+		mov 		rdi,	 rsp
+		call 		scheduler_u2k
+		mov 		rsp, 	rax
+
+		call  		scheduler_k2u
+		mov			rsp,	 rax
+
+		popa
 		iretq
 
 align 16
@@ -294,12 +209,30 @@ keyboard_done:
 		pop 		rdi
 		iretq
 
-init_pic:
-	; Enable specific interrupts
-	in al, 0x21
-	mov al, 11111000b		; Enable Cascade, Keyboard
-	out 0x21, al
+init_pic:										; Enable specific interrupts
+		in 			al, 	0x21
+		mov 		al, 	11111000b			; Enable Cascade, Keyboard
+		out 		0x21,	 al
 
-	sti				; Enable interrupts
+		ret
 
-	ret
+intson:
+		sti
+		ret
+
+intsoff:
+		cli
+		ret
+
+gdt_flush:
+		lgdt [rdi]
+		ret
+
+section .bss
+
+ret_addr:
+		resq 1
+cs_addr:
+		resq 1
+ss_addr:
+		resq 1
