@@ -153,12 +153,12 @@ void command_dispatcher(char* command) {
 		// ksysdebugs(argv[0]);
 
 		if (strcmp(cmdlist->commands[cmd]->name, argv[0]) == 0) {
-			pid_t mypid = sys_task_get_pid();
+			pid_t shellpid = sys_task_get_pid();
 
-			pid_t taskpid = sys_create_task(cmdlist->commands[cmd]->func, cmdlist->commands[cmd]->name, argc, argv);
+			pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, cmdlist->commands[cmd]->name, argc, argv);
 
 			sys_task_ready(taskpid);
-			sys_task_join(taskpid, mypid);
+			sys_task_join(taskpid, shellpid);
 			return;
 		}
 	}

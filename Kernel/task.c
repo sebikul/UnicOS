@@ -128,6 +128,7 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 
 	if (task->join != NULL) {
 		task_ready(task->join);
+		task->join = NULL;
 	}
 
 	free(task->name);
@@ -193,8 +194,8 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	_kdebug(name);
 	_kdebug("' pid=");
 	kdebug_base(task->pid, 10);
-	_kdebug(" at 0x");
-	kdebug_base((uint64_t) task, 16);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
 	kdebug_nl();
 
 	//DUMP_LIST_FROM_CURRENT()
@@ -226,6 +227,7 @@ void task_join(task_t *task, task_t *other) {
 
 	task->join = other;
 	other->state = TASK_JOINING;
+	reschedule();
 }
 
 void task_setconsole(task_t *task, console_t console) {
