@@ -61,6 +61,8 @@ void task_join(task_t *task, task_t *other);
 void task_setconsole(task_t *task, console_t console);
 task_t* task_get_current();
 
+task_t* task_get_for_console(console_t console);
+
 void task_next();
 
 void task_set_foreground(task_t *task, console_t console);

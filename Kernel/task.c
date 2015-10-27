@@ -9,6 +9,8 @@ static task_t *current = NULL;
 static task_t *null_task = NULL;
 static task_t *foreground[VIRTUAL_CONSOLES] = {NULL};
 
+static task_t *consoles[VIRTUAL_CONSOLES] = {NULL};
+
 static pid_t nextpid = 1;
 
 static void* const shellCodeModuleAddress = (void*)0x400000;
@@ -102,6 +104,7 @@ void task_init() {
 		task_setconsole(task, i);
 		task_set_foreground(task, i);
 		task_ready(task);
+		consoles[i] = task;
 	}
 
 	null_task = task_create(null_task_func, "null_task", 0, NULL);
@@ -257,6 +260,8 @@ void task_next() {
 	kdebug_nl();
 }
 
+task_t* task_get_for_console(console_t console) {
+	return consoles[console];
 }
 
 void task_set_foreground(task_t *task, console_t console) {

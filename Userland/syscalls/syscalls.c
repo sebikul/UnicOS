@@ -97,6 +97,10 @@ void sys_task_join(pid_t pid, pid_t otherpid) {
 	syscall((uint64_t) SYSCALL_TASK_JOIN, pid, otherpid);
 }
 
-pid_t sys_task_get_pid(){
+pid_t sys_task_get_pid() {
 	return (pid_t)syscall((uint64_t)SYSCALL_TASK_GET_PID);
+}
+
+void sys_task_yield() {
+	syscall((uint64_t)SYSCALL_TASK_YIELD);
 }

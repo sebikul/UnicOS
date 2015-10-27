@@ -109,6 +109,11 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	case SYSCALL_TASK_GET_PID:
 		return sys_task_get_pid();
+		break;
+
+	case SYSCALL_TASK_YIELD:
+		sys_task_yield();
+		break;
 	}
 
 	return 0;
@@ -269,4 +274,8 @@ void sys_task_join(pid_t pid, pid_t otherpid) {
 
 pid_t sys_task_get_pid() {
 	return task_get_current()->pid;
+}
+
+void sys_task_yield() {
+	reschedule();
 }
