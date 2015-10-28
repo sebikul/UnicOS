@@ -104,3 +104,7 @@ pid_t sys_task_get_pid() {
 void sys_task_yield() {
 	syscall((uint64_t)SYSCALL_TASK_YIELD);
 }
+
+task_t* sys_task_getall(){
+	return syscall((uint64_t)SYSCALL_TASK_GETALL);
+}

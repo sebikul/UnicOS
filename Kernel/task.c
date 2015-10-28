@@ -80,6 +80,7 @@ static inline void task_add(task_t *task) {
 	} else {
 		task->next = last->next;
 		last->next = task;
+		last = task;
 	}
 
 	//first = task;
@@ -94,6 +95,17 @@ static uint64_t null_task_func(int argc, char** argv) {
 	}
 
 	return 0;
+}
+
+static void task_dump_list(task_t *task) {
+
+	kdebug("task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
+	kdebug_nl();
 }
 
 void task_init() {
@@ -111,6 +123,8 @@ void task_init() {
 
 	task_setconsole(null_task, 0);
 	task_ready(null_task);
+
+	task_foreach(task_dump_list);
 
 	//Seteamos la tarea nula como la actual
 	//current = task;
@@ -274,6 +288,20 @@ task_t* task_get_foreground(console_t console) {
 
 task_t* task_get_current() {
 	return current;
+}
+
+void task_foreach(void (*func)(task_t*)) {
+
+	task_t *task = last->next;
+
+	do {
+		func(task);
+		task = task->next;
+	} while (task != last->next);
+}
+
+task_t* task_get_first() {
+	return last->next;
 }
 
 task_t* task_find_by_pid(pid_t pid) {

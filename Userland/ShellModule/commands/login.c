@@ -15,7 +15,7 @@ COMMAND_START(user_name) {
 		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un unico nombre de usuario.\n");
 	} else {
 		if (strlen(argv[1]) > USER_SIZE) {
-			printf("El nombre de usuario es demasiado largo, el tamaño maximo es: %i", USER_SIZE);
+			printf("El nombre de usuario es demasiado largo, el tamaño maximo es: %d", USER_SIZE);
 		} else {
 			strcpy(user_name, argv[1]);
 		}
@@ -30,7 +30,7 @@ COMMAND_START(host_name) {
 		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un unico nombre de host.\n");
 	} else {
 		if (strlen(argv[1]) > HOST_SIZE) {
-			printf("El nombre del host es demasiado largo, el tamaño maximo es: %i", HOST_SIZE);
+			printf("El nombre del host es demasiado largo, el tamaño maximo es: %d", HOST_SIZE);
 		} else {
 			strcpy(host_name, argv[1]);
 		}

@@ -22,6 +22,8 @@ static char* shell_history[MAX_HISTORY_SIZE] = {0};
 static int current_history = 0;
 static int max_history = 0;
 
+static int arrows_handlers[2] = {0};
+
 command_list_t* cmdlist;
 
 char* user_name;
@@ -61,13 +63,16 @@ uint64_t main(int argc, char** argv) {
 	COMMAND_INIT(exit);
 	COMMAND_INIT(clear);
 	COMMAND_INIT(rawkbd);
+	COMMAND_INIT(ps);
 
 	initialize_names();
 
 	print_commands_struct();
 
-	sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
-	sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
+	arrows_handlers[0] = sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
+	arrows_handlers[1] = sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
+
+	printf("Registrando handlers: up=%d down=%d\n", arrows_handlers[0], arrows_handlers[1]);
 
 	while (TRUE) {
 
@@ -215,7 +220,7 @@ static void print_commands_struct() {
 	for (int i = 0; i < cmdlist->count; i++) {
 		printf("\t%s\n", cmdlist->commands[i]->name);
 	}
-	printf("]");
+	printf("]\n");
 }
 
 static void initialize_names() {

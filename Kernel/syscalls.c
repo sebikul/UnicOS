@@ -114,7 +114,15 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 	case SYSCALL_TASK_YIELD:
 		sys_task_yield();
 		break;
+
+	case SYSCALL_TASK_GETALL:
+	return sys_task_getall();
+	break;
 	}
+
+	kdebug("ERROR: INVALID SYSCALL: ");
+	kdebug_base(rdi, 10);
+	kdebug_nl();
 
 	return 0;
 }
@@ -278,4 +286,39 @@ pid_t sys_task_get_pid() {
 
 void sys_task_yield() {
 	reschedule();
+}
+
+// static void copy_to_info(taskinfo_t *dst, task_t *src) {
+// 	dst->next = src->next;
+// 	if (src->join != NULL) {
+// 		dst->join = malloc(sizeof(taskinfo_t));
+// 		copy_to_info(dst->join, src->join);
+// 	}
+// 	dst->name = src->name;
+// 	dst->pid = src->pid;
+// 	dst->state = src->state;
+// }
+
+task_t* sys_task_getall() {
+
+	// taskinfo_t *first_info, *current_info;
+	// task_t *first_task, *current_task;
+
+	// first_task = ;
+	// first_info = malloc(sizeof(taskinfo_t));
+
+	// copy_to_info(first_info, first_task);
+
+	// current_info = first_info;
+	// current_task = first_task;
+
+	// do {
+	// 	current_info = malloc(sizeof(taskinfo_t));
+	// 	copy_to_info(current_info, current_task);
+
+	// 	current_task = current_task->next;
+	// 	current_info = current_info->next;
+
+	// } while (current_task != first_task);
+	return task_get_first();
 }

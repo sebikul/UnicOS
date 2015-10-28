@@ -7,8 +7,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_STOPPED} task_state_t;
-
 typedef struct {
 	uint64_t gs;
 	uint64_t fs;
@@ -38,17 +36,17 @@ typedef struct {
 	uint64_t base;
 } __attribute__((packed)) context_t;
 
-typedef struct task_t {
-	struct task_t *next;
-	struct task_t *join;
+// typedef struct task_t {
+// 	struct task_t *next;
+// 	struct task_t *join;
 
-	void *stack;
+// 	void *stack;
 
-	char *name;
-	pid_t pid;
-	task_state_t state;
-	uint8_t console;
-} task_t;
+// 	char *name;
+// 	pid_t pid;
+// 	task_state_t state;
+// 	uint8_t console;
+// } task_t;
 
 void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);
@@ -64,6 +62,7 @@ task_t* task_get_current();
 task_t* task_get_for_console(console_t console);
 
 void task_next();
+task_t* task_get_first();
 
 void task_set_foreground(task_t *task, console_t console);
 task_t* task_get_foreground(console_t console);
