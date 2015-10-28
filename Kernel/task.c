@@ -237,8 +237,9 @@ void task_pause(task_t *task) {
 	reschedule();
 }
 
-void task_sleep(task_t *task) {
+void task_sleep(task_t *task, uint64_t ms) {
 	task->state = TASK_SLEEPING;
+	task->sleep_limit = get_ms_since_boot() + ms;
 	reschedule();
 }
 
@@ -277,9 +278,12 @@ void task_next() {
 
 	current = task;
 
-	kdebug("Next task is pid#: ");
-
-	kdebug_base(current->pid, 10);
+	kdebug("Next task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
 	kdebug_nl();
 }
 

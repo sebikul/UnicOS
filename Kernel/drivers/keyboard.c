@@ -200,13 +200,9 @@ scancode_t keyboard_scancodes[][256] = {
 	}
 };
 
-extern bool screensaver_is_active;
-
 static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
 static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE};
-
-static bool screensaver_enter_flag = FALSE;
 
 static msgqueue_t* kbdqueue;
 
@@ -415,10 +411,6 @@ void keyboard_init() {
 }
 
 void keyboard_irq_handler(uint64_t s) {
-
-	if (screensaver_reset_timer()) {
-		return;
-	}
 
 	//kdebug("IRQ del teclado\n");
 

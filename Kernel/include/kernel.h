@@ -28,4 +28,9 @@ void intsoff();
 
 uint64_t get_ms_since_boot();
 
+//Tareas del kernel
+void screensaver_init();
+void screensaver_set_wait(uint64_t s);
+void screensaver_trigger();
+
 #endif

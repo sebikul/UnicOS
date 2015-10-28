@@ -235,8 +235,7 @@ void sys_kbd_set_distribution(keyboard_distrib d) {
 }
 
 void sys_set_screensaver_timer(uint64_t t) {
-	screensaver_wait_time = t;
-	screensaver_reset_timer();
+	screensaver_set_wait(t);
 }
 
 void sys_clear_screen() {
@@ -244,8 +243,7 @@ void sys_clear_screen() {
 }
 
 void sys_screensaver_trigger() {
-
-	active_screensaver();
+	screensaver_trigger();
 }
 
 void sys_keyboard_clear_handler(uint64_t handler) {
@@ -290,7 +288,7 @@ pid_t sys_task_get_pid() {
 }
 
 void sys_task_yield() {
-	reschedule();
+	sys_sleep(0);
 }
 
 // static void copy_to_info(taskinfo_t *dst, task_t *src) {
@@ -329,10 +327,6 @@ task_t* sys_task_getall() {
 }
 
 void sys_sleep(uint64_t ms) {
-
 	task_t *task = task_get_current();
-
-	task->sleep_limit = get_ms_since_boot() + ms;
-
-	task_sleep(task);
+	task_sleep(task, ms);
 }

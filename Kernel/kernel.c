@@ -30,10 +30,6 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 #define MSPERTICK 	55
 
 uint64_t pit_timer = 0;
-//Screensaver, 20 segundos por defecto
-uint64_t screensaver_wait_time = 20;
-uint64_t screensaver_timer = 0;
-bool screensaver_is_active = FALSE;
 
 void *kernel_stack = NULL;
 
@@ -85,7 +81,7 @@ void initializeKernelBinary() {
 
 	video_write_line(KERNEL_CONSOLE, "[Done]");
 
-	screensaver_reset_timer();
+	//screensaver_reset_timer();
 
 	video_write_line(KERNEL_CONSOLE, "Kernel cargado.");
 }
@@ -115,6 +111,9 @@ void main() {
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
 
+	// TAREAS DEL KERNEL
+	screensaver_init();
+
 	// intson();
 
 	// while(TRUE){
@@ -139,38 +138,8 @@ void main() {
 	//while(TRUE);
 }
 
-//retorna si se debe ignorar lo tecleado
-bool screensaver_reset_timer() {
-
-	bool ret = FALSE;
-
-	//kdebug("Reseteando timer del screensaver\n");
-
-	if (screensaver_is_active) {
-		kdebug("Saliendo del screensaver\n");
-		ret = TRUE;
-		screensaver_is_active = FALSE;
-		video_trigger_restore();
-	}
-	screensaver_timer = 18 * screensaver_wait_time;
-
-	return ret;
-}
-
-void active_screensaver() {
-	screensaver_is_active = TRUE;
-	video_trigger_screensaver();
-	kdebug("Activando screensaver\n");
-}
-
 void irq0_handler() {
 
-	// pit_timer += MSPERTICK;
-	screensaver_timer--;
-
-	if (screensaver_timer == 0 && !screensaver_is_active) {
-		active_screensaver();
-	}
 }
 
 void _kdebug(const char* s) {
