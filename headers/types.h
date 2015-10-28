@@ -63,4 +63,20 @@ typedef enum {
 
 typedef void (*dka_handler)(uint64_t s);
 
+typedef uint64_t (*task_entry_point)(int argc, char** argv);
+typedef uint64_t pid_t;
+typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_STOPPED} task_state_t;
+
+typedef struct task_t {
+	struct task_t *next;
+	struct task_t *join;
+
+	void *stack;
+
+	char *name;
+	pid_t pid;
+	task_state_t state;
+	uint8_t console;
+} task_t;
+
 #endif

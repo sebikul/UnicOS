@@ -1,9 +1,11 @@
 #include <libc.h>
-
 #include "string.h"
 #include "syscalls.h"
+#include "commands.h"
 
 static bool _exit = 0;
+
+COMMAND_HELP(rawkbd, "[rawkbd] Imprime los scancodes presionados del teclado.");
 
 static void keyboard_handler(uint64_t s) {
 
@@ -15,7 +17,7 @@ static void keyboard_handler(uint64_t s) {
 	}
 }
 
-void command_rawkbd(int argc, char** argv) {
+COMMAND_START(rawkbd) {
 
 	int index;
 
@@ -27,4 +29,5 @@ void command_rawkbd(int argc, char** argv) {
 	while (!_exit);
 
 	sys_keyboard_clear_handler(index);
+
 }

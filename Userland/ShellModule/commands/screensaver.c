@@ -1,9 +1,13 @@
 #include <libc.h>
 #include <syscalls.h>
-
+#include "commands.h"
 #include "string.h"
 
-void command_screensaver(int argc, char** argv) {
+COMMAND_HELP(screensaver, 			"[screensaver] Activa el salva pantallas.\n"
+             "\t[screensaver set] Setea el tiempo que tarda en activarse el salva pantallas."
+             "Por defecto 20 segundos, el tiempo se ingresa en segundos.");
+
+COMMAND_START(screensaver) {
 
 	switch (argc) {
 	case 1:
@@ -23,7 +27,7 @@ void command_screensaver(int argc, char** argv) {
 				return;
 			}
 			sec = ctoi(argv[2]);
-			if(sec==0){
+			if (sec == 0) {
 				printf("Salva pantallas desactivado.\n");
 			}
 
@@ -38,6 +42,4 @@ void command_screensaver(int argc, char** argv) {
 	default:
 		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
-
-
 }

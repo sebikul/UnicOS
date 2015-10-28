@@ -68,7 +68,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						break;
 					}
 
-					case 'i': {
+					case 'd': {
 
 						int arg = va_arg(ap, int);
 

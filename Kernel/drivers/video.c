@@ -276,6 +276,8 @@ static void video_scroll(console_t console) {
 	screen->column = 0;
 	screen->row--;
 
+	//video_clear_indexed_line(console, SCREEN_HEIGHT-1);
+
 	//video_update_screen_color(console);
 }
 

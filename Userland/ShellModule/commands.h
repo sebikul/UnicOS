@@ -2,27 +2,55 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-void command_echo(int argc, char** argv);
+#include "string.h"
 
-void command_help(int argc, char** argv, char** cmd_list, int cmd_count);
+typedef struct {
+	char *name;
+	char *help;
+	task_entry_point func;
+} command_t;
 
-void command_set_distribution(int argc , char** argv) ;
+typedef struct {
+	command_t **commands;
+	uint64_t count;
+} command_list_t;
 
-void command_time(int argc, char** argv);
+#define DECLARE_COMMAND(command) void command_ ##command ##_init();\
+void command_ ##command(int argc, char** argv);
 
-void command_user_name(int argc, char** argv);
-void command_host_name(int argc, char** argv);
+#define COMMAND_HELP(command, _help) static const char* COMMAND_##command##_HELP = _help
 
-void command_backcolor(int color);
-void command_fontcolor(int color);
-void command_color(int argc, char** argv);
-void command_refresh();
+#define COMMAND_START(command) \
+void command_ ##command ##_init() {\
+	extern command_list_t *cmdlist;\
+	cmdlist->commands[cmdlist->count] = (command_t*) malloc(sizeof(command_t)); \
+	cmdlist->commands[cmdlist->count]->func =  (task_entry_point) command_ ##command;\
+	cmdlist->commands[cmdlist->count]->name = (char*) malloc(strlen(#command)+1);\
+	cmdlist->commands[cmdlist->count]->help = (char*) malloc(strlen(COMMAND_##command##_HELP)+1);\
+	strcpy(cmdlist->commands[cmdlist->count]->name, #command);\
+	strcpy(cmdlist->commands[cmdlist->count]->help, COMMAND_##command##_HELP);\
+	cmdlist->count++;\
+}\
+void command_ ##command(int argc, char** argv)
 
-void command_screensaver(int argc, char** argv);
+#define COMMAND_END() }
 
-void command_exit();
-void command_clear(int argc);
+#define COMMAND_INIT(command) command_ ##command ##_init()
 
-void command_rawkbd(int argc, char** argv);
+#define COMMAND_RUN(command, argc, argv) command_ ##command(argc, argv)
+
+DECLARE_COMMAND(echo);
+DECLARE_COMMAND(set_distribution);
+DECLARE_COMMAND(time);
+DECLARE_COMMAND(user_name);
+DECLARE_COMMAND(host_name);
+DECLARE_COMMAND(color);
+DECLARE_COMMAND(refresh);
+DECLARE_COMMAND(screensaver);
+DECLARE_COMMAND(exit);
+DECLARE_COMMAND(clear);
+DECLARE_COMMAND(rawkbd);
+DECLARE_COMMAND(help);
+DECLARE_COMMAND(ps);
 
 #endif

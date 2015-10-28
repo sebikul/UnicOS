@@ -2,13 +2,10 @@
 #include "video.h"
 #include "mem.h"
 #include "string.h"
+#include "types.h"
 
 #ifndef TASK_H
 #define TASK_H
-
-typedef uint64_t pid_t;
-
-typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING} task_state_t;
 
 typedef struct {
 	uint64_t gs;
@@ -35,21 +32,21 @@ typedef struct {
 	uint64_t rflags;
 	uint64_t rsp;
 	uint64_t ss;
+
 	uint64_t base;
 } __attribute__((packed)) context_t;
 
-typedef struct task_t {
-	struct task_t *next;
+// typedef struct task_t {
+// 	struct task_t *next;
+// 	struct task_t *join;
 
-	void *stack;
+// 	void *stack;
 
-	char *name;
-	pid_t pid;
-	task_state_t state;
-	uint8_t console;
-} task_t;
-
-typedef uint64_t (*task_entry_point)(int argc, char** argv);
+// 	char *name;
+// 	pid_t pid;
+// 	task_state_t state;
+// 	uint8_t console;
+// } task_t;
 
 void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);
@@ -57,13 +54,19 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 void task_ready(task_t *task);
 void task_pause(task_t *task);
 void task_sleep(task_t *task);
+void task_join(task_t *task, task_t *other);
 
 void task_setconsole(task_t *task, console_t console);
 task_t* task_get_current();
 
+task_t* task_get_for_console(console_t console);
+
 void task_next();
+task_t* task_get_first();
 
 void task_set_foreground(task_t *task, console_t console);
 task_t* task_get_foreground(console_t console);
+
+task_t* task_find_by_pid(pid_t pid);
 
 #endif

@@ -1,9 +1,14 @@
 #include <libc.h>
+#include "commands.h"
 
-void command_clear(int argc){
-	if(argc==1){
+COMMAND_HELP(clear, "[clear] Limpia la pantalla (no limpia el historial de comandos).\n");
+
+COMMAND_START(clear) {
+
+	if (argc == 1) {
 		clear_screen();
-	}else{
+	} else {
 		fprintf(FD_STDERR, "Comando invalido, no se esperan parametros.\n");
 	}
 }
+

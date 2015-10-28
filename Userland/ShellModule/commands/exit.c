@@ -1,6 +1,9 @@
-#include <libc.h> 
+#include <libc.h>
+#include "commands.h"
 
-void command_exit() {
+COMMAND_HELP(exit, "[exit] Finaliza la ejecucion de la terminal.");
+
+COMMAND_START(exit) {
 
 	clear_screen();
 	exit();

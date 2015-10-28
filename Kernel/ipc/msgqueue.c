@@ -115,7 +115,7 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 
 	intsoff();
 
-	while (msgqueue->first == NULL);
+	//while (msgqueue->first == NULL);
 
 	message = msgqueue->first;
 

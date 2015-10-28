@@ -2,6 +2,13 @@
 #include <types.h>
 #include "string.h"
 #include "libc.h"
+#include "commands.h"
+
+COMMAND_HELP(color, "[color] Muestra en pantalla el color actual de texto y de fondo.\n"
+             "\t[color set front] Recibe un color y lo setea como color de texto.\n"
+             "\t[color set background] Recibe un color y lo setea como color de fondo.\n"
+             "Lista de colores disponibles:\n"
+             "\tBlack, Blue, Green, Cyan, Red, Magenta, Brown, Light Grey, Dark Grey, White\n\tLight Blue, Light Green, Light Cyan, Light Red, Light Magenta, Light Brown.");
 
 static int COLOR_COUNT = 16;
 static bool initialize_flag = FALSE;
@@ -12,7 +19,7 @@ static int string_color_to_int(char* color);
 static void initialize_colors();
 static void calloc_colors(int i, char* str);
 
-void command_color(int argc , char** argv) {
+COMMAND_START(color) {
     color_t c = get_color();
     int icolor;
     if (!initialize_flag) {
@@ -104,7 +111,9 @@ static void calloc_colors(int i, char* str) {
     strcpy(colors[i], str);
 }
 
-void command_refresh() {
+COMMAND_HELP(refresh, "[refresh] Restaura los colores de texto y fondo.");
+
+COMMAND_START(refresh) {
 
     if (!initialize_flag)
     {
