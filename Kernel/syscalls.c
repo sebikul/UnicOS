@@ -116,13 +116,18 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_GETALL:
-	return sys_task_getall();
-	break;
-	}
+		return sys_task_getall();
+		break;
 
-	kdebug("ERROR: INVALID SYSCALL: ");
-	kdebug_base(rdi, 10);
-	kdebug_nl();
+	case SYSCALL_SLEEP:
+		sys_sleep(rsi);
+		break;
+
+	default:
+		kdebug("ERROR: INVALID SYSCALL: ");
+		kdebug_base(rdi, 10);
+		kdebug_nl();
+	}
 
 	return 0;
 }
@@ -166,7 +171,7 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	kdebug("Esperando entrada\n");
 
-	task_sleep(task_get_current());
+	task_pause(task_get_current());
 
 	kdebug("Entrada recibida!\n");
 
@@ -321,4 +326,13 @@ task_t* sys_task_getall() {
 
 	// } while (current_task != first_task);
 	return task_get_first();
+}
+
+void sys_sleep(uint64_t ms) {
+
+	task_t *task = task_get_current();
+
+	task->sleep_limit = get_ms_since_boot() + ms;
+
+	task_sleep(task);
 }

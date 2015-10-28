@@ -27,7 +27,9 @@ static const uint64_t PageSize = 0x1000;
 static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
-static uint64_t pit_timer = 0;
+#define MSPERTICK 	55
+
+uint64_t pit_timer = 0;
 //Screensaver, 20 segundos por defecto
 uint64_t screensaver_wait_time = 20;
 uint64_t screensaver_timer = 0;
@@ -113,6 +115,14 @@ void main() {
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
 
+	// intson();
+
+	// while(TRUE){
+	// 	video_write_string(KERNEL_CONSOLE, "PIT Timer: ");
+	// 	video_write_dec(KERNEL_CONSOLE,  pit_timer);
+	// 	video_write_nl(KERNEL_CONSOLE);
+	// }
+
 	// for (console_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
 	// 	video_write_dec(i, i);
@@ -155,7 +165,7 @@ void active_screensaver() {
 
 void irq0_handler() {
 
-	pit_timer++;
+	// pit_timer += MSPERTICK;
 	screensaver_timer--;
 
 	if (screensaver_timer == 0 && !screensaver_is_active) {
@@ -168,6 +178,10 @@ void _kdebug(const char* s) {
 		serial_send(*s);
 		s++;
 	}
+}
+
+uint64_t get_ms_since_boot(){
+	return pit_timer;
 }
 
 void kdebug_char(char c) {

@@ -108,3 +108,7 @@ void sys_task_yield() {
 task_t* sys_task_getall(){
 	return syscall((uint64_t)SYSCALL_TASK_GETALL);
 }
+
+void sys_sleep(uint64_t ms){
+	syscall((uint64_t) SYSCALL_SLEEP, ms);
+}

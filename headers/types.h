@@ -65,6 +65,7 @@ typedef void (*dka_handler)(uint64_t s);
 
 typedef uint64_t (*task_entry_point)(int argc, char** argv);
 typedef uint64_t pid_t;
+
 typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_STOPPED} task_state_t;
 
 typedef struct task_t {
@@ -75,6 +76,7 @@ typedef struct task_t {
 
 	char *name;
 	pid_t pid;
+	uint64_t sleep_limit;
 	task_state_t state;
 	uint8_t console;
 } task_t;

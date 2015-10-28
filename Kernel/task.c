@@ -82,8 +82,15 @@ static inline void task_add(task_t *task) {
 		last->next = task;
 		last = task;
 	}
+}
 
-	//first = task;
+static void update_task_state(task_t *task) {
+
+	if (task->state == TASK_SLEEPING) {
+		if (get_ms_since_boot() > task->sleep_limit) {
+			task_ready(task);
+		}
+	}
 }
 
 static uint64_t null_task_func(int argc, char** argv) {
@@ -92,6 +99,7 @@ static uint64_t null_task_func(int argc, char** argv) {
 
 		// kdebug_base(current->pid, 10);
 		// kdebug_nl();
+		task_foreach(update_task_state);
 	}
 
 	return 0;
@@ -226,6 +234,7 @@ void task_ready(task_t *task) {
 
 void task_pause(task_t *task) {
 	task->state = TASK_PAUSED;
+	reschedule();
 }
 
 void task_sleep(task_t *task) {

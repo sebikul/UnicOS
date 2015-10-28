@@ -24,6 +24,8 @@ void reschedule();
 void intson();
 void intsoff();
 
-void gdt_init();
+//void gdt_init();
+
+uint64_t get_ms_since_boot();
 
 #endif

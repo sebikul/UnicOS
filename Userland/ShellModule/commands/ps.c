@@ -5,6 +5,8 @@
 
 COMMAND_HELP(ps, "[ps] Lista las tareas del sistema.\n");
 
+static bool _exit = 0;
+
 static char* state_to_string(task_state_t state) {
 	switch (state) {
 	case TASK_STOPPED:
@@ -27,20 +29,37 @@ static char* state_to_string(task_state_t state) {
 	}
 }
 
+static void keyboard_handler(uint64_t s) {
+
+	printf("ESC presionado. Saliendo...\n");
+	_exit = TRUE;
+
+}
+
 COMMAND_START(ps) {
 
-	task_t *first = sys_task_getall();
-	task_t *task = first;
+	int index = sys_keyboard_catch(0x01, keyboard_handler, 0);
 
-	ksysdebug("Imprimiendo tareas.\n");
+	while (!_exit) {
+		task_t *first = sys_task_getall();
+		task_t *task = first;
 
-	do {
-		printf("Name: %s\tpid=%d\tstate=%s\n", task->name, task->pid, state_to_string(task->state));
+		sys_clear_screen();
 
-		task = task->next;
-	} while (task != first);
+		//ksysdebug("Imprimiendo tareas.\n");
+
+		do {
+			printf("Name: %s\tpid=%d\tstate=%s\n", task->name, task->pid, state_to_string(task->state));
+
+			task = task->next;
+		} while (task != first);
+
+		sys_sleep(1000);
+	}
 
 	ksysdebug("Terminamos de imprimir tareas.\n");
+
+	sys_keyboard_clear_handler(index);
 
 }
 

@@ -14,6 +14,8 @@ extern 		irq80_handler
 
 extern 		stack_init
 
+extern 		pit_timer
+
 extern 		scheduler_u2k
 extern 		scheduler_k2u
 
@@ -134,6 +136,10 @@ align 16
 pit_handler:
 		pusha
 		cli
+
+		mov 		rax, 	[pit_timer]
+		add 		rax, 	55
+		mov 		[pit_timer], rax
 
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
