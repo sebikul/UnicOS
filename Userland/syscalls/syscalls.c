@@ -85,8 +85,8 @@ void sys_kdebug(char* str) {
 	syscall((uint64_t)SYSCALL_KDEBUG, str);
 }
 
-pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
-	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
+pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv) {
+	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (uint64_t) mode, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
 }
 
 void sys_task_ready(pid_t pid) {

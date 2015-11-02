@@ -96,7 +96,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_CREATE:
-		return sys_task_create((task_entry_point) rsi, (char*) rdx, (int)rcx, (char**) r8);
+		return sys_task_create((task_entry_point) rsi, (task_mode_t) rdx, (char*) rcx, (int)r8, (char**) r9);
 		break;
 
 	case SYSCALL_TASK_READY:
@@ -116,7 +116,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_GETALL:
-		return sys_task_getall();
+		return (uint64_t)sys_task_getall();
 		break;
 
 	case SYSCALL_SLEEP:
@@ -254,11 +254,16 @@ void sys_kdebug(char *str) {
 	_kdebug(str);
 }
 
-pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
+pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv) {
 	task_t *task;
+	console_t curr_console = task_get_current()->console;
 
 	task = task_create(func, name, argc, argv);
-	task_setconsole(task, task_get_current()->console);
+	task_setconsole(task, curr_console);
+
+	if (mode == TASK_FOREGROUND) {
+		task_set_foreground(task, curr_console);
+	}
 
 	return task->pid;
 }

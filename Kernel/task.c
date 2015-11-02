@@ -43,7 +43,7 @@ static uint64_t task_shell(int argc, char** argv) {
 
 	while (TRUE) {
 
-		uint8_t console = task_get_current()->console;
+		//uint8_t console = task_get_current()->console;
 
 		//video_clear_screen(console);
 
