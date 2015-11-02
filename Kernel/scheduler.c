@@ -16,7 +16,6 @@ void* scheduler_u2k(void* rsp) {
 
 void* scheduler_k2u() {
 	task_t *task;
-	task_next();
 	task = task_get_current();
 
 	return task->stack;

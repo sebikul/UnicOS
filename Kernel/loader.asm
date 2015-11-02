@@ -11,6 +11,7 @@ extern 		initializeKernelBinary
 extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
+extern 		task_next
 
 extern 		stack_init
 
@@ -125,7 +126,7 @@ soft_interrupt:									; Interrupciones de software, int 80h
 
 		call 		irq80_handler
 	
-		mov 		QWORD[ret_addr], rax
+		mov 		QWORD[ret_addr], rax		; Guardamos lo retornado por la interrpucion
 
 		sti
 		popa
@@ -146,6 +147,7 @@ pit_handler:
 		mov 		rsp, 	rax
 
 		call 		irq0_handler
+		call 		task_next
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
@@ -183,6 +185,8 @@ reschedule:
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
+
+		call 		task_next
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
