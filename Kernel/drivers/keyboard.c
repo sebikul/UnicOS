@@ -299,8 +299,12 @@ static bool keyboard_run_handlers(uint64_t scode) {
 				continue;
 			}
 
-			kdebug("Ejecutando handler en consola: ");
+			kdebug("Ejecutando handler \"");
+			_kdebug(dka_catched_scancodes[i]->name);
+			_kdebug("\" en consola: ");
 			kdebug_base(video_current_console(), 10);
+			_kdebug(" de tarea con pid=");
+			kdebug_base(dka_catched_scancodes[i]->pid, 10);
 			kdebug_nl();
 
 			dka_catched_scancodes[i]->handler(scode);
@@ -384,7 +388,7 @@ static void keyboard_dispatch() {
 		return;
 	}
 
-	if (keyboard_status.caps) {
+	if (keyboard_status.caps || keyboard_status.shift) {
 		c = t.caps;
 	} else {
 		c = t.ascii;
@@ -406,8 +410,13 @@ void keyboard_init() {
 	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
 	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
 	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x2A, keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "left shift");
+	keyboard_catch(0x36, keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "right shift");
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "left shift");
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "right shift");
 
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES, "backspace");
 }
 
 void keyboard_irq_handler(uint64_t s) {
@@ -419,7 +428,7 @@ void keyboard_irq_handler(uint64_t s) {
 	keyboard_dispatch();
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags) {
+int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {
 
 	int index;
 
@@ -431,6 +440,9 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pi
 	tmp->console = console;
 	tmp->flags = flags;
 
+	tmp->name = malloc(strlen(name) + 1);
+	memcpy(tmp->name, name, strlen(name) + 1);
+
 	index = dka_catched_len;
 	dka_catched_scancodes[index] = tmp;
 	dka_catched_len++;
@@ -439,6 +451,7 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pi
 }
 
 void keyboard_clear_handler(int index) {
+	free(dka_catched_scancodes[index]->name);
 	free(dka_catched_scancodes[index]);
 	dka_catched_scancodes[index] = NULL;
 }

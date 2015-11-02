@@ -40,7 +40,7 @@ void sys_rtc_set(time_t* t);
 void* sys_malloc(uint64_t len);
 void* sys_calloc(uint64_t len);
 void sys_free(void* m);
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name);
 void sys_clear_indexed_line(uint64_t index);
 void sys_keyboard_replace_buffer(char* s);
 void sys_set_color(color_t t);

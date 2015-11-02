@@ -69,8 +69,8 @@ uint64_t main(int argc, char** argv) {
 
 	print_commands_struct();
 
-	arrows_handlers[0] = sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
-	arrows_handlers[1] = sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
+	arrows_handlers[0] = sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0, "up arrow");
+	arrows_handlers[1] = sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0, "down arrow");
 
 	printf("Registrando handlers: up=%d down=%d\n", arrows_handlers[0], arrows_handlers[1]);
 
@@ -160,7 +160,7 @@ void command_dispatcher(char* command) {
 		if (strcmp(cmdlist->commands[cmd]->name, argv[0]) == 0) {
 			pid_t shellpid = sys_task_get_pid();
 
-			pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, cmdlist->commands[cmd]->name, argc, argv);
+			pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, argv);
 
 			sys_task_ready(taskpid);
 			sys_task_join(taskpid, shellpid);
