@@ -202,7 +202,7 @@ scancode_t keyboard_scancodes[][256] = {
 
 static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
-static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE};
+static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE, .shift = FALSE};
 
 static msgqueue_t* kbdqueue;
 
@@ -212,6 +212,10 @@ static int dka_catched_len = 0;
 
 static void keyboard_caps_handler(uint64_t s) {
 	keyboard_status.caps = !keyboard_status.caps;
+}
+
+static void keyboard_shift_handler(uint64_t s) {
+	keyboard_status.shift = !keyboard_status.shift;
 }
 
 static void keyboard_backspace_handler(uint64_t s) {
@@ -405,11 +409,6 @@ static void keyboard_dispatch() {
 void keyboard_init() {
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
 	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
 	keyboard_catch(0x2A, keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "left shift");
 	keyboard_catch(0x36, keyboard_shift_handler, 0, 0, KEYBOARD_ALLCONSOLES, "right shift");
@@ -423,9 +422,12 @@ void keyboard_irq_handler(uint64_t s) {
 
 	//kdebug("IRQ del teclado\n");
 
+	//task_atomic();
+
 	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
 
 	keyboard_dispatch();
+	//task_unatomic();
 }
 
 int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {
