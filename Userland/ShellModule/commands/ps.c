@@ -38,7 +38,9 @@ static void keyboard_handler(uint64_t s) {
 
 COMMAND_START(ps) {
 
-	int index = sys_keyboard_catch(0x01, keyboard_handler, 0);
+	int index = sys_keyboard_catch(0x01, keyboard_handler, 0, "esc key");
+
+	_exit = FALSE;
 
 	while (!_exit) {
 		task_t *first = sys_task_getall();

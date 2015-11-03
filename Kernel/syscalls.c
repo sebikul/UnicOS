@@ -13,7 +13,7 @@
 extern uint64_t screensaver_wait_time;
 extern bool screensaver_is_active;
 
-uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8) {
+uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
 
 	//kdebug("Despachando syscall int 80h\n");
 
@@ -48,7 +48,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_KEYBOARD_CATCH:
-		return sys_keyboard_catch(rsi, (dka_handler) rdx, rcx);
+		return sys_keyboard_catch(rsi, (dka_handler) rdx, rcx, (char*)r8);
 		break;
 
 	case SYSCALL_VIDEO_CLR_INDEXED_LINE:
@@ -206,11 +206,11 @@ void sys_free(void* m) {
 	free(m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags) {
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
 	flags = flags & ~KEYBOARD_ALLCONSOLES;
 
-	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, flags);
+	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, flags, name);
 }
 
 void sys_clear_indexed_line(uint64_t index) {

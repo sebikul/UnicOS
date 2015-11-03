@@ -64,6 +64,8 @@ task_t* task_get_for_console(console_t console);
 void task_next();
 task_t* task_get_first();
 
+void task_foreach(void (*func)(task_t*));
+
 void task_set_foreground(task_t *task, console_t console);
 task_t* task_get_foreground(console_t console);
 

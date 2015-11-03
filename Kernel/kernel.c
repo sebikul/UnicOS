@@ -112,7 +112,7 @@ void main() {
 	task_init();
 
 	// TAREAS DEL KERNEL
-	screensaver_init();
+	//screensaver_init();
 
 	// intson();
 

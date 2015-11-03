@@ -24,7 +24,7 @@ COMMAND_START(rawkbd) {
 	_exit = 0;
 
 	printf("Installing keyboard handler...\n");
-	index = sys_keyboard_catch(0x0, keyboard_handler, KEYBOARD_WILDCARD);
+	index = sys_keyboard_catch(0x0, keyboard_handler, KEYBOARD_WILDCARD, "esc key");
 
 	while (!_exit);
 

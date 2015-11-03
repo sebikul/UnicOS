@@ -76,7 +76,7 @@ void video_init() {
 
 	video_change_console(0);
 
-	keyboard_catch( ((uint64_t)0x41 << 32) | 0x3b, video_fn_handler, 0, 0, KEYBOARD_IGNORE | KEYBOARD_RANGE | KEYBOARD_ALLCONSOLES);
+	keyboard_catch( ((uint64_t)0x41 << 32) | 0x3b, video_fn_handler, 0, 0, KEYBOARD_IGNORE | KEYBOARD_RANGE | KEYBOARD_ALLCONSOLES, "fn");
 }
 
 void video_update_screen_color(console_t console) {

@@ -69,8 +69,8 @@ uint64_t main(int argc, char** argv) {
 
 	print_commands_struct();
 
-	arrows_handlers[0] = sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0);
-	arrows_handlers[1] = sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0);
+	arrows_handlers[0] = sys_keyboard_catch(0x48, keyboard_uparrow_handler, 0, "up arrow");
+	arrows_handlers[1] = sys_keyboard_catch(0x50, keyboard_downarrow_handler, 0, "down arrow");
 
 	printf("Registrando handlers: up=%d down=%d\n", arrows_handlers[0], arrows_handlers[1]);
 
