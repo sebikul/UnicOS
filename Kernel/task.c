@@ -159,7 +159,7 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 	free(task->name);
 	free(task->stack);
 
-	task->state = TASK_STOPPED;
+	task->state = TASK_ZOMBIE;
 
 	task_set_foreground(consoles[task->console], task->console);
 

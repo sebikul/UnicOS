@@ -5,12 +5,10 @@
 
 COMMAND_HELP(ps, "[ps] Lista las tareas del sistema.\n");
 
-static bool _exit = 0;
-
 static char* state_to_string(task_state_t state) {
 	switch (state) {
-	case TASK_STOPPED:
-		return "STOPPED";
+	case TASK_ZOMBIE:
+		return "ZOMBIE";
 
 	case TASK_SLEEPING:
 		return "SLEEPING";
@@ -29,14 +27,14 @@ static char* state_to_string(task_state_t state) {
 	}
 }
 
-static void keyboard_handler(uint64_t s) {
-
-	printf("ESC presionado. Saliendo...\n");
-	_exit = TRUE;
-
-}
-
 COMMAND_START(ps) {
+
+	bool _exit = 0;
+
+	void keyboard_handler(uint64_t s) {
+		printf("ESC presionado. Saliendo...\n");
+		_exit = TRUE;
+	}
 
 	int index = sys_keyboard_catch(0x01, keyboard_handler, 0, "esc key");
 

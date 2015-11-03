@@ -11,6 +11,6 @@ libc:
 	$(AR) rcs lib/libc.a libc.o
 
 clean:
-	rm -rf *.o liblib*.a
+	rm -rf *.o lib/libc.a
 
 .PHONY: all clean

@@ -15,6 +15,8 @@ else
 	#RIP=`grep "RIP" last_run.log | tail -n1 | awk -F'=' '{print $2}' | awk -F' ' '{print $1}'`
 	#RIP=$((RIP + 2))
 
+	#gobjdump -b binary -m i386:x86-64 -D --adjust-vma=0x100000 -M intel Kernel/kernel.bin
+
 	#gobjdump -D Kernel/kernel.o | grep $RIP
 fi
 
