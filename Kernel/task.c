@@ -43,7 +43,7 @@ static uint64_t task_shell(int argc, char** argv) {
 
 	while (TRUE) {
 
-		uint8_t console = task_get_current()->console;
+		//uint8_t console = task_get_current()->console;
 
 		//video_clear_screen(console);
 
@@ -160,6 +160,8 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 	free(task->stack);
 
 	task->state = TASK_STOPPED;
+
+	task_set_foreground(consoles[task->console], task->console);
 
 	intson();
 

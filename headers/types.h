@@ -68,6 +68,8 @@ typedef uint64_t pid_t;
 
 typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_STOPPED} task_state_t;
 
+typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
+
 typedef struct task_t {
 	struct task_t *next;
 	struct task_t *join;
