@@ -203,7 +203,7 @@ scancode_t keyboard_scancodes[][256] = {
 
 static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
-static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE};
+static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE, .shift = FALSE};
 
 static msgqueue_t* kbdqueue;
 
@@ -213,6 +213,10 @@ static int dka_catched_len = 0;
 
 static void keyboard_caps_handler(uint64_t s) {
 	keyboard_status.caps = !keyboard_status.caps;
+}
+
+static void keyboard_shift_handler(uint64_t s) {
+	keyboard_status.shift = !keyboard_status.shift;
 }
 
 static void keyboard_backspace_handler(uint64_t s) {
@@ -387,7 +391,7 @@ static void keyboard_dispatch() {
 		return;
 	}
 
-	if (keyboard_status.caps) {
+	if (keyboard_status.caps || keyboard_status.shift) {
 		c = t.caps;
 	} else {
 		c = t.ascii;

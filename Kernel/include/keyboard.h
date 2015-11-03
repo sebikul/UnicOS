@@ -11,6 +11,7 @@ typedef struct {
 	bool caps;
 	bool ctrl;
 	bool alt;
+	bool shift;
 } kstatus;
 
 typedef struct {

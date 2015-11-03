@@ -5,7 +5,7 @@
 
 #define SCREENSAVER_CONSOLE VIRTUAL_CONSOLES
 
-static task_t *screensaver;
+static task_t *screensaver = NULL;
 uint64_t screensaver_wait_ms = 20000;
 
 void screensaver_set_wait(uint64_t s) {
@@ -13,7 +13,9 @@ void screensaver_set_wait(uint64_t s) {
 }
 
 void screensaver_trigger() {
-	task_ready(screensaver);
+	if (screensaver != NULL) {
+		task_ready(screensaver);
+	}
 }
 
 static void screensaver_kbdhandler(uint64_t s) {
