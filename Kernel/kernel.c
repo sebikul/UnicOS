@@ -99,6 +99,8 @@ void load_kernel_modules() {
 }
 
 void main() {
+	pmm_initialize();
+	vmm_initialize();
 
 	video_write_string(KERNEL_CONSOLE, "-->Kernel Stack at: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)kernel_stack);
@@ -151,6 +153,17 @@ void active_screensaver() {
 	screensaver_is_active = TRUE;
 	video_trigger_screensaver();
 	kdebug("Activando screensaver\n");
+}
+
+void vmm_initialize() {
+	// Set bit 31 of CR0
+	// Create page directories
+	// Load CR3
+}
+
+void page_fault_handler() {
+	// CR2 contains the virtual address that caused the fault
+
 }
 
 void irq0_handler() {

@@ -9,6 +9,7 @@ extern 		main
 extern 		initializeKernelBinary
 
 extern 		keyboard_irq_handler
+extern 		page_fault_handler
 extern 		irq0_handler
 extern 		irq80_handler
 
@@ -100,6 +101,10 @@ create_gate:
 		ret
 
 set_interrupt_handlers:
+		mov 		rdi, 0xE 					; Set up page fault handler
+		mov 		rax, page_fault_handler
+		call 		create_gate
+
 		mov 		rdi, 	0x80				; Set up Software Interrups handler
 		mov 		rax, 	soft_interrupt
 		call 		create_gate
@@ -122,7 +127,7 @@ soft_interrupt:									; Interrupciones de software, int 80h
 		cli
 
 		call 		irq80_handler
-	
+
 		mov 		QWORD[ret_addr], rax
 
 		sti
@@ -158,7 +163,7 @@ reschedule:
 		mov 		QWORD[ss_addr], 	ss 		;Stack Segment
 		push 		QWORD[ss_addr]
 
-		push  		rsp	
+		push  		rsp
 		pushf 									;Se pushean los flags
 		mov 		QWORD[cs_addr], 	cs 		;Code Segment
 		push 		QWORD[cs_addr]
