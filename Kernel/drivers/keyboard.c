@@ -327,53 +327,29 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	return FALSE;
 }
 
-static void keyboard_dispatch() {
+void keyboard_init() {
+	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	uint64_t *scancode;
-	uint64_t res = 0;
-	int reps;
+	//TODO caso de shift
+	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+
+	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+}
+
+void keyboard_irq_handler(uint64_t s) {
+
 	char c;
 
-	if (msgqueue_size(kbdqueue) == 0) {
-		return;
-	}
-
-	scancode = msgqueue_deq(kbdqueue);
-
-	switch (*scancode) {
-	case 0xE0:
-		reps = 1;
-		break;
-
-	case 0xE1:
-		reps = 2;
-		break;
-
-	default:
-		reps = 0;
-		break;
-	}
-
-	res = *scancode;
-	free(scancode);
-
-	for (int i = 0; i < reps; i++) {
-		scancode = msgqueue_deq(kbdqueue);
-
-		kdebug("Leido scancode: 0x");
-		kdebug_base(*scancode, 16);
-		kdebug_nl();
-
-		res = (res << 8 ) | (*scancode);
-		free(scancode);
-	}
-
-	if (keyboard_run_handlers(res)) {
+	if (keyboard_run_handlers(s)) {
 		kdebug("Scancode atrapado por un handler\n");
 		return;
 	}
 
-	scancode_t t = keyboard_scancodes[keyboard_distribution][res];
+	scancode_t t = keyboard_scancodes[keyboard_distribution][s];
 
 	if (t.ascii == NOCHAR) {
 		//kdebug("Recibido caracter NOCHAR\n");
@@ -390,31 +366,6 @@ static void keyboard_dispatch() {
 
 	video_write_char(video_current_console(), c);
 	video_update_cursor();
-
-	//TODO
-	//SEM_UP
-}
-
-void keyboard_init() {
-	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
-
-	//TODO caso de shift
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-}
-
-void keyboard_irq_handler(uint64_t s) {
-
-	//kdebug("IRQ del teclado\n");
-
-	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
-
-	keyboard_dispatch();
 }
 
 int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {
