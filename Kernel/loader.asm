@@ -192,10 +192,9 @@ reschedule:
 
 align 16
 keyboard:
-		push 		rdi
-		push 		rax
+		pusha
 
-		xor			eax, 	eax
+		xor			rax, 	rax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
 		cmp 		al, 	0xE0
@@ -212,8 +211,7 @@ keyboard_done:
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
-		pop 		rax
-		pop 		rdi
+		popa
 		iretq
 
 init_pic:										; Enable specific interrupts
