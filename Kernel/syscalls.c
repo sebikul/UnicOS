@@ -10,8 +10,7 @@
 #include "kernel.h"
 #include "input.h"
 
-extern uint64_t screensaver_wait_time;
-extern bool screensaver_is_active;
+extern uint64_t pit_timer;
 
 uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
 
@@ -121,6 +120,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	case SYSCALL_SLEEP:
 		sys_sleep(rsi);
+		break;
+
+	case SYSCALL_UPTIME:
+		return sys_uptime();
 		break;
 
 	default:
@@ -304,3 +307,6 @@ void sys_sleep(uint64_t ms) {
 	task_sleep(task, ms);
 }
 
+uint64_t sys_uptime() {
+	return pit_timer;
+}

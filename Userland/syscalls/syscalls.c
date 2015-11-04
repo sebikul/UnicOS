@@ -105,10 +105,14 @@ void sys_task_yield() {
 	syscall((uint64_t)SYSCALL_TASK_YIELD);
 }
 
-task_t* sys_task_getall(){
+task_t* sys_task_getall() {
 	return syscall((uint64_t)SYSCALL_TASK_GETALL);
 }
 
-void sys_sleep(uint64_t ms){
+void sys_sleep(uint64_t ms) {
 	syscall((uint64_t) SYSCALL_SLEEP, ms);
+}
+
+uint64_t sys_uptime() {
+	syscall((uint64_t)SYSCALL_UPTIME);
 }
