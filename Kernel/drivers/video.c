@@ -54,6 +54,9 @@ static void video_fn_handler(uint64_t s) {
 	if (0x3b <= s && s <= 0x41) {
 		int newconsole = s - 0x3b;
 
+		//TODO
+		//SEM_DOWN();
+
 		video_change_console((console_t)newconsole);
 		input_change_console(newconsole);
 	}

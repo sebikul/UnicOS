@@ -327,8 +327,6 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	return FALSE;
 }
 
-static volatile bool running = FALSE;
-
 static void keyboard_dispatch() {
 
 	uint64_t *scancode;
@@ -336,14 +334,7 @@ static void keyboard_dispatch() {
 	int reps;
 	char c;
 
-	if (running) {
-		return;
-	}
-
-	running = TRUE;
-
 	if (msgqueue_size(kbdqueue) == 0) {
-		running = FALSE;
 		return;
 	}
 
@@ -379,7 +370,6 @@ static void keyboard_dispatch() {
 
 	if (keyboard_run_handlers(res)) {
 		kdebug("Scancode atrapado por un handler\n");
-		running = FALSE;
 		return;
 	}
 
@@ -387,7 +377,6 @@ static void keyboard_dispatch() {
 
 	if (t.ascii == NOCHAR) {
 		//kdebug("Recibido caracter NOCHAR\n");
-		running = FALSE;
 		return;
 	}
 
@@ -402,7 +391,8 @@ static void keyboard_dispatch() {
 	video_write_char(video_current_console(), c);
 	video_update_cursor();
 
-	running = FALSE;
+	//TODO
+	//SEM_UP
 }
 
 void keyboard_init() {

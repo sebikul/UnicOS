@@ -163,7 +163,9 @@ void command_dispatcher(char* command) {
 			pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, argv);
 
 			sys_task_ready(taskpid);
-			sys_task_join(taskpid, shellpid);
+			uint64_t retval = sys_task_join(taskpid, shellpid);
+
+			printf("La tarea salio con codigo: %d\n", retval);
 			return;
 		}
 	}

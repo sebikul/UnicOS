@@ -71,14 +71,14 @@ typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBI
 typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
 
 typedef struct task_t {
+	struct task_t *prev;
 	struct task_t *next;
 	struct task_t *join;
-
 	void *stack;
-
 	char *name;
 	pid_t pid;
 	uint64_t sleep_limit;
+	uint64_t retval;
 	task_state_t state;
 	uint8_t console;
 } task_t;

@@ -32,11 +32,13 @@ COMMAND_START(ps) {
 	bool _exit = 0;
 
 	void keyboard_handler(uint64_t s) {
-		printf("ESC presionado. Saliendo...\n");
-		_exit = TRUE;
+		if (s == 0x01) {
+			printf("ESC presionado. Saliendo...\n");
+			_exit = TRUE;
+		}
 	}
 
-	int index = sys_keyboard_catch(0x01, keyboard_handler, 0, "esc key");
+	int index = sys_keyboard_catch(0x00, keyboard_handler, KEYBOARD_WILDCARD, "esc key");
 
 	_exit = FALSE;
 

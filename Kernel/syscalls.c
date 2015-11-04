@@ -104,7 +104,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_JOIN:
-		sys_task_join((pid_t) rsi, (pid_t) rdx);
+		return sys_task_join((pid_t) rsi, (pid_t) rdx);
 		break;
 
 	case SYSCALL_TASK_GET_PID:
@@ -277,15 +277,14 @@ void sys_task_ready(pid_t pid) {
 	task_ready(task);
 }
 
-void sys_task_join(pid_t pid, pid_t otherpid) {
+uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	task_t *task = task_find_by_pid(pid);
-	task_t *shell = task_find_by_pid(otherpid);
-	//task_t *shell = task_get_for_console(task->console);
+	task_t *other = task_find_by_pid(otherpid);
 
 	if (task == NULL) {
 		return;
 	}
-	task_join(task, shell);
+	return task_join(task, other);
 }
 
 pid_t sys_task_get_pid() {
@@ -296,38 +295,7 @@ void sys_task_yield() {
 	sys_sleep(0);
 }
 
-// static void copy_to_info(taskinfo_t *dst, task_t *src) {
-// 	dst->next = src->next;
-// 	if (src->join != NULL) {
-// 		dst->join = malloc(sizeof(taskinfo_t));
-// 		copy_to_info(dst->join, src->join);
-// 	}
-// 	dst->name = src->name;
-// 	dst->pid = src->pid;
-// 	dst->state = src->state;
-// }
-
 task_t* sys_task_getall() {
-
-	// taskinfo_t *first_info, *current_info;
-	// task_t *first_task, *current_task;
-
-	// first_task = ;
-	// first_info = malloc(sizeof(taskinfo_t));
-
-	// copy_to_info(first_info, first_task);
-
-	// current_info = first_info;
-	// current_task = first_task;
-
-	// do {
-	// 	current_info = malloc(sizeof(taskinfo_t));
-	// 	copy_to_info(current_info, current_task);
-
-	// 	current_task = current_task->next;
-	// 	current_info = current_info->next;
-
-	// } while (current_task != first_task);
 	return task_get_first();
 }
 
@@ -335,3 +303,4 @@ void sys_sleep(uint64_t ms) {
 	task_t *task = task_get_current();
 	task_sleep(task, ms);
 }
+

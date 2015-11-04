@@ -76,12 +76,33 @@ static inline void task_add(task_t *task) {
 
 	if (last == NULL) {
 		task->next = task;
+		task->prev = task;
 		last = task;
 	} else {
 		task->next = last->next;
 		last->next = task;
+
+		task->prev = last;
+		task->next->prev = task;
+
 		last = task;
 	}
+}
+
+static inline void task_remove(task_t *task) {
+	task_t *prev = task->prev;
+	task_t *next = task->next;
+
+	prev->next = next;
+	next->prev = prev;
+
+	if (task == last) {
+		last = prev;
+	}
+
+	free(task->name);
+	free(task->stack);
+	free(task);
 }
 
 static void update_task_state(task_t *task) {
@@ -149,16 +170,14 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 	kdebug("La tarea finalizo\n");
 
 	task = task_get_current();
-	video_write_line(task->console, "La tarea ha finalizado\n");
+	//video_write_line(task->console, "La tarea ha finalizado\n");
 
 	if (task->join != NULL) {
 		task_ready(task->join);
 		task->join = NULL;
 	}
 
-	free(task->name);
-	free(task->stack);
-
+	task->retval = retval;
 	task->state = TASK_ZOMBIE;
 
 	task_set_foreground(consoles[task->console], task->console);
@@ -245,7 +264,9 @@ void task_sleep(task_t *task, uint64_t ms) {
 	reschedule();
 }
 
-void task_join(task_t *task, task_t *other) {
+uint64_t task_join(task_t *task, task_t *other) {
+
+	uint64_t retval;
 
 	kdebug("Sending task with pid=");
 	kdebug_base(other->pid, 10);
@@ -257,6 +278,18 @@ void task_join(task_t *task, task_t *other) {
 	task->join = other;
 	other->state = TASK_JOINING;
 	reschedule();
+
+	retval = task->retval;
+
+	kdebug("Removing task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	kdebug_nl();
+
+	task_remove(task);
+
+	return retval;
 }
 
 void task_setconsole(task_t *task, console_t console) {
@@ -323,13 +356,26 @@ task_t* task_find_by_pid(pid_t pid) {
 
 	task_t *task = last->next;
 
+	kdebug("Finding task with pid= ");
+	kdebug_base(pid, 10);
+	_kdebug("  -->  ");
+
 	while (task->pid != pid && task != last) {
 		task = task->next;
 	}
 
 	if (task == last && task->pid != pid) {
+		_kdebug("Task not found!\n");
 		return NULL;
 	}
+
+	_kdebug("Found task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
+	kdebug_nl();
 
 	return task;
 }
