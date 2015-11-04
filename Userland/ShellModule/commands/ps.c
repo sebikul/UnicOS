@@ -59,6 +59,10 @@ COMMAND_START(ps) {
 			task = task->next;
 		} while (task != first);
 
+		uint64_t uptime = sys_uptime();
+
+		printf("\nUPTIME: %d.%ds\n", uptime / 1000, uptime % 1000);
+
 		sys_sleep(1000);
 	}
 
@@ -66,5 +70,6 @@ COMMAND_START(ps) {
 
 	sys_keyboard_clear_handler(index);
 
+	return 0;
 }
 

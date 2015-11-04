@@ -18,9 +18,14 @@ static uint16_t* screen_mem = (uint16_t*)0xB8000;
 static uint16_t video_get_full_char_at(console_t console, int row, int col);
 static void video_write_full_char_at(console_t console, uint16_t c, int row, int col);
 static void video_scroll(console_t console);
+static void video_write_full_char(console_t console, uint16_t c);
 
 screen_t* get_screen(console_t console) {
 	return &consoles[console];
+}
+
+static inline uint16_t build_char(char c, color_t color) {
+	return  (uint16_t)c | (((uint16_t) color) << 8);
 }
 
 static inline void video_sync_console_at(console_t console, int row, int col) {
@@ -117,17 +122,22 @@ void video_clear_screen(console_t console) {
 
 	screen_t *screen = get_screen(console);
 
-	for (int i = 0; i <= SCREEN_HEIGHT; i++) {
+	uint16_t c = build_char(' ', screen->color);
 
-		for (int j = 0; j <= SCREEN_WIDTH; j++) {
-			video_write_char(console, ' ');
+	for (int i = 0; i < SCREEN_HEIGHT; i++) {
+
+		for (int j = 0; j < SCREEN_WIDTH; j++) {
+			video_write_full_char_at(console, c, i, j);
 		}
 	}
 
 	screen->row = 0;
 	screen->column = 0;
 
-	video_update_screen_color(console);
+	video_update_cursor();
+	video_sync_console(console);
+
+	// video_update_screen_color(console);
 }
 
 static void video_clear_line(console_t console, int row) {
@@ -162,26 +172,14 @@ static void video_write_full_char(console_t console, uint16_t c) {
 }
 
 void video_write_char_at(console_t console , const char c, int row, int col) {
-
-	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
-	//se necesitan guardar los valores en uint16_t
-	uint16_t c_16 = c;
-	uint16_t color_16 = get_screen(console)->color;
-
-	video_write_full_char_at(console, c_16 | (color_16 << 8), row, col);
+	video_write_full_char_at(console, build_char(c, get_screen(console)->color), row, col);
 }
 
 void video_write_char(console_t console, const char c) {
-
-	//para evitar que se trunquen los valores haciendo toda la operacion en una linea,
-	//se necesitan guardar los valores en uint16_t
-	uint16_t c_16 = c;
-	uint16_t color_16 = get_screen(console)->color;
-
 	if (c == '\n') {
 		video_write_nl(console);
 	} else {
-		video_write_full_char(console, c_16 | (color_16 << 8));
+		video_write_full_char(console, build_char(c, get_screen(console)->color));
 	}
 }
 
@@ -233,7 +231,7 @@ static void video_scroll(console_t console) {
 
 	screen_t *screen = get_screen(console);
 
-	for (int row = 1; row <= SCREEN_HEIGHT; row++) {
+	for (int row = 1; row < SCREEN_HEIGHT; row++) {
 
 		for (int column = 0; column < SCREEN_WIDTH; column++) {
 

@@ -195,6 +195,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
 	task->join = NULL;
+	task->retval = -1;
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;
@@ -285,6 +286,8 @@ uint64_t task_join(task_t *task, task_t *other) {
 	_kdebug(task->name);
 	_kdebug("' pid=");
 	kdebug_base(task->pid, 10);
+	_kdebug(" RETVAL=");
+	kdebug_base(retval, 10);
 	kdebug_nl();
 
 	task_remove(task);

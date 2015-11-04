@@ -84,6 +84,8 @@ uint64_t main(int argc, char** argv) {
 
 		ksysdebugs(buffer);
 
+		printf("\n");
+
 		command_dispatcher(buffer);
 	}
 
@@ -165,7 +167,7 @@ void command_dispatcher(char* command) {
 			sys_task_ready(taskpid);
 			uint64_t retval = sys_task_join(taskpid, shellpid);
 
-			printf("La tarea salio con codigo: %d\n", retval);
+			printf("RETVAL: %d\n", retval);
 			return;
 		}
 	}

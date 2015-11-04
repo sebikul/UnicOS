@@ -83,6 +83,10 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						uint32_t numlen = strlen(number);
 
+						if (number < 0) {
+							str[j++] = '-';
+						}
+
 						if (numlen < width) {
 
 							char chartowrite;
@@ -134,7 +138,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 					}
 
 					case '0':
-						if (width==0) {
+						if (width == 0) {
 							if (!flag_zero) {
 								flag_zero = TRUE;
 								i++;

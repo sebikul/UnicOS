@@ -364,8 +364,10 @@ void keyboard_irq_handler(uint64_t s) {
 
 	input_add(c);
 
-	video_write_char(video_current_console(), c);
-	video_update_cursor();
+	if (c != '\n') {
+		video_write_char(video_current_console(), c);
+		video_update_cursor();
+	}
 }
 
 int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {
