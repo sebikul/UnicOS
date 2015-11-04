@@ -120,7 +120,7 @@ static uint64_t null_task_func(int argc, char** argv) {
 
 		// kdebug_base(current->pid, 10);
 		// kdebug_nl();
-		task_foreach(update_task_state);
+		//task_foreach(update_task_state);
 	}
 
 	return 0;
@@ -305,6 +305,7 @@ void task_next() {
 	//DUMP_LIST_FROM_CURRENT();
 
 	while (task->state != TASK_RUNNING && task != current) {
+		update_task_state(task);
 		task = task->next;
 	}
 
