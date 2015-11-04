@@ -15,7 +15,7 @@ void* malloc(int len) {
 
 	lastMalloc = mallocBuffer;
 
-	mallocBuffer += len * sizeof(void*);
+	mallocBuffer += len * sizeof(char);
 
 	return lastMalloc;
 
