@@ -140,7 +140,7 @@ pit_handler:
 		cli
 
 		mov 		rax, 	[pit_timer]
-		add 		rax, 	55
+		add 		rax, 	10
 		mov 		[pit_timer], rax
 
 		mov 		rdi,	 rsp

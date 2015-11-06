@@ -111,7 +111,7 @@ void main() {
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
 
-	//pit_setup(10);
+	pit_setup(10);
 
 	// TAREAS DEL KERNEL
 	//screensaver_init();
