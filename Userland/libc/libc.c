@@ -31,6 +31,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 			bool flag_zero = FALSE;
 			uint32_t width = 0;
+			bool is_long = FALSE;
 
 			i++;
 			if (fmt[i] == 0) {
@@ -73,9 +74,22 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 						break;
 					}
 
+					case 'l':
+						is_long = TRUE;
+						i++;
+						flag = TRUE;
+						break;
+
+
 					case 'd': {
 
-						int arg = va_arg(ap, int);
+						long int arg;
+
+						if (is_long) {
+							arg = va_arg(ap, long int);
+						} else {
+							arg = (long int)va_arg(ap, int);
+						}
 
 						char* number = itoc(arg);
 
@@ -83,7 +97,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						uint32_t numlen = strlen(number);
 
-						if (number < 0) {
+						if (arg < 0) {
 							str[j++] = '-';
 						}
 
@@ -126,7 +140,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						char buffer[128] = { 0 };
 
-						int arg = va_arg(ap, int);
+						uint64_t arg = va_arg(ap, uint64_t);
 						uint32_t digits = uintToBase(arg, buffer, 16);
 
 						for (uint32_t i = 0; i < digits; i++) {
