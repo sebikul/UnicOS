@@ -54,16 +54,16 @@ COMMAND_START(ps) {
 
 
 		do {
-			printf("Name:\t%20s pid=%d\tstate=%21s\n", task->name, task->pid, state_to_string(task->state));
+			printf("Name:\t%20s pid=%ld\tstate=%21s\n", task->name, task->pid, state_to_string(task->state));
 
 			task = task->next;
 		} while (task != first);
 
 		uint64_t uptime = sys_uptime();
 
-		printf("\nUPTIME: %d.%ds\n", uptime / 1000, uptime % 1000);
+		printf("\nUPTIME: %ld.%lds\n", uptime / 1000, uptime % 1000);
 
-		sys_sleep(1000);
+		sys_sleep(100);
 	}
 
 	ksysdebug("Terminamos de imprimir tareas.\n");

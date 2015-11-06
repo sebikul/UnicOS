@@ -10,5 +10,7 @@ COMMAND_START(clear) {
 	} else {
 		fprintf(FD_STDERR, "Comando invalido, no se esperan parametros.\n");
 	}
+
+	return 0;
 }
 

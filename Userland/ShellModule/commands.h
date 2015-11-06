@@ -16,7 +16,7 @@ typedef struct {
 } command_list_t;
 
 #define DECLARE_COMMAND(command) void command_ ##command ##_init();\
-void command_ ##command(int argc, char** argv);
+uint64_t command_ ##command(int argc, char** argv);
 
 #define COMMAND_HELP(command, _help) static const char* COMMAND_##command##_HELP = _help
 
@@ -31,7 +31,7 @@ void command_ ##command ##_init() {\
 	strcpy(cmdlist->commands[cmdlist->count]->help, COMMAND_##command##_HELP);\
 	cmdlist->count++;\
 }\
-void command_ ##command(int argc, char** argv)
+uint64_t command_ ##command(int argc, char** argv)
 
 #define COMMAND_END() }
 

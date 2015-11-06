@@ -8,4 +8,5 @@ COMMAND_START(exit) {
 	clear_screen();
 	exit();
 
+	return 0;
 }

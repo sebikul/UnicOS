@@ -27,4 +27,6 @@ COMMAND_START(rawkbd) {
 
 	sys_keyboard_clear_handler(index);
 
+	return 0;
+
 }

@@ -34,4 +34,6 @@ COMMAND_START(help) {
 		}
 
 	}
+
+	return 0;
 }

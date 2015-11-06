@@ -24,7 +24,7 @@ COMMAND_START(screensaver) {
 			if (!string_numeric(argv[2])) {
 
 				fprintf(FD_STDERR, "Debe ingresar una cantidad de segundos como parametro.\n");
-				return;
+				return 1;
 			}
 			sec = ctoi(argv[2]);
 			if (sec == 0) {
@@ -42,4 +42,6 @@ COMMAND_START(screensaver) {
 	default:
 		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
+
+	return 0;
 }
