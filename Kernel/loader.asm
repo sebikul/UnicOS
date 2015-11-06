@@ -4,6 +4,7 @@ global		intsoff
 global 		gdt_flush
 global 		halt
 global 		reschedule
+global 		get_flags
 
 extern 		main
 extern 		initializeKernelBinary
@@ -227,6 +228,11 @@ intson:
 
 intsoff:
 		cli
+		ret
+
+get_flags:
+		pushf
+		pop 		rax
 		ret
 
 gdt_flush:

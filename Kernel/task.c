@@ -33,8 +33,14 @@ extern uintptr_t kernel_stack;
 }\
 
 static pid_t getnewpid() {
-	pid_t pid = nextpid;
+	pid_t pid;
+
+	bool ints = kset_ints(FALSE);
+
+	pid = nextpid;
 	nextpid++;
+
+	kset_ints(ints);
 
 	return pid;
 }
@@ -74,6 +80,8 @@ static uint64_t task_shell(int argc, char** argv) {
 
 static inline void task_add(task_t *task) {
 
+	bool ints = kset_ints(FALSE);
+
 	if (last == NULL) {
 		task->next = task;
 		task->prev = task;
@@ -87,9 +95,14 @@ static inline void task_add(task_t *task) {
 
 		last = task;
 	}
+
+	kset_ints(ints);
 }
 
 static inline void task_remove(task_t *task) {
+
+	bool ints = kset_ints(FALSE);
+
 	task_t *prev = task->prev;
 	task_t *next = task->next;
 
@@ -103,6 +116,8 @@ static inline void task_remove(task_t *task) {
 	free(task->name);
 	free(task->stack);
 	free(task);
+
+	kset_ints(ints);
 }
 
 static void update_task_state(task_t *task) {
@@ -166,7 +181,9 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 
 	retval = func(argc, argv);
 
-	intsoff();
+
+	bool ints = kset_ints(FALSE);
+
 	kdebug("La tarea finalizo\n");
 
 	task = task_get_current();
@@ -182,7 +199,7 @@ static void wrapper(task_entry_point func, int argc, char **argv) {
 
 	task_set_foreground(consoles[task->console], task->console);
 
-	intson();
+	kset_ints(ints);
 
 	reschedule();
 }

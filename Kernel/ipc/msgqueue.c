@@ -48,10 +48,10 @@ msgqueue_t* msgqueue_create(uint32_t maxsize) {
 
 void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 
-	//intsoff();
+	bool ints = kset_ints(FALSE);
 
 	if (msgqueue->size == msgqueue->maxsize) {
-		//intson();
+		kset_ints(ints);
 		return;
 	}
 
@@ -77,17 +77,17 @@ void msgqueue_add(msgqueue_t *msgqueue, void* msg, int size) {
 	//kdebug_base(msgqueue->size, 10);
 	//kdebug_nl();
 
-	//intson();
+	kset_ints(ints);
 }
 
 void msgqueue_undo(msgqueue_t *msgqueue) {
 
-	//intsoff();
+	bool ints = kset_ints(FALSE);
 
 	message_t *message = msgqueue->last;
 
 	if (message == NULL) {
-		//intson();
+		kset_ints(ints);
 		return;
 	}
 
@@ -105,7 +105,7 @@ void msgqueue_undo(msgqueue_t *msgqueue) {
 	// kdebug_base(msgqueue->size, 10);
 	// kdebug_nl();
 
-	//intson();
+	kset_ints(ints);
 }
 
 void* msgqueue_deq(msgqueue_t *msgqueue) {
@@ -113,7 +113,7 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	void* msg;
 	message_t *message;
 
-	//intsoff();
+	bool ints = kset_ints(FALSE);
 
 	while (msgqueue->first == NULL);
 
@@ -137,7 +137,7 @@ void* msgqueue_deq(msgqueue_t *msgqueue) {
 	// kdebug_base(msgqueue->size, 10);
 	// kdebug_nl();
 
-	//intson();
+	kset_ints(ints);
 
 	return msg;
 }
@@ -166,10 +166,10 @@ void* msgqueue_peeklast(msgqueue_t *msgqueue) {
 
 void msgqueue_clear(msgqueue_t *msgqueue) {
 
-	//intsoff();
+	bool ints = kset_ints(FALSE);
 
 	if (msgqueue->first == NULL) {
-		//intson();
+		kset_ints(ints);
 		return;
 	}
 
@@ -180,7 +180,7 @@ void msgqueue_clear(msgqueue_t *msgqueue) {
 
 	msgqueue->size = 0;
 
-	//intson();
+	kset_ints(ints);
 }
 
 bool msgqueue_isempty(msgqueue_t *msgqueue) {

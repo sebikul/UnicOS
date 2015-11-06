@@ -1,5 +1,7 @@
-#include <stdint.h>
-#include <mem.h>
+#include "stdint.h"
+#include "mem.h"
+#include "types.h"
+#include "kernel.h"
 
 static const uint64_t page_size = 0x1000;
 
@@ -13,12 +15,15 @@ static void* lastMalloc;
 
 void* malloc(int len) {
 
+	bool ints = kset_ints(FALSE);
+
 	lastMalloc = mallocBuffer;
 
 	mallocBuffer += len * sizeof(char);
 
-	return lastMalloc;
+	kset_ints(ints);
 
+	return lastMalloc;
 }
 
 void* calloc(int len) {

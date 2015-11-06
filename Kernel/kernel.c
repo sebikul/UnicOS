@@ -151,7 +151,7 @@ void _kdebug(const char* s) {
 	}
 }
 
-uint64_t get_ms_since_boot(){
+uint64_t get_ms_since_boot() {
 	return pit_timer;
 }
 
@@ -168,4 +168,14 @@ void kdebug_base(uint64_t value, uint32_t base) {
 
 void kdebug_nl() {
 	serial_send('\n');
+}
+
+bool kset_ints(bool ints) {
+	uint64_t flags = get_flags();
+	if (ints) {
+		intson();
+	} else {
+		intsoff();
+	}
+	return (flags & FLAGS_INT_BIT) != 0;
 }
