@@ -1,4 +1,14 @@
 global		loader
+global 		writeCR0
+global 		readCR0
+global 		writeCR1
+global 		readCR1
+global 		writeCR2
+global 		readCR2
+global 		writeCR3
+global 		readCR3
+global 		writeCR4
+global 		readCR4
 global		intson
 global		intsoff
 global 		gdt_flush
@@ -220,6 +230,38 @@ init_pic:										; Enable specific interrupts
 		mov 		al, 	11111000b			; Enable Cascade, Keyboard
 		out 		0x21,	 al
 
+		ret
+
+writeCR0:
+		mov cr0, rdi
+		ret
+
+readCR0:
+		mov rax, cr0
+		ret
+
+writeCR2:
+		mov cr2, rdi
+		ret
+
+readCR2:
+		mov rax, cr2
+		ret
+
+writeCR3:
+		mov cr3, rdi
+		ret
+
+readCR3:
+		mov rax, cr3
+		ret
+
+writeCR4:
+		mov cr4, rdi
+		ret
+
+readCR4:
+		mov rax, cr4
 		ret
 
 intson:

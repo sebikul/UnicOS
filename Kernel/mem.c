@@ -5,7 +5,7 @@
 
 static const uint64_t page_size = 0x1000;
 
-static uint64_t* pmm_stack_start = (uint64_t*)(11*0x100000);
+static uint64_t* pmm_stack_start = (uint64_t*)(10*0x100000);
 static uint64_t* pmm_stack_end = (uint64_t*)(12*0x100000);
 static uint64_t* pmm_stack_current;
 
@@ -31,11 +31,7 @@ void* malloc(int len) {
 
 void* calloc(int len) {
 	char* space = (char*)malloc(len);
-
-	for (int i = 0; i < len; i++) {
-		space[i] = (char)0;
-	}
-
+	memset((void*) space, 0, len);
 	return (void*)space;
 }
 
@@ -84,7 +80,11 @@ void pmm_initialize() {
 }
 
 void* pmm_page_alloc(){
+	if (pmm_stack_current-1 == pmm_stack_start)
+		mem_panic();
+
 	pmm_stack_current--;
+	memset_long((void*)*pmm_stack_current, 0, 512);
 	return (void*)(*pmm_stack_current);
 }
 

@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "types.h"
 #include "mem.h"
+#include "paging.h"
 #include "string.h"
 #include "task.h"
 #include "input.h"
@@ -153,17 +154,6 @@ void active_screensaver() {
 	screensaver_is_active = TRUE;
 	video_trigger_screensaver();
 	kdebug("Activando screensaver\n");
-}
-
-void vmm_initialize() {
-	// Set bit 31 of CR0
-	// Create page directories
-	// Load CR3
-}
-
-void page_fault_handler() {
-	// CR2 contains the virtual address that caused the fault
-
 }
 
 void irq0_handler() {

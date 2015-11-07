@@ -9,7 +9,7 @@ int strlen(const char* str) {
 	return size;
 }
 
-void * memcpy(void * destination, const void * source, uint64_t length){
+void * memcpy(void * destination, const void * source, uint64_t length) {
 	/*
 	* memcpy does not support overlapping buffers, so always do it
 	* forwards. (Don't change this without adjusting memmove.)
@@ -71,12 +71,22 @@ char* strcpy(char* dest, const char* src) {
 	return bk;
 }
 
-void * memset(void * destiation, int32_t c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
+void * memset(void * destiation, char c, uint64_t length) {
 	char * dst = (char*)destiation;
 
-	while (length--)
-		dst[length] = chr;
+	for (uint64_t i = 0; i < length; i++) {
+		dst[i] = c;
+	}
+
+	return destiation;
+}
+
+void * memset_long(void * destiation, uint64_t c, uint64_t length) {
+	uint64_t * dst = (uint64_t*)destiation;
+
+	for (uint64_t i = 0; i < length; i++) {
+		dst[i] = c;
+	}
 
 	return destiation;
 }
@@ -92,7 +102,7 @@ int strpos(const char* s, char n) {
 	return -1;
 }
 
-uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base){
+uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
 	char *p1, *p2;
 	uint32_t digits = 0;
