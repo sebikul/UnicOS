@@ -38,6 +38,7 @@ void video_write_line(console_t console, const char * s);
 void video_update_cursor();
 void video_clear_indexed_line(console_t console, int index);
 void video_update_screen_color(console_t console);
+void video_reset_cursor(console_t console);
 
 void video_write_dec(console_t console, uint64_t value);
 void video_write_hex(console_t console, uint64_t value);

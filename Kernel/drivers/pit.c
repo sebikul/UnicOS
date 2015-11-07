@@ -3,7 +3,7 @@
 // Inicializa el timer y establece el período entre
 // interrupciones en milisegundos.
 // Codigo extraido de mtask version 24
-void pit_setup(unsigned msecs) {
+void pit_setup(uint32_t msecs) {
 	uint32_t count = 1193182 * msecs;
 	count /= 1000;
 

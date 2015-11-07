@@ -32,7 +32,7 @@ static uint64_t _main(int argc, char** argv);
 
 //Esto es necesario para que el codigo que esta en la direccion 0x400000 sea un llamado a _main, y no un salto a su
 //primera direccion de memoria
-//Al usar nested functions, gcc agrega el codigo de los trampolines al inicio de la funcion parece, lo cual 
+//Al usar nested functions, gcc agrega el codigo de los trampolines al inicio de la funcion parece, lo cual
 //rompe la ejecucion de la shell ya que el sistema piensa que esta ejecutando otra funcion.
 uint64_t main(int argc, char** argv) {
 	return _main(argc, argv);
@@ -56,9 +56,10 @@ static uint64_t _main(int argc, char** argv) {
 	/*
 		END Definicion de funciones locales
 	 */
-	ksysdebug("Initializing shell\n");
 
 	if (!has_initialized) {
+
+		sys_atomic();
 
 		//TODO ATOMIC!!!
 		memset(&bss, 0, &endOfBinary - &bss);
@@ -83,7 +84,11 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(rawkbd);
 		COMMAND_INIT(ps);
 		initialize_names();
+
+		sys_unatomic();
 	}
+
+	ksysdebug("Initializing shell\n");
 
 	print_commands_struct();
 

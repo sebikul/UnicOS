@@ -44,6 +44,10 @@ void sys_clear_indexed_line(uint64_t index) {
 	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE, index);
 }
 
+void sys_reset_cursor() {
+	syscall((uint64_t) SYSCALL_VIDEO_RESET_CURSOR);
+}
+
 void sys_keyboard_replace_buffer(char* s) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_REPLACE_BUFFER, (uint64_t)s);
 }
@@ -115,4 +119,12 @@ void sys_sleep(uint64_t ms) {
 
 uint64_t sys_uptime() {
 	return syscall((uint64_t)SYSCALL_UPTIME);
+}
+
+void sys_atomic() {
+	syscall((uint64_t)SYSCALL_ATOMIC);
+}
+
+void sys_unatomic() {
+	syscall((uint64_t)SYSCALL_UNATOMIC);
 }

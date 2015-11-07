@@ -79,6 +79,7 @@ typedef struct task_t {
 	pid_t pid;
 	uint64_t sleep_limit;
 	uint64_t retval;
+	uint64_t atomic_level;
 	task_state_t state;
 	uint8_t console;
 } task_t;

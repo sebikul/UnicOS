@@ -63,7 +63,7 @@ COMMAND_START(ps) {
 
 		printf("\nUPTIME: %ld.%lds\n", uptime / 1000, uptime % 1000);
 
-		sys_sleep(100);
+		sys_sleep(500);
 	}
 
 	ksysdebug("Terminamos de imprimir tareas.\n");

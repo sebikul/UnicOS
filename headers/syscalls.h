@@ -13,6 +13,7 @@ typedef enum { SYSCALL_RTC,
                SYSCALL_FREE,
                SYSCALL_KEYBOARD_CATCH,
                SYSCALL_VIDEO_CLR_INDEXED_LINE,
+               SYSCALL_VIDEO_RESET_CURSOR,
                SYSCALL_KEYBOARD_REPLACE_BUFFER,
                SYSCALL_GET_COLOR,
                SYSCALL_SET_COLOR,
@@ -31,7 +32,9 @@ typedef enum { SYSCALL_RTC,
                SYSCALL_TASK_YIELD,
                SYSCALL_TASK_GETALL,
                SYSCALL_SLEEP,
-               SYSCALL_UPTIME
+               SYSCALL_UPTIME,
+               SYSCALL_ATOMIC,
+               SYSCALL_UNATOMIC
              } syscall_t;
 
 void sys_write(FD fd, char* s, uint64_t len);
@@ -43,6 +46,7 @@ void* sys_calloc(uint64_t len);
 void sys_free(void* m);
 uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name);
 void sys_clear_indexed_line(uint64_t index);
+void sys_reset_cursor();
 void sys_keyboard_replace_buffer(char* s);
 void sys_set_color(color_t t);
 color_t sys_get_color();
@@ -54,6 +58,8 @@ void sys_exit();
 void sys_keyboard_clear_handler(uint64_t index);
 void hang();
 void sys_kdebug(char* str);
+void sys_atomic();
+void sys_unatomic();
 
 pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv);
 void sys_task_ready(pid_t pid);

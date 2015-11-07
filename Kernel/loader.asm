@@ -13,6 +13,7 @@ extern 		keyboard_irq_handler
 extern 		irq0_handler
 extern 		irq80_handler
 extern 		task_next
+extern 		task_getatomic
 
 extern 		stack_init
 
@@ -143,6 +144,10 @@ pit_handler:
 		add 		rax, 	10
 		mov 		[pit_timer], rax
 
+		call 		task_getatomic
+		cmp 		rax, 	0
+		jne 		_is_atomic
+
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
@@ -152,6 +157,8 @@ pit_handler:
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
+
+_is_atomic:
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al

@@ -212,7 +212,8 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
 	task->join = NULL;
-	task->retval = -1;
+	task->retval = 0;
+	task->atomic_level = 0;
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;
@@ -280,6 +281,23 @@ void task_sleep(task_t *task, uint64_t ms) {
 	task->state = TASK_SLEEPING;
 	task->sleep_limit = get_ms_since_boot() + ms;
 	reschedule();
+}
+
+void task_atomic(task_t *task) {
+	task->atomic_level++;
+}
+
+void task_unatomic(task_t *task) {
+	if (task->atomic_level > 0) {
+		task->atomic_level--;
+	}
+}
+
+uint64_t task_getatomic() {
+	if (current == NULL) {
+		return 0;
+	}
+	return current->atomic_level;
 }
 
 uint64_t task_join(task_t *task, task_t *other) {

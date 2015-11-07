@@ -54,6 +54,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_clear_indexed_line(rsi);
 		break;
 
+	case SYSCALL_VIDEO_RESET_CURSOR:
+		sys_reset_cursor();
+		break;
+
 	case SYSCALL_KEYBOARD_REPLACE_BUFFER:
 		sys_keyboard_replace_buffer((char*)rsi);
 		break;
@@ -124,6 +128,14 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	case SYSCALL_UPTIME:
 		return sys_uptime();
+		break;
+
+	case SYSCALL_ATOMIC:
+		sys_atomic();
+		break;
+
+	case SYSCALL_UNATOMIC:
+		sys_unatomic();
 		break;
 
 	default:
@@ -220,6 +232,10 @@ void sys_clear_indexed_line(uint64_t index) {
 	video_clear_indexed_line(task_get_current()->console, index);
 }
 
+void sys_reset_cursor() {
+	video_reset_cursor(video_current_console());
+}
+
 void sys_keyboard_replace_buffer(char* s) {
 	input_replace(s);
 }
@@ -285,7 +301,8 @@ uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	task_t *other = task_find_by_pid(otherpid);
 
 	if (task == NULL) {
-		return;
+		//TODO errno
+		return 0;
 	}
 	return task_join(task, other);
 }
@@ -309,4 +326,12 @@ void sys_sleep(uint64_t ms) {
 
 uint64_t sys_uptime() {
 	return pit_timer;
+}
+
+void sys_atomic() {
+	task_atomic(task_get_current());
+}
+
+void sys_unatomic() {
+	task_unatomic(task_get_current());
 }

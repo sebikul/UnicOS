@@ -6,10 +6,8 @@
 #include "input.h"
 #include "keyboard.h"
 
-static char buffer[128] = { 0 };
-
 static screen_t consoles[VIRTUAL_CONSOLES + 1] = {{0}};
-static console_t current_console = 0;
+static volatile console_t current_console = 0;
 
 console_t screensaver_backup;
 
@@ -276,6 +274,7 @@ void video_write_bin(console_t console, uint64_t value) {
 }
 
 void video_write_base(console_t console, uint64_t value, uint32_t base) {
+	char buffer[128] = { 0 };
 	uintToBase(value, buffer, base);
 	video_write_string(console, buffer);
 }
@@ -304,4 +303,12 @@ void video_trigger_restore() {
 void video_trigger_screensaver() {
 	screensaver_backup = current_console;
 	video_change_console(VIRTUAL_CONSOLES);
+}
+
+void video_reset_cursor(console_t console) {
+	screen_t *screen = get_screen(console);
+
+	screen->cursor = 0;
+	screen->row = 0;
+	screen->column = 0;
 }

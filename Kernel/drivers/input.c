@@ -3,8 +3,8 @@
 #include "video.h"
 #include "kernel.h"
 
-static msgqueue_t* input_events[VIRTUAL_CONSOLES];
-static msgqueue_t* input_focus;
+static volatile msgqueue_t* input_events[VIRTUAL_CONSOLES];
+static volatile msgqueue_t* input_focus;
 
 void input_init() {
 
