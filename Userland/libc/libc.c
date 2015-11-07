@@ -101,6 +101,12 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 							str[j++] = '-';
 						}
 
+						//k: posicion en el argumento
+
+						while (number[k] != 0) {
+							str[j++] = number[k++];
+						}
+
 						if (numlen < width) {
 
 							char chartowrite;
@@ -118,11 +124,6 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 							}
 						}
 
-						//k: posicion en el argumento
-
-						while (number[k] != 0) {
-							str[j++] = number[k++];
-						}
 						i++;
 						break;
 					}

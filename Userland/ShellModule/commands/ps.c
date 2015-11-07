@@ -50,11 +50,11 @@ COMMAND_START(ps) {
 
 		//ksysdebug("Imprimiendo tareas.\n");
 
-		printf("\t\t\t%20s%s\t %21s\n", "NAME", "PID", "STATE");
+		printf("\t\t\t%20s%s\t\t%21s\n", "NAME", "PID", "STATE");
 
 
 		do {
-			printf("Name:\t%20s pid=%ld\tstate=%21s\n", task->name, task->pid, state_to_string(task->state));
+			printf("Name:\t%20s pid=%4ld\tstate=%21s\n", task->name, task->pid, state_to_string(task->state));
 
 			task = task->next;
 		} while (task != first);
