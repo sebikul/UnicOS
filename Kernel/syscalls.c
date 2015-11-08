@@ -9,6 +9,7 @@
 #include "task.h"
 #include "kernel.h"
 #include "input.h"
+#include "signal.h"
 
 extern uint64_t pit_timer;
 
@@ -136,6 +137,14 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	case SYSCALL_UNATOMIC:
 		sys_unatomic();
+		break;
+
+	case SYSCALL_SIGNAL_KILL:
+		sys_signal_kill((pid_t) rsi, (signal_t) rdx);
+		break;
+
+	case SYSCALL_SIGNAL_SET:
+		sys_signal_set((signal_t) rsi, (sighandler_t) rdx);
 		break;
 
 	default:
@@ -312,6 +321,7 @@ pid_t sys_task_get_pid() {
 }
 
 void sys_task_yield() {
+	kdebug("Yielding CPU to next task\n");
 	sys_sleep(0);
 }
 
@@ -334,4 +344,37 @@ void sys_atomic() {
 
 void sys_unatomic() {
 	task_unatomic(task_get_current());
+}
+
+void sys_signal_kill(pid_t pid, signal_t sig) {
+	task_t *task = task_find_by_pid(pid);
+
+	if (task == NULL) {
+		//TODO errno
+		return;
+	}
+
+	kdebug("Executing signal handler for task: ");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" signal: ");
+	kdebug_base(sig, 10);
+	kdebug_nl();
+
+	signal_send(task, sig);
+}
+
+void sys_signal_set(signal_t sig, sighandler_t handler) {
+	task_t *task = task_get_current();
+
+	kdebug("Setting signal handler for task: ");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" signal: ");
+	kdebug_base(sig, 10);
+	kdebug_nl();
+
+	signal_set(task, sig, handler);
 }

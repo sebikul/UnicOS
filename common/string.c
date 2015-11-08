@@ -72,7 +72,6 @@ char* strcpy(char* dest, const char* src) {
 }
 
 void * memset(void * destiation, char c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
 	char * dst = (char*)destiation;
 
 	for (uint64_t i = 0; i < length; i++) {

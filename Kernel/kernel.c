@@ -145,10 +145,13 @@ void irq0_handler() {
 }
 
 void _kdebug(const char* s) {
+	bool ints = kset_ints(FALSE);
 	while (*s != 0) {
 		serial_send(*s);
 		s++;
 	}
+
+	kset_ints(ints);
 }
 
 uint64_t get_ms_since_boot() {

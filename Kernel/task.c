@@ -129,7 +129,7 @@ static void update_task_state(task_t *task) {
 	}
 }
 
-static uint64_t null_task_func(int argc, char** argv) {
+static  __attribute__ ((noreturn)) uint64_t null_task_func(int argc, char** argv) {
 	while (TRUE) {
 		// kdebug("Looping NULL. pid: ");
 
@@ -174,7 +174,7 @@ void task_init() {
 	//current = task;
 }
 
-static void wrapper(task_entry_point func, int argc, char **argv) {
+static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc, char **argv){
 
 	uint64_t retval;
 	task_t *task;
@@ -250,7 +250,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	context->rip =	(uint64_t)wrapper;
 	context->cs = 0x008;
 	context->rflags = 0x202;
-	context->rsp =	(uint64_t) & (context->base);
+	context->rsp =	(uint64_t) (&context->base);
 	context->ss = 0x000;
 	context->base =	0x000;
 

@@ -4,38 +4,41 @@
 #ifndef SYSCALLS_H
 #define SYSCALLS_H
 
-typedef enum { SYSCALL_RTC,
-               SYSCALL_RTC_SET,
-               SYSCALL_READ,
-               SYSCALL_WRITE,
-               SYSCALL_MALLOC,
-               SYSCALL_CALLOC,
-               SYSCALL_FREE,
-               SYSCALL_KEYBOARD_CATCH,
-               SYSCALL_VIDEO_CLR_INDEXED_LINE,
-               SYSCALL_VIDEO_RESET_CURSOR,
-               SYSCALL_KEYBOARD_REPLACE_BUFFER,
-               SYSCALL_GET_COLOR,
-               SYSCALL_SET_COLOR,
-               SYSCALL_SET_TIME,
-               SYSCALL_SET_KBD_DISTRIBUTION,
-               SYSCALL_SCREENSAVER_TIMER,
-               SYSCALL_SCREENSAVER_TRIGGER,
-               SYSCALL_CLEAR_SCREEN,
-               SYSCALL_EXIT,
-               SYSCALL_KEYBOARD_CLEAR_HANDLER,
-               SYSCALL_KDEBUG,
-               SYSCALL_TASK_CREATE,
-               SYSCALL_TASK_READY,
-               SYSCALL_TASK_JOIN,
-               SYSCALL_TASK_GET_PID,
-               SYSCALL_TASK_YIELD,
-               SYSCALL_TASK_GETALL,
-               SYSCALL_SLEEP,
-               SYSCALL_UPTIME,
-               SYSCALL_ATOMIC,
-               SYSCALL_UNATOMIC
-             } syscall_t;
+typedef enum {
+     SYSCALL_RTC,
+     SYSCALL_RTC_SET,
+     SYSCALL_READ,
+     SYSCALL_WRITE,
+     SYSCALL_MALLOC,
+     SYSCALL_CALLOC,
+     SYSCALL_FREE,
+     SYSCALL_KEYBOARD_CATCH,
+     SYSCALL_VIDEO_CLR_INDEXED_LINE,
+     SYSCALL_VIDEO_RESET_CURSOR,
+     SYSCALL_KEYBOARD_REPLACE_BUFFER,
+     SYSCALL_GET_COLOR,
+     SYSCALL_SET_COLOR,
+     SYSCALL_SET_TIME,
+     SYSCALL_SET_KBD_DISTRIBUTION,
+     SYSCALL_SCREENSAVER_TIMER,
+     SYSCALL_SCREENSAVER_TRIGGER,
+     SYSCALL_CLEAR_SCREEN,
+     SYSCALL_EXIT,
+     SYSCALL_KEYBOARD_CLEAR_HANDLER,
+     SYSCALL_KDEBUG,
+     SYSCALL_TASK_CREATE,
+     SYSCALL_TASK_READY,
+     SYSCALL_TASK_JOIN,
+     SYSCALL_TASK_GET_PID,
+     SYSCALL_TASK_YIELD,
+     SYSCALL_TASK_GETALL,
+     SYSCALL_SLEEP,
+     SYSCALL_UPTIME,
+     SYSCALL_ATOMIC,
+     SYSCALL_UNATOMIC,
+     SYSCALL_SIGNAL_KILL,
+     SYSCALL_SIGNAL_SET
+} syscall_t;
 
 void sys_write(FD fd, char* s, uint64_t len);
 uint64_t sys_read(FD fd, char* s, uint64_t len);
@@ -69,6 +72,9 @@ void sys_task_yield();
 task_t* sys_task_getall();
 void sys_sleep(uint64_t ms);
 uint64_t sys_uptime();
+
+void sys_signal_kill(pid_t pid, signal_t sig);
+void sys_signal_set(signal_t sig, sighandler_t handler);
 
 #define sSTR_HELPER(x) #x
 #define sSTR(x) sSTR_HELPER(x)
