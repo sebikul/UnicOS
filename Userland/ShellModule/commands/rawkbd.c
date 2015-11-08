@@ -20,12 +20,15 @@ COMMAND_START(rawkbd) {
 
 	_exit = 0;
 
+	//sys_atomic();
+
 	printf("Installing keyboard handler...\n");
 	index = sys_keyboard_catch(0x0, keyboard_handler, KEYBOARD_WILDCARD, "esc key");
 
 	while (!_exit);
 
 	sys_keyboard_clear_handler(index);
+	//sys_unatomic();
 
 	return 0;
 

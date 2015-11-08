@@ -327,7 +327,77 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	return FALSE;
 }
 
+static  __attribute__ ((noreturn)) uint64_t keyboard_task(int argc, char** argv) {
+
+	while (TRUE) {
+
+		uint64_t *scancodeptr, scancode;
+		uint64_t res = 0;
+		int reps;
+		char c;
+
+		while (msgqueue_size(kbdqueue) == 0);
+
+		scancodeptr = msgqueue_deq(kbdqueue);
+		scancode = *scancodeptr;
+		free(scancodeptr);
+
+		switch (scancode) {
+		case 0xE0:
+			reps = 1;
+			break;
+
+		case 0xE1:
+			reps = 2;
+			break;
+
+		default:
+			reps = 0;
+			break;
+		}
+
+		for (int i = 0; i < reps; i++) {
+			scancodeptr = msgqueue_deq(kbdqueue);
+
+			kdebug("Leido scancode: 0x");
+			kdebug_base(*scancodeptr, 16);
+			kdebug_nl();
+
+			scancode = (scancode << 8 ) | (*scancodeptr);
+			free(scancodeptr);
+		}
+
+		if (keyboard_run_handlers(scancode)) {
+			kdebug("Scancode atrapado por un handler\n");
+			continue;
+		}
+
+		scancode_t t = keyboard_scancodes[keyboard_distribution][scancode];
+
+		if (t.ascii == NOCHAR) {
+			//kdebug("Recibido caracter NOCHAR\n");
+			continue;
+		}
+
+		if (keyboard_status.caps || keyboard_status.shift) {
+			c = t.caps;
+		} else {
+			c = t.ascii;
+		}
+
+		input_add(c);
+
+		if (c != '\n') {
+			video_write_char(video_current_console(), c);
+			video_update_cursor();
+		}
+
+	}
+}
+
 void keyboard_init() {
+	task_t *kbdtask;
+
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
 	//TODO caso de shift
@@ -338,36 +408,17 @@ void keyboard_init() {
 	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
 
 	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+
+	kbdtask = task_create(keyboard_task, "keyboard", 0, NULL);
+
+	task_setconsole(kbdtask, 0);
+	task_ready(kbdtask);
 }
 
 void keyboard_irq_handler(uint64_t s) {
 
-	char c;
+	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
 
-	if (keyboard_run_handlers(s)) {
-		kdebug("Scancode atrapado por un handler\n");
-		return;
-	}
-
-	scancode_t t = keyboard_scancodes[keyboard_distribution][s];
-
-	if (t.ascii == NOCHAR) {
-		//kdebug("Recibido caracter NOCHAR\n");
-		return;
-	}
-
-	if (keyboard_status.caps || keyboard_status.shift) {
-		c = t.caps;
-	} else {
-		c = t.ascii;
-	}
-
-	input_add(c);
-
-	if (c != '\n') {
-		video_write_char(video_current_console(), c);
-		video_update_cursor();
-	}
 }
 
 int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {

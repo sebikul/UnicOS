@@ -3,7 +3,7 @@
 #include "commands.h"
 #include "string.h"
 
-COMMAND_HELP(screensaver, 			"[screensaver] Activa el salva pantallas.\n"
+COMMAND_HELP(screensaver, "[screensaver] Activa el salva pantallas.\n"
              "\t[screensaver set] Setea el tiempo que tarda en activarse el salva pantallas."
              "Por defecto 20 segundos, el tiempo se ingresa en segundos.");
 

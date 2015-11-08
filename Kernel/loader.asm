@@ -220,13 +220,7 @@ keyboard:
 		xor			rax, 	rax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
-		cmp 		al, 	0xE0
-
-		jnz 		keyboard_scancode_read
-		xchg 		al, 	ah
-		in 			al, 	0x60
-
-keyboard_scancode_read:
+		
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 
