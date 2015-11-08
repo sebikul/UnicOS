@@ -21,7 +21,6 @@ void vmm_initialize() {
   video_write_string(KERNEL_CONSOLE, "NEW CR3: 0x");
   video_write_hex(KERNEL_CONSOLE, readCR3());
   video_write_nl(KERNEL_CONSOLE);
-  //while(1);
 }
 
 /* Creates a new level 4 directory
@@ -139,6 +138,73 @@ uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx) {
     table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
   }
   return (uint64_t)(table->table[idx].address*0x1000);
+}
+
+/* Given a level 4 directory, frees every page used AND THE LEVEL 4 DIRECTORY TOO */
+uint64_t free_l4_table(PM_L4_TABLE* l4_table) {
+  uint64_t pages_freed = 0;
+  int i;
+  for (i = 0; i < 512; i++) {
+    PM_L4 current_l4 = l4_table->table[i];
+    if (current_l4.p == 1) {
+      pages_freed += free_l3_table((PM_L3_TABLE*)(current_l4.address*0x1000));
+      current_l4.p = 0;
+      pmm_page_free((void*)(current_l4.address*0x1000));
+      pages_freed++;
+    }
+  }
+  pmm_page_free((uint64_t)l4_table);
+  return pages_freed;
+}
+
+/* Given a level 3 directory, frees every page used */
+uint64_t free_l3_table(PM_L3_TABLE* l3_table) {
+  uint64_t pages_freed = 0;
+  int i;
+  for (i = 0; i < 512; i++) {
+    PM_L3 current_l3 = l3_table->table[i];
+    if (current_l3.p == 1) {
+      pages_freed += free_l2_table((PM_L2_TABLE*)(current_l3.address*0x1000));
+      current_l3.p = 0;
+      pmm_page_free((void*)(current_l3.address*0x1000));
+      pages_freed++;
+    }
+  }
+  return pages_freed;
+}
+
+/* Given a level 2 directory, frees every page used */
+uint64_t free_l2_table(PM_L2_TABLE* l2_table) {
+  uint64_t pages_freed = 0;
+  int i;
+  for (i = 0; i < 512; i++) {
+    PM_L2 current_l2 = l2_table->table[i];
+    if (current_l2.p == 1) {
+      pages_freed += free_l1_table((PM_L1_TABLE*)(current_l2.address*0x1000));
+      current_l2.p = 0;
+      pmm_page_free((void*)(current_l2.address*0x1000));
+      pages_freed++;
+    }
+  }
+  return pages_freed;
+}
+
+/* Given a level 1 directory, frees every page used */
+uint64_t free_l1_table(PM_L1_TABLE* l1_table) {
+  uint64_t pages_freed = 0;
+  int i;
+  for (i = 0; i < 511; i++) {
+    PM_L1 current_l1 = l1_table->table[i];
+    if (current_l1.p == 1) {
+      current_l1.p = 0;
+      if ((current_l1.address*0x1000) > (12*0x100000)) {
+        /* WE DON'T WANT TO FREE PAGES THAT BELONGS TO THE KERNEL */
+        pmm_page_free((void*)(current_l1.address*0x1000));
+        pages_freed++;
+      }
+    }
+  }
+  return pages_freed;
 }
 
 /* Simple function that writes a hex number in screen preceeded by a string passed as an argument */

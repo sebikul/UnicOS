@@ -157,3 +157,14 @@ void page_frame_test() {
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)(page3));
 	video_write_nl(KERNEL_CONSOLE);
 }
+
+void dump_last_n_pages(int n) {
+	uint64_t* aux = pmm_stack_current;
+	video_write_string(KERNEL_CONSOLE, "LAST PAGES:");
+	video_write_nl(KERNEL_CONSOLE);
+	for (int i = 0; i < n; i++)	{
+		video_write_string(KERNEL_CONSOLE, "0x");
+		video_write_hex(KERNEL_CONSOLE, (uint64_t)*(--aux));
+		video_write_nl(KERNEL_CONSOLE);
+	}
+}

@@ -120,6 +120,10 @@ PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx);
 PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx);
 PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx);
 uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx);
+uint64_t free_l4_table(PM_L4_TABLE* l4_table);
+uint64_t free_l3_table(PM_L3_TABLE* l3_table);
+uint64_t free_l2_table(PM_L2_TABLE* l2_table);
+uint64_t free_l1_table(PM_L1_TABLE* l1_table);
 
 void l4_table_test();
 
