@@ -174,7 +174,7 @@ void task_init() {
 	//current = task;
 }
 
-static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc, char **argv){
+static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc, char **argv) {
 
 	uint64_t retval;
 	task_t *task;
@@ -299,6 +299,17 @@ uint64_t task_getatomic() {
 		return 0;
 	}
 	return current->atomic_level;
+}
+
+uint64_t task_decquantum() {
+	current->quantum--;
+}
+
+uint64_t task_getquantum() {
+	if (current == NULL) {
+		return 0;
+	}
+	return current->quantum;
 }
 
 uint64_t task_join(task_t *task, task_t *other) {

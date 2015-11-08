@@ -14,6 +14,8 @@ extern 		irq0_handler
 extern 		irq80_handler
 extern 		task_next
 extern 		task_getatomic
+extern 		task_getquantum
+extern 		task_decquantum
 
 extern 		stack_init
 
@@ -146,7 +148,11 @@ pit_handler:
 
 		call 		task_getatomic
 		cmp 		rax, 	0
-		jne 		_is_atomic
+		jne 		_eoi
+
+		call 		task_getquantum
+		cmp 		rax, 	0
+		jne 		_leave_current
 
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
@@ -157,8 +163,12 @@ pit_handler:
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
+		jmp 		_eoi
 
-_is_atomic:
+_leave_current:
+		call 		task_decquantum
+
+_eoi:
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al

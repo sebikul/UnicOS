@@ -89,6 +89,7 @@ typedef struct task_t {
 	uint64_t sleep_limit;
 	uint64_t retval;
 	uint64_t atomic_level;
+	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];
 	task_state_t state;
 	uint8_t console;

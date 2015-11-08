@@ -25,7 +25,9 @@ COMMAND_START(sigrcv) {
 	bool _exit = FALSE;
 
 	void sighandler(signal_t s) {
-		ksysdebug("Señal recibida!\n");
+		ksysdebug("Senal recibida!\n");
+		printf("Senal recibida!\n");
+		_exit = TRUE;
 	}
 
 	void keyboard_handler(uint64_t s) {
@@ -45,8 +47,9 @@ COMMAND_START(sigrcv) {
 
 	while (!_exit);
 
+	printf("Exiting...\n");
+
 	sys_keyboard_clear_handler(index);
 
 	return 0;
-
 }

@@ -8,6 +8,8 @@
 
 #define FLAGS_INT_BIT (1<<9)
 
+#define QUANTUM  	10
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 

@@ -59,6 +59,8 @@ uint64_t task_join(task_t *task, task_t *other);
 void task_atomic(task_t *task);
 void task_unatomic(task_t *task);
 uint64_t task_getatomic();
+uint64_t task_decquantum();
+uint64_t task_getquantum();
 
 void task_setconsole(task_t *task, console_t console);
 task_t* task_get_current();
