@@ -214,6 +214,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->join = NULL;
 	task->retval = 0;
 	task->atomic_level = 0;
+	memset(task->sighandlers, 0, SIGCOUNT * sizeof(sighandler_t));
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;

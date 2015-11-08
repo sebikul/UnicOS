@@ -9,7 +9,7 @@ typedef enum {FALSE, TRUE} bool;
 
 #define EOF 	-1
 
-typedef enum{
+typedef enum {
 	COLOR_BLACK = 0,
 	COLOR_BLUE = 1,
 	COLOR_GREEN = 2,
@@ -29,7 +29,7 @@ typedef enum{
 } vga_color;
 
 
-typedef enum FD{
+typedef enum FD {
 	FD_STDERR,
 	FD_STDOUT
 } FD;
@@ -66,6 +66,15 @@ typedef void (*dka_handler)(uint64_t s);
 typedef uint64_t (*task_entry_point)(int argc, char** argv);
 typedef uint64_t pid_t;
 
+typedef void (*sighandler_t)(uint64_t s);
+typedef enum {
+	SIGINT,
+	SIGKILL,
+
+	//Debe ser el ultimo para mantener la cuenta!
+	SIGCOUNT
+} signal_t;
+
 typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBIE} task_state_t;
 
 typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
@@ -80,6 +89,7 @@ typedef struct task_t {
 	uint64_t sleep_limit;
 	uint64_t retval;
 	uint64_t atomic_level;
+	sighandler_t sighandlers[SIGCOUNT];
 	task_state_t state;
 	uint8_t console;
 } task_t;
