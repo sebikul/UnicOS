@@ -27,6 +27,7 @@ void reschedule();
 
 void intson();
 void intsoff();
+void halt();
 
 //void gdt_init();
 

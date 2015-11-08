@@ -10,6 +10,7 @@
 #include "serial.h"
 #include "kernel.h"
 #include "syscalls.h"
+#include "pit.h"
 
 #if ! MACOS
 #include <string.h>

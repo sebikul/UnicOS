@@ -47,7 +47,6 @@ static uint64_t _main(int argc, char** argv) {
 	int current_history = 0;
 	int max_history = 0;
 	int arrows_handlers[2] = {0};
-	uint64_t deadcode;
 
 	auto void keyboard_uparrow_handler(uint64_t s);
 	auto void keyboard_downarrow_handler(uint64_t s);

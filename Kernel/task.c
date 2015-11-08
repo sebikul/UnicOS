@@ -137,8 +137,6 @@ static  __attribute__ ((noreturn)) uint64_t null_task_func(int argc, char** argv
 		// kdebug_nl();
 		//task_foreach(update_task_state);
 	}
-
-	return 0;
 }
 
 static void task_dump_list(task_t *task) {
@@ -180,7 +178,6 @@ static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc,
 	task_t *task;
 
 	retval = func(argc, argv);
-
 
 	bool ints = kset_ints(FALSE);
 
@@ -301,7 +298,7 @@ uint64_t task_getatomic() {
 	return current->atomic_level;
 }
 
-uint64_t task_decquantum() {
+void task_decquantum() {
 	current->quantum--;
 }
 

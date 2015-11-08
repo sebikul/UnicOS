@@ -12,18 +12,15 @@ static void sigwrapper(task_t* task, signal_t sig, task_state_t oldstate, void* 
 
 	kdebug("Executing signal handler\n");
 
-	task_atomic(task);
-
 	task->sighandlers[sig](sig);
 
 	kdebug("Returned from signal handler! Restoring stack to 0x");
-	kdebug_base(origstack, 16);
+	kdebug_base((uint64_t)origstack, 16);
 	kdebug_nl();
 
 	task->state = oldstate;
 	task->stack = origstack;
 
-	task_unatomic(task);
 	halt();
 }
 
@@ -50,7 +47,7 @@ void signal_send(task_t *dest, signal_t sig) {
 	context->rdi =	(uint64_t)dest;
 	context->rbp =	0x00D;
 	context->rdx =	(uint64_t)dest->state;
-	context->rcx =	origstack;
+	context->rcx =	(uint64_t)origstack;
 	context->rbx =	0x010;
 	context->rax =	0x011;
 

@@ -66,7 +66,6 @@ typedef void (*dka_handler)(uint64_t s);
 typedef uint64_t (*task_entry_point)(int argc, char** argv);
 typedef uint64_t pid_t;
 
-typedef void (*sighandler_t)(uint64_t s);
 typedef enum {
 	SIGINT,
 	SIGKILL,
@@ -74,6 +73,8 @@ typedef enum {
 	//Debe ser el ultimo para mantener la cuenta!
 	SIGCOUNT
 } signal_t;
+
+typedef void (*sighandler_t)(signal_t s);
 
 typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBIE} task_state_t;
 
