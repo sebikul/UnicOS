@@ -14,14 +14,19 @@ void vmm_initialize() {
   // Bit 31 of CR0, PGE (Bit 7), PAE (Bit 5), and PSE (Bit 4) of CR4 are set in pureg4.asm
   // Create page directories
   // Load CR3
-
-  video_write_string(KERNEL_CONSOLE, "CR2: 0x");
+  video_write_string(KERNEL_CONSOLE, "OLD CR3: 0x");
   video_write_hex(KERNEL_CONSOLE, readCR3());
   video_write_nl(KERNEL_CONSOLE);
-  //writeCR3((uint64_t)new_pml4(0));
-  while(1);
+  writeCR3((uint64_t)new_pml4(0));
+  video_write_string(KERNEL_CONSOLE, "NEW CR3: 0x");
+  video_write_hex(KERNEL_CONSOLE, readCR3());
+  video_write_nl(KERNEL_CONSOLE);
+  //while(1);
 }
 
+/* Creates a new level 4 directory
+ * param @us == 0 means kernel, other means user
+ */
 PM_L4_TABLE* new_pml4(int us) {
   int is_kernel = (us == 0) ? 0 : 1;
   PM_L4_TABLE* l4_table = (PM_L4_TABLE*)pmm_page_alloc();
@@ -41,7 +46,7 @@ PM_L4_TABLE* new_pml4(int us) {
   return l4_table;
 }
 
-/* This function fills the first 6 entries that contains the kernel code */
+/* This function fills the first 6 entries of an level 2 table that contains the kernel code */
 void generic_l2_table(PM_L2_TABLE* table, int us) {
   int is_kernel = (us == 0) ? 0 : 1;
   int i;
@@ -61,6 +66,7 @@ void generic_l2_table(PM_L2_TABLE* table, int us) {
   }
 }
 
+/* Given a level 2 table, identity page the 2mb that corresponds to that table */
 PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us) {
   PM_L1_TABLE* l1_table = (PM_L1_TABLE*)pmm_page_alloc();
   int i;
@@ -75,11 +81,67 @@ PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us) {
 
 void page_fault_handler() {
   // CR2 contains the virtual address that caused the fault
+  video_write_string(KERNEL_CONSOLE, "PAGE FAULT ");
   video_write_string(KERNEL_CONSOLE, "CR2: 0x");
   video_write_hex(KERNEL_CONSOLE, readCR2());
   video_write_nl(KERNEL_CONSOLE);
+  while(1);
 }
 
+/* Adds all the unpresent pages of a virtual address */
+uint64_t add_page(VirtualAddress addr) {
+  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)readCR3();
+  PM_L3_TABLE* l3_table = get_l3_table(l4_table, addr.pm_l4_offset);
+  PM_L2_TABLE* l2_table = get_l2_table(l3_table, addr.pm_l3_offset);
+  PM_L1_TABLE* l1_table = get_l1_table(l2_table, addr.pm_l2_offset);
+  return add_to_l1_table(l1_table, addr.physical_offset);
+}
+
+/* Given a level 4 table, returns the level 3 table indicated by idx, if it is not present it creates one */
+PM_L3_TABLE* get_l3_table(PM_L4_TABLE* table, uint64_t idx) {
+  if (table->table[idx].p == 0) {
+    table->table[idx].p = 1;
+    table->table[idx].rw = 1;
+    table->table[idx].us = 1;
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+  }
+   return (PM_L3_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
+}
+
+/* Given a level 3 table, returns the level 2 table indicated by idx, if it is not present it creates one */
+PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx) {
+  if (table->table[idx].p == 0) {
+    table->table[idx].p = 1;
+    table->table[idx].rw = 1;
+    table->table[idx].us = 1;
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+  }
+   return (PM_L2_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
+}
+
+/* Given a level 2 table, returns the level 1 table indicated by idx, if it is not present it creates one */
+PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx) {
+  if (table->table[idx].p == 0) {
+    table->table[idx].p = 1;
+    table->table[idx].rw = 1;
+    table->table[idx].us = 1;
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+  }
+   return (PM_L1_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
+}
+
+/* Given a level 1 table, returns the physical page indicated by idx, if it is not present it creates one */
+uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx) {
+  if (table->table[idx].p == 0) {
+    table->table[idx].p = 1;
+    table->table[idx].rw = 1;
+    table->table[idx].us = 1;
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+  }
+  return (uint64_t)(table->table[idx].address*0x1000);
+}
+
+/* Simple function that writes a hex number in screen preceeded by a string passed as an argument */
 void hex_log(char* pre, uint64_t num) {
   video_write_string(KERNEL_CONSOLE, pre);
   video_write_string(KERNEL_CONSOLE, "0x");
@@ -87,6 +149,7 @@ void hex_log(char* pre, uint64_t num) {
   video_write_nl(KERNEL_CONSOLE);
 }
 
+/* This function tests the creation of a new level 4 directory */
 void l4_table_test() {
   PM_L4_TABLE* l4_table = new_pml4(0);
   PM_L3_TABLE* l3_table = (PM_L3_TABLE*)((l4_table->table[0].address)*0x1000);

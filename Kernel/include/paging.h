@@ -115,7 +115,11 @@ void page_fault_handler();
 PM_L4_TABLE* new_pml4(int us);
 void generic_l2_table(PM_L2_TABLE* table, int us);
 PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us);
-
+uint64_t add_page(VirtualAddress addr);
+PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx);
+PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx);
+PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx);
+uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx);
 
 void l4_table_test();
 
