@@ -215,6 +215,7 @@ reschedule:
 align 16
 keyboard:
 		pusha
+		cli
 
 		xor			rax, 	rax
 
@@ -229,10 +230,10 @@ keyboard_scancode_read:
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 
-keyboard_done:
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
+		sti
 		popa
 		iretq
 

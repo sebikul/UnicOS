@@ -2,7 +2,7 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(sigsend, "[sigsend] Envia una señal al programa con pid <pid>");
+COMMAND_HELP(sigsend, "[sigsend] Envia una senal al programa con pid <pid>");
 
 COMMAND_START(sigsend) {
 
@@ -17,7 +17,7 @@ COMMAND_START(sigsend) {
 	return 0;
 }
 
-COMMAND_HELP(sigrcv, "[host] Recibe una señal");
+COMMAND_HELP(sigrcv, "[host] Recibe una senal");
 
 COMMAND_START(sigrcv) {
 

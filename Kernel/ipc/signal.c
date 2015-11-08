@@ -12,15 +12,22 @@ static void sigwrapper(task_t* task, signal_t sig, task_state_t oldstate, void* 
 
 	kdebug("Executing signal handler\n");
 
-	task->sighandlers[sig](sig);
+	if (task->sighandlers[sig] != NULL) {
+		task->sighandlers[sig](sig);
+	} else {
+		video_write_line(video_current_console(), "Signal handler not set!");
+	}
+
 
 	kdebug("Returned from signal handler! Restoring stack to 0x");
 	kdebug_base((uint64_t)origstack, 16);
 	kdebug_nl();
 
 	task->state = oldstate;
-	task->stack = origstack;
+	//task->stack = origstack;
 
+	//Esperamos a que llegue la proxima interrupcion. Si llamamos a reschedule, se estaria pusheando
+	//un contexto invalido.
 	halt();
 }
 
@@ -58,5 +65,4 @@ void signal_send(task_t *dest, signal_t sig) {
 	context->ss = 0x000;
 
 	task_ready(dest);
-
 }
