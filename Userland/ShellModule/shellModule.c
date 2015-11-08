@@ -83,6 +83,9 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(clear);
 		COMMAND_INIT(rawkbd);
 		COMMAND_INIT(ps);
+		COMMAND_INIT(sigsend);
+		COMMAND_INIT(sigrcv);
+
 		initialize_names();
 
 		sys_unatomic();

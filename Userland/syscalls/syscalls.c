@@ -128,3 +128,10 @@ void sys_atomic() {
 void sys_unatomic() {
 	syscall((uint64_t)SYSCALL_UNATOMIC);
 }
+
+void sys_signal_kill(pid_t pid, signal_t sig) {
+	syscall((uint64_t)SYSCALL_SIGNAL_KILL, pid, (uint64_t)sig);
+}
+void sys_signal_set(signal_t sig, sighandler_t handler) {
+	syscall((uint64_t)SYSCALL_SIGNAL_SET, (uint64_t)sig, (uint64_t)handler);
+}
