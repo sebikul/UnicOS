@@ -9,7 +9,8 @@ COMMAND_START(echo) {
 		for (int i = 1; i < argc; i++) {
 			printf("%s ", argv[i]);
 		}
-	} else {
 		printf("\n");
 	}
+
+	return 0;
 }

@@ -33,8 +33,14 @@ extern uintptr_t kernel_stack;
 }\
 
 static pid_t getnewpid() {
-	pid_t pid = nextpid;
+	pid_t pid;
+
+	bool ints = kset_ints(FALSE);
+
+	pid = nextpid;
 	nextpid++;
+
+	kset_ints(ints);
 
 	return pid;
 }
@@ -43,7 +49,7 @@ static uint64_t task_shell(int argc, char** argv) {
 
 	while (TRUE) {
 
-		uint8_t console = task_get_current()->console;
+		//uint8_t console = task_get_current()->console;
 
 		//video_clear_screen(console);
 
@@ -74,27 +80,63 @@ static uint64_t task_shell(int argc, char** argv) {
 
 static inline void task_add(task_t *task) {
 
+	bool ints = kset_ints(FALSE);
+
 	if (last == NULL) {
 		task->next = task;
+		task->prev = task;
 		last = task;
 	} else {
 		task->next = last->next;
 		last->next = task;
+
+		task->prev = last;
+		task->next->prev = task;
+
 		last = task;
 	}
 
-	//first = task;
+	kset_ints(ints);
 }
 
-static uint64_t null_task_func(int argc, char** argv) {
+static inline void task_remove(task_t *task) {
+
+	bool ints = kset_ints(FALSE);
+
+	task_t *prev = task->prev;
+	task_t *next = task->next;
+
+	prev->next = next;
+	next->prev = prev;
+
+	if (task == last) {
+		last = prev;
+	}
+
+	free(task->name);
+	free(task->stack);
+	free(task);
+
+	kset_ints(ints);
+}
+
+static void update_task_state(task_t *task) {
+
+	if (task->state == TASK_SLEEPING) {
+		if (get_ms_since_boot() > task->sleep_limit) {
+			task_ready(task);
+		}
+	}
+}
+
+static  __attribute__ ((noreturn)) uint64_t null_task_func(int argc, char** argv) {
 	while (TRUE) {
 		// kdebug("Looping NULL. pid: ");
 
 		// kdebug_base(current->pid, 10);
 		// kdebug_nl();
+		//task_foreach(update_task_state);
 	}
-
-	return 0;
 }
 
 static void task_dump_list(task_t *task) {
@@ -130,30 +172,31 @@ void task_init() {
 	//current = task;
 }
 
-static void wrapper(task_entry_point func, int argc, char **argv) {
+static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc, char **argv) {
 
 	uint64_t retval;
 	task_t *task;
 
 	retval = func(argc, argv);
 
-	intsoff();
+	bool ints = kset_ints(FALSE);
+
 	kdebug("La tarea finalizo\n");
 
 	task = task_get_current();
-	video_write_line(task->console, "La tarea ha finalizado\n");
+	//video_write_line(task->console, "La tarea ha finalizado\n");
 
 	if (task->join != NULL) {
 		task_ready(task->join);
 		task->join = NULL;
 	}
 
-	free(task->name);
-	free(task->stack);
+	task->retval = retval;
+	task->state = TASK_ZOMBIE;
 
-	task->state = TASK_STOPPED;
+	task_set_foreground(consoles[task->console], task->console);
 
-	intson();
+	kset_ints(ints);
 
 	reschedule();
 }
@@ -166,6 +209,9 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
 	task->join = NULL;
+	task->retval = 0;
+	task->atomic_level = 0;
+	memset(task->sighandlers, 0, SIGCOUNT * sizeof(sighandler_t));
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;
@@ -201,7 +247,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	context->rip =	(uint64_t)wrapper;
 	context->cs = 0x008;
 	context->rflags = 0x202;
-	context->rsp =	(uint64_t) & (context->base);
+	context->rsp =	(uint64_t) (&context->base);
 	context->ss = 0x000;
 	context->base =	0x000;
 
@@ -226,14 +272,46 @@ void task_ready(task_t *task) {
 
 void task_pause(task_t *task) {
 	task->state = TASK_PAUSED;
-}
-
-void task_sleep(task_t *task) {
-	task->state = TASK_SLEEPING;
 	reschedule();
 }
 
-void task_join(task_t *task, task_t *other) {
+void task_sleep(task_t *task, uint64_t ms) {
+	task->state = TASK_SLEEPING;
+	task->sleep_limit = get_ms_since_boot() + ms;
+	reschedule();
+}
+
+void task_atomic(task_t *task) {
+	task->atomic_level++;
+}
+
+void task_unatomic(task_t *task) {
+	if (task->atomic_level > 0) {
+		task->atomic_level--;
+	}
+}
+
+uint64_t task_getatomic() {
+	if (current == NULL) {
+		return 0;
+	}
+	return current->atomic_level;
+}
+
+void task_decquantum() {
+	current->quantum--;
+}
+
+uint64_t task_getquantum() {
+	if (current == NULL) {
+		return 0;
+	}
+	return current->quantum;
+}
+
+uint64_t task_join(task_t *task, task_t *other) {
+
+	uint64_t retval;
 
 	kdebug("Sending task with pid=");
 	kdebug_base(other->pid, 10);
@@ -245,6 +323,20 @@ void task_join(task_t *task, task_t *other) {
 	task->join = other;
 	other->state = TASK_JOINING;
 	reschedule();
+
+	retval = task->retval;
+
+	kdebug("Removing task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" RETVAL=");
+	kdebug_base(retval, 10);
+	kdebug_nl();
+
+	task_remove(task);
+
+	return retval;
 }
 
 void task_setconsole(task_t *task, console_t console) {
@@ -257,6 +349,7 @@ void task_next() {
 	//DUMP_LIST_FROM_CURRENT();
 
 	while (task->state != TASK_RUNNING && task != current) {
+		update_task_state(task);
 		task = task->next;
 	}
 
@@ -268,9 +361,12 @@ void task_next() {
 
 	current = task;
 
-	kdebug("Next task is pid#: ");
-
-	kdebug_base(current->pid, 10);
+	kdebug("Next task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
 	kdebug_nl();
 }
 
@@ -308,13 +404,26 @@ task_t* task_find_by_pid(pid_t pid) {
 
 	task_t *task = last->next;
 
+	kdebug("Finding task with pid= ");
+	kdebug_base(pid, 10);
+	_kdebug("  -->  ");
+
 	while (task->pid != pid && task != last) {
 		task = task->next;
 	}
 
 	if (task == last && task->pid != pid) {
+		_kdebug("Task not found!\n");
 		return NULL;
 	}
+
+	_kdebug("Found task: '");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" stack at 0x");
+	kdebug_base((uint64_t) task->stack, 16);
+	kdebug_nl();
 
 	return task;
 }

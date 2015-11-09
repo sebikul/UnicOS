@@ -31,6 +31,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 			bool flag_zero = FALSE;
 			uint32_t width = 0;
+			bool is_long = FALSE;
 
 			i++;
 			if (fmt[i] == 0) {
@@ -48,35 +49,63 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 				// hay que procesar el siguiente caracter y actuar acorde
 				bool flag;
 				do {
-
 					flag = FALSE;
 					switch (fmt[i]) {
 					case 's': {
-						//lo que se desea es imprimir unca cadena
+						//lo que se desea es imprimir una cadena
 						char* arg = va_arg(ap, char*);
 						int k = 0;
 
 						//k: posicion en el argumento
 
 						while (arg[k] != 0) {
-							str[j] = arg[k];
-							j++;
-							k++;
+							str[j++] = arg[k++];
+						}
+
+						if (width > 0) {
+							int spaces = width - strlen(arg);
+							while (spaces > 0) {
+								str[j++] = ' ';
+								spaces--;
+							}
 						}
 
 						i++;
 						break;
 					}
 
+					case 'l':
+						is_long = TRUE;
+						i++;
+						flag = TRUE;
+						break;
+
+
 					case 'd': {
 
-						int arg = va_arg(ap, int);
+						long int arg;
+
+						if (is_long) {
+							arg = va_arg(ap, long int);
+						} else {
+							arg = (long int)va_arg(ap, int);
+						}
 
 						char* number = itoc(arg);
 
 						int k = 0;
 
 						uint32_t numlen = strlen(number);
+
+						if (arg < 0) {
+							str[j++] = '-';
+						}
+
+						//k: posicion en el argumento
+
+						while (number[k] != 0) {
+							str[j++] = number[k++];
+						}
 
 						if (numlen < width) {
 
@@ -91,18 +120,10 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 							}
 
 							for (int i = 0; i < numtowrite; i++) {
-								str[j] = chartowrite;
-								j++;
+								str[j++] = chartowrite;
 							}
 						}
 
-						//k: posicion en el argumento
-
-						while (number[k] != 0) {
-							str[j] = number[k];
-							j++;
-							k++;
-						}
 						i++;
 						break;
 					}
@@ -111,8 +132,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						char arg = (char)va_arg(ap, int);
 
-						str[j] = arg;
-						j++;
+						str[j++] = arg;
 						i++;
 						break;
 					}
@@ -121,27 +141,28 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						char buffer[128] = { 0 };
 
-						int arg = va_arg(ap, int);
+						uint64_t arg = va_arg(ap, uint64_t);
 						uint32_t digits = uintToBase(arg, buffer, 16);
 
 						for (uint32_t i = 0; i < digits; i++) {
-							str[j] = buffer[i];
-							j++;
+							str[j++] = buffer[i];
 						}
 
 						i++;
 						break;
 					}
 
-					case '0': {
-						if (!flag_zero) {
-							flag_zero = TRUE;
-							i++;
-							flag = TRUE;
+					case '0':
+						if (width == 0) {
+							if (!flag_zero) {
+								flag_zero = TRUE;
+								i++;
+								flag = TRUE;
+								break;
+							}
 							break;
 						}
-						break;
-					}
+
 
 					case '1':
 					case '2':
@@ -151,12 +172,15 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 					case '6':
 					case '7':
 					case '8':
-					case '9': {
-						width = fmt[i] - '0';
+					case '9':
+						if (width > 0) {
+							width *= 10;
+						}
+						width += fmt[i] - '0';
 						i++;
 						flag = TRUE;
 						break;
-					}
+
 					}
 
 				} while (flag);

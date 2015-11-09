@@ -3,7 +3,7 @@
 #include "commands.h"
 #include "string.h"
 
-COMMAND_HELP(screensaver, 			"[screensaver] Activa el salva pantallas.\n"
+COMMAND_HELP(screensaver, "[screensaver] Activa el salva pantallas.\n"
              "\t[screensaver set] Setea el tiempo que tarda en activarse el salva pantallas."
              "Por defecto 20 segundos, el tiempo se ingresa en segundos.");
 
@@ -24,7 +24,7 @@ COMMAND_START(screensaver) {
 			if (!string_numeric(argv[2])) {
 
 				fprintf(FD_STDERR, "Debe ingresar una cantidad de segundos como parametro.\n");
-				return;
+				return 1;
 			}
 			sec = ctoi(argv[2]);
 			if (sec == 0) {
@@ -42,4 +42,6 @@ COMMAND_START(screensaver) {
 	default:
 		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
+
+	return 0;
 }

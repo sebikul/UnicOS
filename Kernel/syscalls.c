@@ -9,11 +9,11 @@
 #include "task.h"
 #include "kernel.h"
 #include "input.h"
+#include "signal.h"
 
-extern uint64_t screensaver_wait_time;
-extern bool screensaver_is_active;
+extern uint64_t pit_timer;
 
-uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8) {
+uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
 
 	//kdebug("Despachando syscall int 80h\n");
 
@@ -48,11 +48,15 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_KEYBOARD_CATCH:
-		return sys_keyboard_catch(rsi, (dka_handler) rdx, rcx);
+		return sys_keyboard_catch(rsi, (dka_handler) rdx, rcx, (char*)r8);
 		break;
 
 	case SYSCALL_VIDEO_CLR_INDEXED_LINE:
 		sys_clear_indexed_line(rsi);
+		break;
+
+	case SYSCALL_VIDEO_RESET_CURSOR:
+		sys_reset_cursor();
 		break;
 
 	case SYSCALL_KEYBOARD_REPLACE_BUFFER:
@@ -96,7 +100,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_CREATE:
-		return sys_task_create((task_entry_point) rsi, (char*) rdx, (int)rcx, (char**) r8);
+		return sys_task_create((task_entry_point) rsi, (task_mode_t) rdx, (char*) rcx, (int)r8, (char**) r9);
 		break;
 
 	case SYSCALL_TASK_READY:
@@ -104,7 +108,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_JOIN:
-		sys_task_join((pid_t) rsi, (pid_t) rdx);
+		return sys_task_join((pid_t) rsi, (pid_t) rdx);
 		break;
 
 	case SYSCALL_TASK_GET_PID:
@@ -116,13 +120,38 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_TASK_GETALL:
-	return sys_task_getall();
-	break;
-	}
+		return (uint64_t)sys_task_getall();
+		break;
 
-	kdebug("ERROR: INVALID SYSCALL: ");
-	kdebug_base(rdi, 10);
-	kdebug_nl();
+	case SYSCALL_SLEEP:
+		sys_sleep(rsi);
+		break;
+
+	case SYSCALL_UPTIME:
+		return sys_uptime();
+		break;
+
+	case SYSCALL_ATOMIC:
+		sys_atomic();
+		break;
+
+	case SYSCALL_UNATOMIC:
+		sys_unatomic();
+		break;
+
+	case SYSCALL_SIGNAL_KILL:
+		sys_signal_kill((pid_t) rsi, (signal_t) rdx);
+		break;
+
+	case SYSCALL_SIGNAL_SET:
+		sys_signal_set((signal_t) rsi, (sighandler_t) rdx);
+		break;
+
+	default:
+		kdebug("ERROR: INVALID SYSCALL: ");
+		kdebug_base(rdi, 10);
+		kdebug_nl();
+	}
 
 	return 0;
 }
@@ -138,24 +167,27 @@ void sys_rtc_set(time_t* t) {
 void sys_write(FD fd, char* s, uint64_t len) {
 
 	color_t colorbk;
+	task_t *current = task_get_current();
+
 
 	switch (fd) {
 	case FD_STDOUT:
-		// kdebug("Writing to console ");
-		// kdebug_base(task_get_current()->console, 10);
-		// kdebug_nl();
-		video_write_string(task_get_current()->console, s);
+		kdebug("Writing to console ");
+		kdebug_base(current->console, 10);
+		kdebug_nl();
+
+		video_write_string(current->console, s);
 		break;
 
 	case FD_STDERR:
 
-		colorbk = video_get_color(task_get_current()->console);
+		colorbk = video_get_color(current->console);
 
-		video_set_color(task_get_current()->console, COLOR_RED, COLOR_BLACK);
+		video_set_color(current->console, COLOR_RED, COLOR_BLACK);
 
-		video_write_string(task_get_current()->console, s);
+		video_write_string(current->console, s);
 
-		video_set_full_color(task_get_current()->console, colorbk);
+		video_set_full_color(current->console, colorbk);
 		break;
 	}
 }
@@ -166,7 +198,7 @@ uint64_t sys_read(FD fd, char* s, uint64_t len) {
 
 	kdebug("Esperando entrada\n");
 
-	task_sleep(task_get_current());
+	task_pause(task_get_current());
 
 	kdebug("Entrada recibida!\n");
 
@@ -201,15 +233,20 @@ void sys_free(void* m) {
 	free(m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags) {
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
 	flags = flags & ~KEYBOARD_ALLCONSOLES;
+	task_t *current = task_get_current();
 
-	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, flags);
+	return keyboard_catch(scancode, handler, current, flags, name);
 }
 
 void sys_clear_indexed_line(uint64_t index) {
 	video_clear_indexed_line(task_get_current()->console, index);
+}
+
+void sys_reset_cursor() {
+	video_reset_cursor(video_current_console());
 }
 
 void sys_keyboard_replace_buffer(char* s) {
@@ -230,8 +267,7 @@ void sys_kbd_set_distribution(keyboard_distrib d) {
 }
 
 void sys_set_screensaver_timer(uint64_t t) {
-	screensaver_wait_time = t;
-	screensaver_reset_timer();
+	screensaver_set_wait(t);
 }
 
 void sys_clear_screen() {
@@ -239,8 +275,7 @@ void sys_clear_screen() {
 }
 
 void sys_screensaver_trigger() {
-
-	active_screensaver();
+	screensaver_trigger();
 }
 
 void sys_keyboard_clear_handler(uint64_t handler) {
@@ -251,11 +286,16 @@ void sys_kdebug(char *str) {
 	_kdebug(str);
 }
 
-pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
+pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv) {
 	task_t *task;
+	console_t curr_console = task_get_current()->console;
 
 	task = task_create(func, name, argc, argv);
-	task_setconsole(task, task_get_current()->console);
+	task_setconsole(task, curr_console);
+
+	if (mode == TASK_FOREGROUND) {
+		task_set_foreground(task, curr_console);
+	}
 
 	return task->pid;
 }
@@ -269,15 +309,15 @@ void sys_task_ready(pid_t pid) {
 	task_ready(task);
 }
 
-void sys_task_join(pid_t pid, pid_t otherpid) {
+uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	task_t *task = task_find_by_pid(pid);
-	task_t *shell = task_find_by_pid(otherpid);
-	//task_t *shell = task_get_for_console(task->console);
+	task_t *other = task_find_by_pid(otherpid);
 
 	if (task == NULL) {
-		return;
+		//TODO errno
+		return 0;
 	}
-	task_join(task, shell);
+	return task_join(task, other);
 }
 
 pid_t sys_task_get_pid() {
@@ -285,40 +325,60 @@ pid_t sys_task_get_pid() {
 }
 
 void sys_task_yield() {
-	reschedule();
+	kdebug("Yielding CPU to next task\n");
+	sys_sleep(0);
 }
 
-// static void copy_to_info(taskinfo_t *dst, task_t *src) {
-// 	dst->next = src->next;
-// 	if (src->join != NULL) {
-// 		dst->join = malloc(sizeof(taskinfo_t));
-// 		copy_to_info(dst->join, src->join);
-// 	}
-// 	dst->name = src->name;
-// 	dst->pid = src->pid;
-// 	dst->state = src->state;
-// }
-
 task_t* sys_task_getall() {
-
-	// taskinfo_t *first_info, *current_info;
-	// task_t *first_task, *current_task;
-
-	// first_task = ;
-	// first_info = malloc(sizeof(taskinfo_t));
-
-	// copy_to_info(first_info, first_task);
-
-	// current_info = first_info;
-	// current_task = first_task;
-
-	// do {
-	// 	current_info = malloc(sizeof(taskinfo_t));
-	// 	copy_to_info(current_info, current_task);
-
-	// 	current_task = current_task->next;
-	// 	current_info = current_info->next;
-
-	// } while (current_task != first_task);
 	return task_get_first();
+}
+
+void sys_sleep(uint64_t ms) {
+	task_t *task = task_get_current();
+	task_sleep(task, ms);
+}
+
+uint64_t sys_uptime() {
+	return pit_timer;
+}
+
+void sys_atomic() {
+	task_atomic(task_get_current());
+}
+
+void sys_unatomic() {
+	task_unatomic(task_get_current());
+}
+
+void sys_signal_kill(pid_t pid, signal_t sig) {
+	task_t *task = task_find_by_pid(pid);
+
+	if (task == NULL) {
+		//TODO errno
+		return;
+	}
+
+	kdebug("Executing signal handler for task: ");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" signal: ");
+	kdebug_base(sig, 10);
+	kdebug_nl();
+
+	signal_send(task, sig);
+}
+
+void sys_signal_set(signal_t sig, sighandler_t handler) {
+	task_t *task = task_get_current();
+
+	kdebug("Setting signal handler for task: ");
+	_kdebug(task->name);
+	_kdebug("' pid=");
+	kdebug_base(task->pid, 10);
+	_kdebug(" signal: ");
+	kdebug_base(sig, 10);
+	kdebug_nl();
+
+	signal_set(task, sig, handler);
 }

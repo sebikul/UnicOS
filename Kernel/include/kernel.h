@@ -6,6 +6,10 @@
 
 #define STACK_SIZE KB(128)
 
+#define FLAGS_INT_BIT (1<<9)
+
+#define QUANTUM  	5
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
@@ -23,7 +27,20 @@ void reschedule();
 
 void intson();
 void intsoff();
+void halt();
 
-void gdt_init();
+//void gdt_init();
+
+uint64_t get_ms_since_boot();
+
+//Tareas del kernel
+void screensaver_init();
+void screensaver_set_wait(uint64_t s);
+void screensaver_trigger();
+
+uint64_t get_flags();
+
+//Implementacion segun mtask
+bool kset_ints(bool ints);
 
 #endif

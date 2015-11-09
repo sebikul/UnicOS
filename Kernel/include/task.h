@@ -53,8 +53,14 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 
 void task_ready(task_t *task);
 void task_pause(task_t *task);
-void task_sleep(task_t *task);
-void task_join(task_t *task, task_t *other);
+void task_sleep(task_t *task, uint64_t ms);
+uint64_t task_join(task_t *task, task_t *other);
+
+void task_atomic(task_t *task);
+void task_unatomic(task_t *task);
+uint64_t task_getatomic();
+void task_decquantum();
+uint64_t task_getquantum();
 
 void task_setconsole(task_t *task, console_t console);
 task_t* task_get_current();
@@ -63,6 +69,8 @@ task_t* task_get_for_console(console_t console);
 
 void task_next();
 task_t* task_get_first();
+
+void task_foreach(void (*func)(task_t*));
 
 void task_set_foreground(task_t *task, console_t console);
 task_t* task_get_foreground(console_t console);

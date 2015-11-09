@@ -20,6 +20,8 @@ COMMAND_START(user_name) {
 			strcpy(user_name, argv[1]);
 		}
 	}
+
+	return 0;
 }
 
 COMMAND_HELP(host_name, "[host] Recibe el nombre del host y lo setea.");
@@ -35,5 +37,7 @@ COMMAND_START(host_name) {
 			strcpy(host_name, argv[1]);
 		}
 	}
+
+	return 0;
 
 }

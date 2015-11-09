@@ -51,7 +51,7 @@ COMMAND_START(color) {
 
         if (icolor == EOF) {
             fprintf(FD_STDERR, "NO ES UN COLOR");
-            return;
+            return 1;
         }
 
 
@@ -81,6 +81,8 @@ COMMAND_START(color) {
     default :
         fprintf(FD_STDERR, "Cantidad invalida de parametros. \n" );
     }
+
+    return 0;
 }
 
 static void initialize_colors() {
@@ -125,6 +127,7 @@ COMMAND_START(refresh) {
     back = string_color_to_int(colors[0]);
     set_color(front, back);
 
+    return 0;
 }
 
 static char* color_to_string(color_t color) {

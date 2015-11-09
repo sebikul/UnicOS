@@ -10,7 +10,7 @@ COMMAND_START(set_distribution) {
 
 	if (argc != 3) {
 		fprintf(FD_STDERR, "Cantidad invalida de argumentos.\n");
-		return;
+		return 1;
 	}
 
 	if (strcmp(argv[1], "set") == 0) {
@@ -26,5 +26,7 @@ COMMAND_START(set_distribution) {
 	} else {
 		fprintf(FD_STDERR, "Comando invalido. Comando disponible [keyboard set].\n");
 	}
+
+	return 0;
 
 }

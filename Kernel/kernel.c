@@ -10,6 +10,7 @@
 #include "serial.h"
 #include "kernel.h"
 #include "syscalls.h"
+#include "pit.h"
 
 #if ! MACOS
 #include <string.h>
@@ -27,11 +28,9 @@ static const uint64_t PageSize = 0x1000;
 static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
-static uint64_t pit_timer = 0;
-//Screensaver, 20 segundos por defecto
-uint64_t screensaver_wait_time = 20;
-uint64_t screensaver_timer = 0;
-bool screensaver_is_active = FALSE;
+#define MSPERTICK 	55
+
+uint64_t pit_timer = 0;
 
 void *kernel_stack = NULL;
 
@@ -83,7 +82,7 @@ void initializeKernelBinary() {
 
 	video_write_line(KERNEL_CONSOLE, "[Done]");
 
-	screensaver_reset_timer();
+	//screensaver_reset_timer();
 
 	video_write_line(KERNEL_CONSOLE, "Kernel cargado.");
 }
@@ -99,8 +98,6 @@ void load_kernel_modules() {
 }
 
 void main() {
-	pmm_initialize();
-	vmm_initialize();
 
 	video_write_string(KERNEL_CONSOLE, "-->Kernel Stack at: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)kernel_stack);
@@ -114,6 +111,20 @@ void main() {
 
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
+
+	pit_setup(10);
+	//beep();
+
+	// TAREAS DEL KERNEL
+	screensaver_init();
+
+	// intson();
+
+	// while(TRUE){
+	// 	video_write_string(KERNEL_CONSOLE, "PIT Timer: ");
+	// 	video_write_dec(KERNEL_CONSOLE,  pit_timer);
+	// 	video_write_nl(KERNEL_CONSOLE);
+	// }
 
 	// for (console_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 	// 	video_write_string(i, "Console #: ");
@@ -131,56 +142,22 @@ void main() {
 	//while(TRUE);
 }
 
-//retorna si se debe ignorar lo tecleado
-bool screensaver_reset_timer() {
-
-	bool ret = FALSE;
-
-	//kdebug("Reseteando timer del screensaver\n");
-
-	if (screensaver_is_active) {
-		kdebug("Saliendo del screensaver\n");
-		ret = TRUE;
-		screensaver_is_active = FALSE;
-		video_trigger_restore();
-	}
-	screensaver_timer = 18 * screensaver_wait_time;
-
-	return ret;
-}
-
-void active_screensaver() {
-	screensaver_is_active = TRUE;
-	video_trigger_screensaver();
-	kdebug("Activando screensaver\n");
-}
-
-void vmm_initialize() {
-	// Set bit 31 of CR0
-	// Create page directories
-	// Load CR3
-}
-
-void page_fault_handler() {
-	// CR2 contains the virtual address that caused the fault
-
-}
-
 void irq0_handler() {
 
-	pit_timer++;
-	screensaver_timer--;
-
-	if (screensaver_timer == 0 && !screensaver_is_active) {
-		active_screensaver();
-	}
 }
 
 void _kdebug(const char* s) {
+	bool ints = kset_ints(FALSE);
 	while (*s != 0) {
 		serial_send(*s);
 		s++;
 	}
+
+	kset_ints(ints);
+}
+
+uint64_t get_ms_since_boot() {
+	return pit_timer;
 }
 
 void kdebug_char(char c) {
@@ -196,4 +173,14 @@ void kdebug_base(uint64_t value, uint32_t base) {
 
 void kdebug_nl() {
 	serial_send('\n');
+}
+
+bool kset_ints(bool ints) {
+	uint64_t flags = get_flags();
+	if (ints) {
+		intson();
+	} else {
+		intsoff();
+	}
+	return (flags & FLAGS_INT_BIT) != 0;
 }

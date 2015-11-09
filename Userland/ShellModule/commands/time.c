@@ -63,6 +63,8 @@ COMMAND_START(time) {
 	default:
 		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
 	}
+
+	return 0;
 }
 
 static int checkDate(int hour, int minute, int second, int day, int month, int year) {

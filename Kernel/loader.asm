@@ -4,6 +4,7 @@ global		intsoff
 global 		gdt_flush
 global 		halt
 global 		reschedule
+global 		get_flags
 
 extern 		main
 extern 		initializeKernelBinary
@@ -12,8 +13,14 @@ extern 		keyboard_irq_handler
 extern 		page_fault_handler
 extern 		irq0_handler
 extern 		irq80_handler
+extern 		task_next
+extern 		task_getatomic
+extern 		task_getquantum
+extern 		task_decquantum
 
 extern 		stack_init
+
+extern 		pit_timer
 
 extern 		scheduler_u2k
 extern 		scheduler_k2u
@@ -140,14 +147,33 @@ pit_handler:
 		pusha
 		cli
 
+		mov 		rax, 	[pit_timer]
+		add 		rax, 	10
+		mov 		[pit_timer], rax
+
+		call 		task_getatomic
+		cmp 		rax, 	0
+		jne 		_eoi
+
+		call 		task_getquantum
+		cmp 		rax, 	0
+		jne 		_leave_current
+
 		mov 		rdi,	 rsp
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
 
 		call 		irq0_handler
+		call 		task_next
 
 		call  		scheduler_k2u
 		mov			rsp,	 rax
+		jmp 		_eoi
+
+_leave_current:
+		call 		task_decquantum
+
+_eoi:
 
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
@@ -183,6 +209,8 @@ reschedule:
 		call 		scheduler_u2k
 		mov 		rsp, 	rax
 
+		call 		task_next
+
 		call  		scheduler_k2u
 		mov			rsp,	 rax
 
@@ -191,28 +219,21 @@ reschedule:
 
 align 16
 keyboard:
-		push 		rdi
-		push 		rax
+		pusha
+		cli
 
-		xor			eax, 	eax
+		xor			rax, 	rax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
-		cmp 		al, 	0xE0
-
-		jnz 		keyboard_scancode_read
-		xchg 		al, 	ah
-		in 			al, 	0x60
-
-keyboard_scancode_read:
+		
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 
-keyboard_done:
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
-		pop 		rax
-		pop 		rdi
+		sti
+		popa
 		iretq
 
 init_pic:										; Enable specific interrupts
@@ -228,6 +249,11 @@ intson:
 
 intsoff:
 		cli
+		ret
+
+get_flags:
+		pushf
+		pop 		rax
 		ret
 
 gdt_flush:

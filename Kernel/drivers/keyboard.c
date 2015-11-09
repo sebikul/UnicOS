@@ -8,6 +8,7 @@
 #include "msgqueue.h"
 #include "input.h"
 #include "kernel.h"
+#include "string.h"
 
 #define FIRST_BIT_ON(c) (0x80 | c)
 
@@ -200,22 +201,22 @@ scancode_t keyboard_scancodes[][256] = {
 	}
 };
 
-extern bool screensaver_is_active;
-
 static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 
-static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE};
-
-static bool screensaver_enter_flag = FALSE;
+static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE, .shift = FALSE};
 
 static msgqueue_t* kbdqueue;
+static task_t *kbdtask;
 
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 static int dka_catched_len = 0;
 
-
 static void keyboard_caps_handler(uint64_t s) {
 	keyboard_status.caps = !keyboard_status.caps;
+}
+
+static void keyboard_shift_handler(uint64_t s) {
+	keyboard_status.shift = !keyboard_status.shift;
 }
 
 static void keyboard_backspace_handler(uint64_t s) {
@@ -285,7 +286,14 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
 			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
 			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
-			bool is_console_equal = (video_current_console() == dka_catched_scancodes[i]->console);
+			bool is_console_equal;
+
+			if (dka_catched_scancodes[i]->task == NULL) {
+				is_console_equal = (video_current_console() == KERNEL_CONSOLE);
+
+			} else {
+				is_console_equal = (video_current_console() == dka_catched_scancodes[i]->task->console);
+			}
 
 			if (!is_wildcard) {
 				if (is_range) {
@@ -303,11 +311,41 @@ static bool keyboard_run_handlers(uint64_t scode) {
 				continue;
 			}
 
-			kdebug("Ejecutando handler en consola: ");
-			kdebug_base(video_current_console(), 10);
+			kdebug("Ejecutando handler \"");
+			_kdebug(dka_catched_scancodes[i]->name);
+			_kdebug("\" en consola: ");
+			kdebug_base((dka_catched_scancodes[i]->task->console == NULL) ? KERNEL_CONSOLE : dka_catched_scancodes[i]->task->console, 10);
 			kdebug_nl();
 
+			// //Creamos un backup de la consola actual. Como esta funcion se ejecuta dentro de la consola 0,
+			// //que corresponde a la consola de la tarea del teclado, debemos cambiar momentaneamente a la consola
+			// //de la tarea que seteo el handler
+			// console_t backup = video_current_console();
+			// console_t newconsole;
+
+			// if (dka_catched_scancodes[i]->task == NULL) {
+			// 	newconsole = KERNEL_CONSOLE;
+			// } else {
+			// 	newconsole = dka_catched_scancodes[i]->task->console;
+			// }
+
+			// video_change_console(newconsole);
+			// input_change_console(newconsole);
+
+			// task_t *dest;
+
+			// if (dka_catched_scancodes[i]->task == NULL) {
+			// 	dest = task_get_null();
+			// } else {
+			// 	dest = dka_catched_scancodes[i]->task;
+			// }
+
+			// signal_func_witharg(dest, dka_catched_scancodes[i]->handler, scode);
+
 			dka_catched_scancodes[i]->handler(scode);
+
+			// video_change_console(backup);
+			// input_change_console(backup);
 
 			if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
 				continue;
@@ -324,110 +362,97 @@ static bool keyboard_run_handlers(uint64_t scode) {
 	return FALSE;
 }
 
-static volatile bool running = FALSE;
+static  __attribute__ ((noreturn)) uint64_t keyboard_task(int argc, char** argv) {
 
-static void keyboard_dispatch() {
+	while (TRUE) {
 
-	uint64_t *scancode;
-	uint64_t res = 0;
-	int reps;
-	char c;
+		uint64_t *scancodeptr, scancode;
+		int reps;
+		char c;
 
-	if (running) {
-		return;
+		while (msgqueue_size(kbdqueue) == 0);
+
+		scancodeptr = msgqueue_deq(kbdqueue);
+		scancode = *scancodeptr;
+		free(scancodeptr);
+
+		switch (scancode) {
+		case 0xE0:
+			reps = 1;
+			break;
+
+		case 0xE1:
+			reps = 2;
+			break;
+
+		default:
+			reps = 0;
+			break;
+		}
+
+		for (int i = 0; i < reps; i++) {
+			scancodeptr = msgqueue_deq(kbdqueue);
+
+			scancode = (scancode << 8 ) | (*scancodeptr);
+			free(scancodeptr);
+		}
+
+		if (keyboard_run_handlers(scancode)) {
+			kdebug("Scancode atrapado por un handler\n");
+			continue;
+		}
+
+		scancode_t t = keyboard_scancodes[keyboard_distribution][scancode];
+
+		if (t.ascii == NOCHAR) {
+			//kdebug("Recibido caracter NOCHAR\n");
+			continue;
+		}
+
+		if (keyboard_status.caps || keyboard_status.shift) {
+			c = t.caps;
+		} else {
+			c = t.ascii;
+		}
+
+		input_add(c);
+
+		if (c != '\n') {
+			video_write_char(video_current_console(), c);
+			video_update_cursor();
+		}
+
 	}
-
-	running = TRUE;
-
-	if (msgqueue_size(kbdqueue) == 0) {
-		running = FALSE;
-		return;
-	}
-
-	scancode = msgqueue_deq(kbdqueue);
-
-	switch (*scancode) {
-	case 0xE0:
-		reps = 1;
-		break;
-
-	case 0xE1:
-		reps = 2;
-		break;
-
-	default:
-		reps = 0;
-		break;
-	}
-
-	res = *scancode;
-	free(scancode);
-
-	for (int i = 0; i < reps; i++) {
-		scancode = msgqueue_deq(kbdqueue);
-
-		kdebug("Leido scancode: 0x");
-		kdebug_base(*scancode, 16);
-		kdebug_nl();
-
-		res = (res << 8 ) | (*scancode);
-		free(scancode);
-	}
-
-	if (keyboard_run_handlers(res)) {
-		kdebug("Scancode atrapado por un handler\n");
-		running = FALSE;
-		return;
-	}
-
-	scancode_t t = keyboard_scancodes[keyboard_distribution][res];
-
-	if (t.ascii == NOCHAR) {
-		//kdebug("Recibido caracter NOCHAR\n");
-		running = FALSE;
-		return;
-	}
-
-	if (keyboard_status.caps) {
-		c = t.caps;
-	} else {
-		c = t.ascii;
-	}
-
-	input_add(c);
-
-	video_write_char(video_current_console(), c);
-	video_update_cursor();
-
-	running = FALSE;
 }
 
 void keyboard_init() {
+
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, 0);
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	//TODO caso de shift
+	keyboard_catch(0x3A, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x2A, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x36, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
 
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES);
+	keyboard_catch(0x0E, keyboard_backspace_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+
+	kbdtask = task_create(keyboard_task, "keyboard", 0, NULL);
+
+	task_setconsole(kbdtask, 0);
+	task_ready(kbdtask);
 }
 
 void keyboard_irq_handler(uint64_t s) {
-
-	if (screensaver_reset_timer()) {
-		return;
-	}
-
-	//kdebug("IRQ del teclado\n");
-
 	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
-
-	keyboard_dispatch();
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags) {
+void keyboard_change_console(console_t console) {
+	kbdtask->console = console;
+}
+
+int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name) {
 
 	int index;
 
@@ -435,9 +460,11 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pi
 
 	tmp->scancode = scancode;
 	tmp->handler = handler;
-	tmp->pid = pid;
-	tmp->console = console;
+	tmp->task = task;
 	tmp->flags = flags;
+
+	tmp->name = malloc(strlen(name) + 1);
+	strcpy(tmp->name, name);
 
 	index = dka_catched_len;
 	dka_catched_scancodes[index] = tmp;
@@ -447,6 +474,7 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pi
 }
 
 void keyboard_clear_handler(int index) {
+	free(dka_catched_scancodes[index]->name);
 	free(dka_catched_scancodes[index]);
 	dka_catched_scancodes[index] = NULL;
 }

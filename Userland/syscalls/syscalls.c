@@ -36,12 +36,16 @@ void sys_free(void* m) {
 	syscall((uint64_t)SYSCALL_FREE, (uint64_t)m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags) {
-	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, scancode, (uint64_t)handler, flags);
+uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
+	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, scancode, (uint64_t)handler, flags, name);
 }
 
 void sys_clear_indexed_line(uint64_t index) {
 	syscall((uint64_t)SYSCALL_VIDEO_CLR_INDEXED_LINE, index);
+}
+
+void sys_reset_cursor() {
+	syscall((uint64_t) SYSCALL_VIDEO_RESET_CURSOR);
 }
 
 void sys_keyboard_replace_buffer(char* s) {
@@ -85,16 +89,16 @@ void sys_kdebug(char* str) {
 	syscall((uint64_t)SYSCALL_KDEBUG, str);
 }
 
-pid_t sys_task_create(task_entry_point func, const char* name, int argc, char** argv) {
-	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
+pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv) {
+	return (pid_t)syscall((uint64_t)SYSCALL_TASK_CREATE, (uint64_t)func, (task_mode_t) mode, (uint64_t)name, (uint64_t)argc, (uint64_t)argv);
 }
 
 void sys_task_ready(pid_t pid) {
 	syscall((uint64_t)SYSCALL_TASK_READY, pid);
 }
 
-void sys_task_join(pid_t pid, pid_t otherpid) {
-	syscall((uint64_t) SYSCALL_TASK_JOIN, pid, otherpid);
+uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
+	return syscall((uint64_t) SYSCALL_TASK_JOIN, pid, otherpid);
 }
 
 pid_t sys_task_get_pid() {
@@ -105,6 +109,29 @@ void sys_task_yield() {
 	syscall((uint64_t)SYSCALL_TASK_YIELD);
 }
 
-task_t* sys_task_getall(){
-	return syscall((uint64_t)SYSCALL_TASK_GETALL);
+task_t* sys_task_getall() {
+	return (task_t*)syscall((uint64_t)SYSCALL_TASK_GETALL);
+}
+
+void sys_sleep(uint64_t ms) {
+	syscall((uint64_t) SYSCALL_SLEEP, ms);
+}
+
+uint64_t sys_uptime() {
+	return syscall((uint64_t)SYSCALL_UPTIME);
+}
+
+void sys_atomic() {
+	syscall((uint64_t)SYSCALL_ATOMIC);
+}
+
+void sys_unatomic() {
+	syscall((uint64_t)SYSCALL_UNATOMIC);
+}
+
+void sys_signal_kill(pid_t pid, signal_t sig) {
+	syscall((uint64_t)SYSCALL_SIGNAL_KILL, pid, (uint64_t)sig);
+}
+void sys_signal_set(signal_t sig, sighandler_t handler) {
+	syscall((uint64_t)SYSCALL_SIGNAL_SET, (uint64_t)sig, (uint64_t)handler);
 }
