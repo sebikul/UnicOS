@@ -112,7 +112,7 @@ create_gate:
 
 set_interrupt_handlers:
 		mov 		rdi, 0xE 					; Set up page fault handler
-		mov 		rax, page_fault_handler
+		mov 		rax, INT0E
 		call 		create_gate
 
 		mov 		rdi, 	0x80				; Set up Software Interrups handler
@@ -212,6 +212,17 @@ keyboard:
 		jnz 		keyboard_scancode_read
 		xchg 		al, 	ah
 		in 			al, 	0x60
+
+align 16
+INT0E: ; page fault handler
+    pusha
+    mov     eax, [rsp+32] ; error code
+    mov     rdi, rax
+    mov     rsi, cr2
+    call    page_fault_handler
+    popa
+    add     esp, 4 ; error code
+    iretq
 
 keyboard_scancode_read:
 		mov 		rdi,	 rax

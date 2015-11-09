@@ -22,6 +22,15 @@ typedef struct {
 } VirtualAddress;
 
 typedef struct {
+  unsigned int p         : 1;
+  unsigned int rw        : 1;
+  unsigned int us        : 1;
+  unsigned int rsv       : 1;
+  unsigned int id        : 1;
+  unsigned int reserverd : 26;
+} PAGE_FAULT_ERROR_CODE;
+
+typedef struct {
   unsigned long p         : 1;
   unsigned long rw        : 1;
   unsigned long us        : 1;
@@ -111,19 +120,20 @@ uint64_t readCR4();
 
 /* Paging functions */
 void vmm_initialize();
-void page_fault_handler();
+void page_fault_handler(uint64_t error_code, uint64_t cr2);
 PM_L4_TABLE* new_pml4(int us);
 void generic_l2_table(PM_L2_TABLE* table, int us);
 PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us);
-uint64_t add_page(VirtualAddress addr);
-PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx);
-PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx);
-PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx);
-uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx);
+uint64_t add_page(VirtualAddress* addr, int us, int rw);
+PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx, int us, int rw);
+PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx, int us, int rw);
+PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx, int us, int rw);
+uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx, int us, int rw);
 uint64_t free_l4_table(PM_L4_TABLE* l4_table);
 uint64_t free_l3_table(PM_L3_TABLE* l3_table);
 uint64_t free_l2_table(PM_L2_TABLE* l2_table);
 uint64_t free_l1_table(PM_L1_TABLE* l1_table);
+uint64_t alloc_new_process_stack();
 
 void l4_table_test();
 

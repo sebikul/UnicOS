@@ -5,16 +5,29 @@
 #include <libc.h>
 #include "string.h"
 
+static void* mallocBuffer = (30*0x100000);
+static void* lastMalloc;
+
 void* malloc(int len) {
-	return sys_malloc(len);
+	lastMalloc = mallocBuffer;
+
+	mallocBuffer += len;
+
+	return lastMalloc;
 }
 
 void* calloc(int len) {
-	return sys_calloc(len);
+	char* space = (char*)malloc(len);
+	memset((void*) space, 0, len);
+	return (void*)space;
 }
 
 void free(void* m) {
-	sys_free(m);
+
+	if (m == lastMalloc) {
+		mallocBuffer = m;
+	}
+
 }
 
 static void vfprintf(FD fd, char* fmt, va_list ap) {
