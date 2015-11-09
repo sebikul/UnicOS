@@ -167,24 +167,27 @@ void sys_rtc_set(time_t* t) {
 void sys_write(FD fd, char* s, uint64_t len) {
 
 	color_t colorbk;
+	task_t *current = task_get_current();
+
 
 	switch (fd) {
 	case FD_STDOUT:
-		// kdebug("Writing to console ");
-		// kdebug_base(task_get_current()->console, 10);
-		// kdebug_nl();
-		video_write_string(task_get_current()->console, s);
+		kdebug("Writing to console ");
+		kdebug_base(current->console, 10);
+		kdebug_nl();
+
+		video_write_string(current->console, s);
 		break;
 
 	case FD_STDERR:
 
-		colorbk = video_get_color(task_get_current()->console);
+		colorbk = video_get_color(current->console);
 
-		video_set_color(task_get_current()->console, COLOR_RED, COLOR_BLACK);
+		video_set_color(current->console, COLOR_RED, COLOR_BLACK);
 
-		video_write_string(task_get_current()->console, s);
+		video_write_string(current->console, s);
 
-		video_set_full_color(task_get_current()->console, colorbk);
+		video_set_full_color(current->console, colorbk);
 		break;
 	}
 }
@@ -233,8 +236,9 @@ void sys_free(void* m) {
 uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
 	flags = flags & ~KEYBOARD_ALLCONSOLES;
+	task_t *current = task_get_current();
 
-	return keyboard_catch(scancode, handler, task_get_current()->console, task_get_current()->pid, flags, name);
+	return keyboard_catch(scancode, handler, current, flags, name);
 }
 
 void sys_clear_indexed_line(uint64_t index) {
