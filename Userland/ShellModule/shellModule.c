@@ -94,12 +94,12 @@ static uint64_t _main(int argc, char** argv) {
 
 	print_commands_struct();
 
-	arrows_handlers[0] = sys_keyboard_catch(0xE048, keyboard_uparrow_handler, 0, "up arrow");
-	arrows_handlers[1] = sys_keyboard_catch(0xE050, keyboard_downarrow_handler, 0, "down arrow");
-
-	printf("Registrando handlers: up=%d down=%d\n", arrows_handlers[0], arrows_handlers[1]);
+	//printf("Registrando handlers: up=%d down=%d\n", arrows_handlers[0], arrows_handlers[1]);
 
 	while (TRUE) {
+
+		arrows_handlers[0] = sys_keyboard_catch(0xE048, keyboard_uparrow_handler, 0, "up arrow");
+		arrows_handlers[1] = sys_keyboard_catch(0xE050, keyboard_downarrow_handler, 0, "down arrow");
 
 		printf("\n%s@%s $ ", user_name, host_name);
 
@@ -110,6 +110,9 @@ static uint64_t _main(int argc, char** argv) {
 		ksysdebugs(buffer);
 
 		printf("\n");
+
+		sys_keyboard_clear_handler(arrows_handlers[0]);
+		sys_keyboard_clear_handler(arrows_handlers[1]);
 
 		command_dispatcher(buffer);
 	}
