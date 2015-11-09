@@ -108,9 +108,9 @@ create_gate:
 		ret
 
 set_interrupt_handlers:
-		mov 		rdi, 0xE 					; Set up page fault handler
-		mov 		rax, page_fault_handler
-		call 		create_gate
+		; mov 		rdi, 0xE 					; Set up page fault handler
+		; mov 		rax, page_fault_handler
+		; call 		create_gate
 
 		mov 		rdi, 	0x80				; Set up Software Interrups handler
 		mov 		rax, 	soft_interrupt
