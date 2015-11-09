@@ -17,16 +17,15 @@ typedef struct {
 typedef struct {
 	uint64_t scancode;
 	dka_handler handler;
-	pid_t pid;
+	task_t  *task;
 	uint64_t flags;
 	char *name;
-	console_t console;
 } dka_catch;
 
 void keyboard_init();
 int keyboard_wait_for_buffer(int len);
 char keyboard_get_char_from_buffer();
-int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name);
+int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name);
 void keyboard_clear_handler(int index);
 void keyboard_replace_buffer(char* s);
 void keyboard_set_distribution(keyboard_distrib d);

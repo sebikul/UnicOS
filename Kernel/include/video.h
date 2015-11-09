@@ -50,7 +50,8 @@ bool screensaver_reset_timer();
 void video_trigger_restore();
 void video_trigger_screensaver();
 
-void video_change_console(uint8_t console);
+void video_change_console_nosync(console_t console);
+void video_change_console(console_t console);
 
 console_t video_current_console();
 

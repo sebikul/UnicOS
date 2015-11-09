@@ -286,7 +286,14 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
 			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
 			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
-			bool is_console_equal = (video_current_console() == dka_catched_scancodes[i]->console);
+			bool is_console_equal;
+
+			if (dka_catched_scancodes[i]->task == NULL) {
+				is_console_equal = (video_current_console() == KERNEL_CONSOLE);
+
+			} else {
+				is_console_equal = (video_current_console() == dka_catched_scancodes[i]->task->console);
+			}
 
 			if (!is_wildcard) {
 				if (is_range) {
@@ -307,10 +314,28 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			kdebug("Ejecutando handler \"");
 			_kdebug(dka_catched_scancodes[i]->name);
 			_kdebug("\" en consola: ");
-			kdebug_base(video_current_console(), 10);
+			kdebug_base((dka_catched_scancodes[i]->task->console == NULL) ? KERNEL_CONSOLE : dka_catched_scancodes[i]->task->console, 10);
 			kdebug_nl();
 
+			// //Creamos un backup de la consola actual. Como esta funcion se ejecuta dentro de la consola 0,
+			// //que corresponde a la consola de la tarea del teclado, debemos cambiar momentaneamente a la consola
+			// //de la tarea que seteo el handler
+			// console_t backup = video_current_console();
+			// console_t newconsole;
+
+			// if (dka_catched_scancodes[i]->task == NULL) {
+			// 	newconsole = KERNEL_CONSOLE;
+			// } else {
+			// 	newconsole = dka_catched_scancodes[i]->task->console;
+			// }
+
+			// video_change_console(newconsole);
+			// input_change_console(newconsole);
+
 			dka_catched_scancodes[i]->handler(scode);
+
+			// video_change_console(backup);
+			// input_change_console(backup);
 
 			if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
 				continue;
@@ -359,10 +384,6 @@ static  __attribute__ ((noreturn)) uint64_t keyboard_task(int argc, char** argv)
 		for (int i = 0; i < reps; i++) {
 			scancodeptr = msgqueue_deq(kbdqueue);
 
-			kdebug("Leido scancode: 0x");
-			kdebug_base(*scancodeptr, 16);
-			kdebug_nl();
-
 			scancode = (scancode << 8 ) | (*scancodeptr);
 			free(scancodeptr);
 		}
@@ -401,13 +422,13 @@ void keyboard_init() {
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
 	//TODO caso de shift
-	keyboard_catch(0x3A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(0x2A, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(0x36, keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
-	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x3A, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x2A, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x36, keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x2A), keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(FIRST_BIT_ON(0x36), keyboard_caps_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
 
-	keyboard_catch(0x0E, keyboard_backspace_handler, 0, 0, KEYBOARD_ALLCONSOLES, "caps");
+	keyboard_catch(0x0E, keyboard_backspace_handler, NULL, KEYBOARD_ALLCONSOLES, "caps");
 
 	kbdtask = task_create(keyboard_task, "keyboard", 0, NULL);
 
@@ -421,7 +442,7 @@ void keyboard_irq_handler(uint64_t s) {
 
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pid_t pid, uint64_t flags, char* name) {
+int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name) {
 
 	int index;
 
@@ -429,8 +450,7 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, console_t console, pi
 
 	tmp->scancode = scancode;
 	tmp->handler = handler;
-	tmp->pid = pid;
-	tmp->console = console;
+	tmp->task = task;
 	tmp->flags = flags;
 
 	tmp->name = malloc(strlen(name) + 1);
