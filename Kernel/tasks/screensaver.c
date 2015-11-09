@@ -79,6 +79,6 @@ void screensaver_init() {
 	task_setconsole(screensaver, SCREENSAVER_CONSOLE);
 	task_ready(screensaver);
 
-	keyboard_catch(0x00, screensaver_kbdhandler, 0, 0, KEYBOARD_ALLCONSOLES | KEYBOARD_WILDCARD | KEYBOARD_IGNORE, "screensaver");
+	keyboard_catch(0x00, screensaver_kbdhandler, NULL, KEYBOARD_ALLCONSOLES | KEYBOARD_WILDCARD | KEYBOARD_IGNORE, "screensaver");
 }
 

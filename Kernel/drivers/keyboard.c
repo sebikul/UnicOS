@@ -211,7 +211,6 @@ static task_t *kbdtask;
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 static int dka_catched_len = 0;
 
-
 static void keyboard_caps_handler(uint64_t s) {
 	keyboard_status.caps = !keyboard_status.caps;
 }
@@ -368,7 +367,6 @@ static  __attribute__ ((noreturn)) uint64_t keyboard_task(int argc, char** argv)
 	while (TRUE) {
 
 		uint64_t *scancodeptr, scancode;
-		uint64_t res = 0;
 		int reps;
 		char c;
 

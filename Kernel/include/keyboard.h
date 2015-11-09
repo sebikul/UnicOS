@@ -30,4 +30,6 @@ void keyboard_clear_handler(int index);
 void keyboard_replace_buffer(char* s);
 void keyboard_set_distribution(keyboard_distrib d);
 
+void keyboard_change_console(console_t console);
+
 #endif
