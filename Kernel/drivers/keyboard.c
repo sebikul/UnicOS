@@ -206,6 +206,7 @@ static keyboard_distrib keyboard_distribution = KEYBOARD_USA;
 static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE, .shift = FALSE};
 
 static msgqueue_t* kbdqueue;
+static task_t *kbdtask;
 
 static dka_catch* dka_catched_scancodes[256] = {NULL};
 static int dka_catched_len = 0;
@@ -332,6 +333,16 @@ static bool keyboard_run_handlers(uint64_t scode) {
 			// video_change_console(newconsole);
 			// input_change_console(newconsole);
 
+			// task_t *dest;
+
+			// if (dka_catched_scancodes[i]->task == NULL) {
+			// 	dest = task_get_null();
+			// } else {
+			// 	dest = dka_catched_scancodes[i]->task;
+			// }
+
+			// signal_func_witharg(dest, dka_catched_scancodes[i]->handler, scode);
+
 			dka_catched_scancodes[i]->handler(scode);
 
 			// video_change_console(backup);
@@ -417,7 +428,6 @@ static  __attribute__ ((noreturn)) uint64_t keyboard_task(int argc, char** argv)
 }
 
 void keyboard_init() {
-	task_t *kbdtask;
 
 	kbdqueue = msgqueue_create(KEYBOARD_BUFFER_SIZE);
 
@@ -437,9 +447,11 @@ void keyboard_init() {
 }
 
 void keyboard_irq_handler(uint64_t s) {
-
 	msgqueue_add(kbdqueue, &s, sizeof(uint64_t));
+}
 
+void keyboard_change_console(console_t console) {
+	kbdtask->console = console;
 }
 
 int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name) {

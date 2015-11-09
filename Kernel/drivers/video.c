@@ -55,13 +55,14 @@ static inline void video_sync_console(console_t console) {
 
 static void video_fn_handler(uint64_t s) {
 	if (0x3b <= s && s <= 0x41) {
-		int newconsole = s - 0x3b;
+		console_t newconsole = s - 0x3b;
 
 		//TODO
 		//SEM_DOWN();
 
 		video_change_console((console_t)newconsole);
 		input_change_console(newconsole);
+		keyboard_change_console(newconsole);
 	}
 }
 
@@ -280,7 +281,7 @@ void video_write_base(console_t console, uint64_t value, uint32_t base) {
 }
 
 void video_change_console_nosync(console_t console) {
-	
+
 	kdebug("New virtual console: ");
 	kdebug_base(console, 10);
 	kdebug_nl();
