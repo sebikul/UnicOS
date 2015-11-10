@@ -116,7 +116,7 @@ void main() {
 	//beep();
 
 	// TAREAS DEL KERNEL
-	screensaver_init();
+	//screensaver_init();
 
 	// intson();
 

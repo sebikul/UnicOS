@@ -99,9 +99,22 @@ static inline void task_add(task_t *task) {
 	kset_ints(ints);
 }
 
-static inline void task_remove(task_t *task) {
+void task_remove(task_t *task) {
 
 	bool ints = kset_ints(FALSE);
+
+	if (task->join != NULL) {
+		task_ready(task->join);
+		task->join = NULL;
+	}
+
+	//Si la tarea esta en foreground, le devolvemos el foco a la consola
+	if (task_get_foreground(task->console) == task) {
+		kdebug("Devolviendo el foco a la consola ");
+		kdebug_base(task->console, 10);
+		kdebug_nl();
+		task_set_foreground(consoles[task->console], task->console);
+	}
 
 	task_t *prev = task->prev;
 	task_t *next = task->next;
@@ -116,6 +129,25 @@ static inline void task_remove(task_t *task) {
 	free(task->name);
 	free(task->stack);
 	free(task);
+
+	kset_ints(ints);
+}
+
+void task_schedule_removal(task_t *task) {
+
+	bool ints = kset_ints(FALSE);
+
+	task->state = TASK_ZOMBIE;
+	if (task->join != NULL) {
+		task_ready(task->join);
+		task->join = NULL;
+	}
+	// if (task_get_foreground(task->console) == task) {
+	// 	kdebug("Devolviendo el foco a la consola ");
+	// 	kdebug_base(task->console, 10);
+	// 	kdebug_nl();
+	// 	task_set_foreground(consoles[task->console], task->console);
+	// }
 
 	kset_ints(ints);
 }
