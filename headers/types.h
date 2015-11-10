@@ -69,6 +69,8 @@ typedef uint64_t pid_t;
 typedef enum {
 	SIGINT,
 	SIGKILL,
+	SIGUSR1,
+	SIGUSR2,
 
 	//Debe ser el ultimo para mantener la cuenta!
 	SIGCOUNT
@@ -79,6 +81,8 @@ typedef void (*sighandler_t)(signal_t s);
 typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBIE} task_state_t;
 
 typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
+
+#define MAX_TASK_KBD_HANDLERS 16
 
 typedef struct task_t {
 	struct task_t *prev;
@@ -92,6 +96,7 @@ typedef struct task_t {
 	uint64_t atomic_level;
 	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];
+	int64_t kbdhandlers[MAX_TASK_KBD_HANDLERS];
 	task_state_t state;
 	uint8_t console;
 } task_t;

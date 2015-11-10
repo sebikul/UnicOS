@@ -38,7 +38,7 @@ COMMAND_START(ps) {
 		}
 	}
 
-	int index = sys_keyboard_catch(0x00, keyboard_handler, KEYBOARD_WILDCARD, "esc key");
+	int32_t index = sys_keyboard_catch(0x00, keyboard_handler, KEYBOARD_WILDCARD, "esc key");
 
 	_exit = FALSE;
 

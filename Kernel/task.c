@@ -3,6 +3,7 @@
 #include "task.h"
 #include "string.h"
 #include "kernel.h"
+#include "keyboard.h"
 
 static task_t *last = NULL;
 static task_t *current = NULL;
@@ -126,6 +127,7 @@ void task_remove(task_t *task) {
 		last = prev;
 	}
 
+	keyboard_clear_from_task(task);
 	free(task->name);
 	free(task->stack);
 	free(task);
@@ -244,6 +246,10 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->retval = 0;
 	task->atomic_level = 0;
 	memset(task->sighandlers, 0, SIGCOUNT * sizeof(sighandler_t));
+
+	for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+		task->kbdhandlers[i] = -1;
+	}
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;

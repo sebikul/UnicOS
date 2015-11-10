@@ -233,7 +233,7 @@ void sys_free(void* m) {
 	free(m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
+int32_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
 	flags = flags & ~KEYBOARD_ALLCONSOLES;
 	task_t *current = task_get_current();
@@ -278,7 +278,7 @@ void sys_screensaver_trigger() {
 	screensaver_trigger();
 }
 
-void sys_keyboard_clear_handler(uint64_t handler) {
+void sys_keyboard_clear_handler(uint32_t handler) {
 	keyboard_clear_handler(handler);
 }
 

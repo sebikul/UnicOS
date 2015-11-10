@@ -36,7 +36,7 @@ void sys_free(void* m) {
 	syscall((uint64_t)SYSCALL_FREE, (uint64_t)m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
+int32_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	return syscall((uint64_t)SYSCALL_KEYBOARD_CATCH, scancode, (uint64_t)handler, flags, name);
 }
 
@@ -81,7 +81,7 @@ void sys_exit() {
 	syscall((uint64_t)SYSCALL_EXIT);
 }
 
-void sys_keyboard_clear_handler(uint64_t index) {
+void sys_keyboard_clear_handler(uint32_t index) {
 	syscall((uint64_t)SYSCALL_KEYBOARD_CLEAR_HANDLER, index);
 }
 
