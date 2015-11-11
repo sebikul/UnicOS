@@ -112,6 +112,10 @@ set_interrupt_handlers:
 		; mov 		rax, page_fault_handler
 		; call 		create_gate
 
+		; mov 		rdi, 0xE 					; Set up page fault handler
+		; mov 		rax, gpe_handler
+		; call 		create_gate
+
 		mov 		rdi, 	0x80				; Set up Software Interrups handler
 		mov 		rax, 	soft_interrupt
 		call 		create_gate
@@ -242,6 +246,16 @@ init_pic:										; Enable specific interrupts
 		out 		0x21,	 al
 
 		ret
+
+gpe_handler:
+		cli
+		pusha
+
+		
+		
+		popa
+		sti
+
 
 intson:
 		sti

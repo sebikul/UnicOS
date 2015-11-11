@@ -469,6 +469,14 @@ int32_t keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uin
 			free(tmp);
 			return -1;
 		}
+
+		kdebug("La tarea: '");
+		_kdebug(task->name);
+		_kdebug("' pid=");
+		kdebug_base(task->pid, 10);
+		_kdebug(" reservo el handler con indice: ");
+		kdebug_base(index, 10);
+		kdebug_nl();
 	}
 
 	return index;
@@ -478,11 +486,21 @@ void keyboard_clear_handler(uint32_t index) {
 
 	task_t *task = dka_catched_scancodes[index]->task;
 
-	for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
-		if (task->kbdhandlers[i] == index) {
-			task->kbdhandlers[i] = -1;
-			break;
+	if(task!=NULL){
+		for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+			if (task->kbdhandlers[i] == index) {
+				task->kbdhandlers[i] = -1;
+				break;
+			}
 		}
+
+		kdebug("La tarea: '");
+		_kdebug(task->name);
+		_kdebug("' pid=");
+		kdebug_base(task->pid, 10);
+		_kdebug(" libero el handler con indice: ");
+		kdebug_base(index, 10);
+		kdebug_nl();
 	}
 
 	free(dka_catched_scancodes[index]->name);

@@ -32,7 +32,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 uint64_t pit_timer = 0;
 
-void *kernel_stack = NULL;
+void *kernel_stack = NULL __attribute__((aligned(64)));;
 
 void load_kernel_modules();
 
@@ -116,7 +116,7 @@ void main() {
 	//beep();
 
 	// TAREAS DEL KERNEL
-	//screensaver_init();
+	screensaver_init();
 
 	// intson();
 
