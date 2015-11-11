@@ -5,8 +5,12 @@
 
 #define NEGATE(x) (x == 0 ? 1 : 0)
 
-void wait(){
-  int i = 10;
+static uint64_t originalCR3;
+static PM_L4_TABLE* k_pml4;
+static PM_L3_TABLE* k_pml3;
+static PM_L3_TABLE* k_pml2;
+
+void wait(int i){
   while(i--);
 }
 
@@ -14,54 +18,45 @@ void vmm_initialize() {
   // Bit 31 of CR0, PGE (Bit 7), PAE (Bit 5), and PSE (Bit 4) of CR4 are set in pureg4.asm
   // Create page directories
   // Load CR3
+  originalCR3 = readCR3();
+
   video_write_string(KERNEL_CONSOLE, "OLD CR3: 0x");
   video_write_hex(KERNEL_CONSOLE, readCR3());
   video_write_nl(KERNEL_CONSOLE);
-  writeCR3((uint64_t)new_pml4(0));
+
+  writeCR3((uint64_t)create_pml4());
+
   video_write_string(KERNEL_CONSOLE, "NEW CR3: 0x");
   video_write_hex(KERNEL_CONSOLE, readCR3());
   video_write_nl(KERNEL_CONSOLE);
 }
 
-/* Creates a new level 4 directory
- * param @us == 0 means kernel, other means user
- */
-PM_L4_TABLE* new_pml4(int us) {
-  int is_kernel = (us == 0) ? 0 : 1;
-  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)pmm_page_alloc();
-  PM_L3_TABLE* l3_table = (PM_L3_TABLE*)pmm_page_alloc();
-  PM_L2_TABLE* l2_table = (PM_L2_TABLE*)pmm_page_alloc();
+/* Creates the directories that will not change */
+PM_L4_TABLE* create_pml4() {
+  k_pml4 = (PM_L4_TABLE*)pmm_page_alloc();
+  k_pml3 = (PM_L3_TABLE*)pmm_page_alloc();
+  k_pml2 = (PM_L2_TABLE*)pmm_page_alloc();
   /* Make L4 point to L3 */
-  l4_table->table[0].p = 1;
-  l4_table->table[0].rw = 1;
-  l4_table->table[0].us = is_kernel;
-  l4_table->table[0].address = (uint64_t)((uint64_t)l3_table/0x1000);
+  k_pml4->table[0].p = 1;
+  k_pml4->table[0].rw = 1;
+  k_pml4->table[0].us = 0;
+  k_pml4->table[0].address = (uint64_t)((uint64_t)k_pml3/0x1000);
   /* Make L3 point to L2 */
-  l3_table->table[0].p = 1;
-  l3_table->table[0].rw = 1;
-  l3_table->table[0].us = is_kernel;
-  l3_table->table[0].address = (uint64_t)((uint64_t)l2_table/0x1000);
-  generic_l2_table(l2_table, us);
-  return l4_table;
+  k_pml3->table[0].p = 1;
+  k_pml3->table[0].rw = 1;
+  k_pml3->table[0].us = 0;
+  k_pml3->table[0].address = (uint64_t)((uint64_t)k_pml2/0x1000);
+  generic_l2_table(k_pml2);
+  return k_pml4;
 }
 
-/* This function fills the first 6 entries of an level 2 table that contains the kernel code */
-void generic_l2_table(PM_L2_TABLE* table, int us) {
-  int is_kernel = (us == 0) ? 0 : 1;
+void generic_l2_table(PM_L2_TABLE* table) {
   int i;
   for (i = 0; i < 6; i++) {
-    if (i == 4 || i == 3) {
-      // Mark the heap of the kernel as writable
-      table->table[i].p = 1;
-      table->table[i].rw = 1;
-      table->table[i].us = 0;
-      table->table[i].address = (uint64_t)((uint64_t)identity_l1_map(i, 1, 0)/0x1000);
-    } else {
-      table->table[i].p = 1;
-      table->table[i].rw = NEGATE(is_kernel);
-      table->table[i].us = 0;
-      table->table[i].address = (uint64_t)((uint64_t)identity_l1_map(i, NEGATE(is_kernel), 0)/0x1000);
-    }
+    table->table[i].p = 1;
+    table->table[i].rw = 1;
+    table->table[i].us = 0;
+    table->table[i].address = (uint64_t)((uint64_t)identity_l1_map(i, 1, 0)/0x1000);
   }
 }
 
@@ -77,6 +72,68 @@ PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us) {
   }
   return l1_table;
 }
+
+/* Returns a new level 4 directory for a user */
+PM_L4_TABLE* new_process_cr3() {
+  uint64_t saved_cr3 = readCR3();
+  writeCR3(originalCR3);
+
+  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)pmm_page_alloc();
+  PM_L3_TABLE* l3_table = (PM_L3_TABLE*)pmm_page_alloc();
+  PM_L2_TABLE* l2_table = (PM_L2_TABLE*)pmm_page_alloc();
+  /* Make L4 point to L3 */
+  l4_table->table[0].p = 1;
+  l4_table->table[0].rw = 1;
+  l4_table->table[0].us = 0;
+  l4_table->table[0].address = (uint64_t)((uint64_t)l3_table/0x1000);
+  /* Make L3 point to L2 */
+  l3_table->table[0].p = 1;
+  l3_table->table[0].rw = 1;
+  l3_table->table[0].us = 0;
+  l3_table->table[0].address = (uint64_t)((uint64_t)l2_table/0x1000);
+  generic_l2_table(l2_table);
+  alloc_new_process_stack(saved_cr3);
+
+  writeCR3(saved_cr3);
+  return l4_table;
+}
+
+/* Everytime a process is created asign the result of this function to rsp */
+uint64_t alloc_new_process_stack(uint64_t cr3) {
+  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)cr3;
+  PM_L3_TABLE* l3_table = get_l3_table(l4_table, 0, 1, 1);
+  PM_L2_TABLE* l2_table = get_l2_table(l3_table, 0, 1, 1);
+  /* Process stack is mapped from 22 MB to 30 MB and heap from 30 MB to 32 MB */
+  uint64_t from_28_to_30 = pmm_page_alloc();
+  uint64_t from_30_to_32 = pmm_page_alloc();
+  /* STACK */
+  l2_table->table[14].p = 1;
+  l2_table->table[14].rw = 1;
+  l2_table->table[14].us = 1;
+  l2_table->table[14].address = from_28_to_30/0x1000;
+  /* HEAP */
+  l2_table->table[15].p = 1;
+  l2_table->table[15].rw = 1;
+  l2_table->table[15].us = 1;
+  l2_table->table[15].address = from_30_to_32/0x1000;
+
+  PM_L1_TABLE* l1_table = (PM_L1_TABLE*)from_28_to_30;
+  uint64_t first_stack_page = pmm_page_alloc();
+  l1_table->table[511].p = 1;
+  l1_table->table[511].rw = 1;
+  l1_table->table[511].us = 1;
+  l1_table->table[511].address = first_stack_page/0x1000;
+
+  l1_table = (PM_L1_TABLE*)from_30_to_32;
+  uint64_t first_heap_page = pmm_page_alloc();
+  l1_table->table[0].p = 1;
+  l1_table->table[0].rw = 1;
+  l1_table->table[0].us = 1;
+  l1_table->table[0].address = first_heap_page/0x1000;
+
+  return first_stack_page + 0x1000 - 1;
+}
+
 /*
 US RW  P - Description
 0  0  0 - Supervisory process tried to read a non-present page entry
@@ -89,6 +146,7 @@ US RW  P - Description
 1  1  1 - User process tried to write a page and caused a protection fault
 */
 void page_fault_handler(uint64_t error_code, uint64_t cr2) {
+  wait(10000000000);
   intsoff();
   // CR2 contains the virtual address that caused the fault
   video_write_string(KERNEL_CONSOLE, "PAGE FAULT ");
@@ -99,55 +157,60 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
   video_write_string(KERNEL_CONSOLE, "ERROR: ");
   video_write_hex(KERNEL_CONSOLE, error_code);
   video_write_nl(KERNEL_CONSOLE);
-  VirtualAddress* aux;
-  aux->physical_offset = cr2 & 0x0000000000000FFF;
-  aux->pm_l1_offset    = cr2 & 0x00000000001FF000;
-  aux->pm_l2_offset    = cr2 & 0x000000003FE00000;
-  aux->pm_l3_offset    = cr2 & 0x0000007FC0000000;
-  aux->pm_l4_offset    = cr2 & 0x0000FF8000000000;
+
+  VirtualAddress* faulty_address = translate(cr2);
 
   video_write_string(KERNEL_CONSOLE, "physical: ");
-  video_write_hex(KERNEL_CONSOLE, aux->physical_offset);
+  video_write_hex(KERNEL_CONSOLE, faulty_address->physical_offset);
   video_write_nl(KERNEL_CONSOLE);
   video_write_string(KERNEL_CONSOLE, "l1: ");
-  video_write_hex(KERNEL_CONSOLE, aux->pm_l1_offset);
+  video_write_hex(KERNEL_CONSOLE, faulty_address->pm_l1_offset);
   video_write_nl(KERNEL_CONSOLE);
   video_write_string(KERNEL_CONSOLE, "l2: ");
-  video_write_hex(KERNEL_CONSOLE, aux->pm_l2_offset);
+  video_write_hex(KERNEL_CONSOLE, faulty_address->pm_l2_offset);
   video_write_nl(KERNEL_CONSOLE);
   video_write_string(KERNEL_CONSOLE, "l3: ");
-  video_write_hex(KERNEL_CONSOLE, aux->pm_l3_offset);
+  video_write_hex(KERNEL_CONSOLE, faulty_address->pm_l3_offset);
   video_write_nl(KERNEL_CONSOLE);
   video_write_string(KERNEL_CONSOLE, "l4: ");
-  video_write_hex(KERNEL_CONSOLE, aux->pm_l4_offset);
+  video_write_hex(KERNEL_CONSOLE, faulty_address->pm_l4_offset);
   video_write_nl(KERNEL_CONSOLE);
-  while(1);
 
-  add_page(aux, 0, 1);
-  if (error_code & 0x01){
-    if (error_code & 0x02){
-      add_page(aux, 0, 1);
-    } else {
-      if (cr2 >= (22*0x1000) && cr2 < (32*0x1000)){
-         //The process is asking for space in the stack or heap
-        add_page(aux, 1, 1);
-      } else {
-        // KEEL DAT PROCESS
-        video_write_string(KERNEL_CONSOLE, "TE ESTAS PASANDO DEL STACK!!");
-        while(1);
-      }
-    }
-  }
+  uint64_t saved_cr3 = readCR3();
+  writeCR3(originalCR3);
+
+  add_page(saved_cr3, faulty_address, 1, 1);
+  // if (error_code & 0x01){
+  //   if (error_code & 0x02){
+  //     video_write_string(KERNEL_CONSOLE, "ERROR 2!!");
+  //     while(1);
+  //   } else {
+  //     video_write_string(KERNEL_CONSOLE, "OTRO ERROR!!");
+  //     while(1);
+  //     if (cr2 >= (22*0x1000) && cr2 < (32*0x1000)){
+  //        //The process is asking for space in the stack or heap
+  //       add_page(saved_cr3, faulty_address, 1, 1);
+  //     } else {
+  //       // KEEL DAT PROCESS
+  //       video_write_string(KERNEL_CONSOLE, "TE ESTAS PASANDO DEL STACK!!");
+  //       while(1);
+  //     }
+  //   }
+  // }
+
+  writeCR3(saved_cr3);
   intson();
+  return;
 }
 
 /* Adds all the unpresent pages of a virtual address */
-uint64_t add_page(VirtualAddress* addr, int us, int rw) {
-  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)readCR3();
+uint64_t add_page(uint64_t cr3, VirtualAddress* addr, int us, int rw) {
+  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)cr3;
   PM_L3_TABLE* l3_table = get_l3_table(l4_table, addr->pm_l4_offset, us, rw);
   PM_L2_TABLE* l2_table = get_l2_table(l3_table, addr->pm_l3_offset, us, rw);
   PM_L1_TABLE* l1_table = get_l1_table(l2_table, addr->pm_l2_offset, us, rw);
-  return add_to_l1_table(l1_table, addr->physical_offset, us, rw);
+  uint64_t page = add_to_l1_table(l1_table, addr->pm_l1_offset, us, rw);
+  return page;
 }
 
 /* Given a level 4 table, returns the level 3 table indicated by idx, if it is not present it creates one */
@@ -157,6 +220,8 @@ PM_L3_TABLE* get_l3_table(PM_L4_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].rw = rw;
     table->table[idx].us = us;
     table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+    video_write_string(KERNEL_CONSOLE, "PAGINA ALOCADA EN L4");
+    video_write_nl(KERNEL_CONSOLE);
   }
    return (PM_L3_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
 }
@@ -168,6 +233,8 @@ PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].rw = rw;
     table->table[idx].us = us;
     table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+    video_write_string(KERNEL_CONSOLE, "PAGINA ALOCADA EN L3");
+    video_write_nl(KERNEL_CONSOLE);
   }
    return (PM_L2_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
 }
@@ -179,6 +246,8 @@ PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].rw = rw;
     table->table[idx].us = us;
     table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+    video_write_string(KERNEL_CONSOLE, "PAGINA ALOCADA EN L2");
+    video_write_nl(KERNEL_CONSOLE);
   }
    return (PM_L1_TABLE*)((uint64_t)(table->table[idx].address*0x1000));
 }
@@ -190,6 +259,8 @@ uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].rw = rw;
     table->table[idx].us = us;
     table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/0x1000);
+    video_write_string(KERNEL_CONSOLE, "PAGINA ALOCADA EN L1");
+    video_write_nl(KERNEL_CONSOLE);
   }
   return (uint64_t)(table->table[idx].address*0x1000);
 }
@@ -271,7 +342,7 @@ void hex_log(char* pre, uint64_t num) {
 
 /* This function tests the creation of a new level 4 directory */
 void l4_table_test() {
-  PM_L4_TABLE* l4_table = new_pml4(0);
+  PM_L4_TABLE* l4_table = create_pml4();
   PM_L3_TABLE* l3_table = (PM_L3_TABLE*)((l4_table->table[0].address)*0x1000);
   PM_L2_TABLE* l2_table = (PM_L2_TABLE*)((l3_table->table[0].address)*0x1000);
   PM_L1_TABLE* _0_to_2_mb = (PM_L1_TABLE*)((l2_table->table[0].address)*0x1000);
@@ -280,50 +351,35 @@ void l4_table_test() {
   PM_L1_TABLE* _6_to_8_mb = (PM_L1_TABLE*)((l2_table->table[3].address)*0x1000);
   PM_L1_TABLE* _8_to_10_mb = (PM_L1_TABLE*)((l2_table->table[4].address)*0x1000);
   PM_L1_TABLE* _10_to_12_mb = (PM_L1_TABLE*)((l2_table->table[5].address)*0x1000);
-  uint64_t* aux1 = (uint64_t*)_0_to_2_mb;
-  hex_log(" ", aux1[0]);
-  hex_log(" ", aux1[511]);
-  uint64_t* aux2 = (uint64_t*)_2_to_4_mb;
-  hex_log(" ", aux2[0]);
-  hex_log(" ", aux2[511]);
-  uint64_t* aux3 = (uint64_t*)_4_to_6_mb;
-  hex_log(" ", aux3[0]);
-  hex_log(" ", aux3[511]);
-  uint64_t* aux4 = (uint64_t*)_6_to_8_mb;
-  hex_log(" ", aux4[0]);
-  hex_log(" ", aux4[511]);
-  uint64_t* aux5 = (uint64_t*)_8_to_10_mb;
-  hex_log(" ", aux5[0]);
-  hex_log(" ", aux5[511]);
-  uint64_t* aux6 = (uint64_t*)_10_to_12_mb;
-  hex_log(" ", aux6[0]);
-  hex_log(" ", aux6[511]);
+  print_l1(_0_to_2_mb, 1);
+  print_l1(_2_to_4_mb, 1);
+  print_l1(_4_to_6_mb, 1);
+  print_l1(_6_to_8_mb, 1);
+  print_l1(_8_to_10_mb, 1);
+  print_l1(_10_to_12_mb, 1);
+  hex_log("DIR: ", (uint64_t)pmm_page_alloc());
 }
 
-/* Everytime a process is created asign the result of this function to rsp */
-uint64_t alloc_new_process_stack() {
-  PM_L4_TABLE* l4_table = (PM_L4_TABLE*)readCR3();
-  PM_L3_TABLE* l3_table = get_l3_table(l4_table, 0, 1, 1);
-  PM_L2_TABLE* l2_table = get_l2_table(l3_table, 0, 1, 1);
-  /* Process stack is mapped from 22 MB to 30 MB and heap from 30 MB to 32 MB */
-  uint64_t aux = pmm_page_alloc();
-  /* STACK */
-  l2_table->table[14].p = 1;
-  l2_table->table[14].rw = 1;
-  l2_table->table[14].us = 1;
-  l2_table->table[14].address = aux/0x1000;
-  /* HEAP */
-  l2_table->table[15].p = 1;
-  l2_table->table[15].rw = 1;
-  l2_table->table[15].us = 1;
-  l2_table->table[15].address = aux/0x1000;
+void print_l1(PM_L1_TABLE* table, int amount) {
+  uint64_t* aux = (uint64_t*)table;
+  for (int i = 0; i < amount; i++) {
+    video_write_string(KERNEL_CONSOLE, "L1[");
+    video_write_dec(KERNEL_CONSOLE, i);
+    hex_log("]: ", aux[i]);
+  }
+  for (int i = 511; i > 511-amount; i--) {
+    video_write_string(KERNEL_CONSOLE, "L1[");
+    video_write_dec(KERNEL_CONSOLE, i);
+    hex_log("]: ", aux[i]);
+  }
+}
 
-  PM_L1_TABLE* l1_table = (PM_L1_TABLE*)aux;
-  uint64_t first_stack_page = pmm_page_alloc();
-  l1_table->table[511].p = 1;
-  l1_table->table[511].rw = 1;
-  l1_table->table[511].us = 1;
-  l1_table->table[511].address = first_stack_page/0x1000;
-
-  return first_stack_page + 0x1000 - 1;
+VirtualAddress* translate(uint64_t dir) {
+  VirtualAddress* aux;
+  aux->physical_offset = dir & 0x0000000000000FFF;
+  aux->pm_l1_offset    = ((dir & 0x00000000001FF000) >> 12) & 0x00000000000001FF;
+  aux->pm_l2_offset    = ((dir & 0x000000003FE00000) >> 21) & 0x00000000000001FF;
+  aux->pm_l3_offset    = ((dir & 0x0000007FC0000000) >> 30) & 0x00000000000001FF;
+  aux->pm_l4_offset    = ((dir & 0x0000FF8000000000) >> 39) & 0x00000000000001FF;
+  return aux;
 }

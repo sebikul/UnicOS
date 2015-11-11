@@ -120,11 +120,12 @@ uint64_t readCR4();
 
 /* Paging functions */
 void vmm_initialize();
-void page_fault_handler(uint64_t error_code, uint64_t cr2);
-PM_L4_TABLE* new_pml4(int us);
-void generic_l2_table(PM_L2_TABLE* table, int us);
+PM_L4_TABLE* create_pml4();
+void generic_l2_table(PM_L2_TABLE* table);
 PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us);
-uint64_t add_page(VirtualAddress* addr, int us, int rw);
+PM_L4_TABLE* new_process_cr3();
+void page_fault_handler(uint64_t error_code, uint64_t cr2);
+uint64_t add_page(uint64_t cr3, VirtualAddress* addr, int us, int rw);
 PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx, int us, int rw);
 PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx, int us, int rw);
 PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx, int us, int rw);
@@ -138,5 +139,6 @@ uint64_t alloc_new_process_stack();
 void l4_table_test();
 
 void hex_log(char* pre, uint64_t num);
+VirtualAddress* translate(uint64_t dir);
 
 #endif
