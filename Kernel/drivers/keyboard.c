@@ -486,7 +486,7 @@ void keyboard_clear_handler(uint32_t index) {
 
 	task_t *task = dka_catched_scancodes[index]->task;
 
-	if(task!=NULL){
+	if (task != NULL) {
 		for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
 			if (task->kbdhandlers[i] == index) {
 				task->kbdhandlers[i] = -1;
