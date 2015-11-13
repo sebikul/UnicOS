@@ -5,7 +5,12 @@
 
 static device_t *rootdevice = NULL;
 
-typedef struct path_component path_component;
+typedef struct {
+	device_t *dev;
+	char* path;
+} mount;
+
+static mount mountinfo[MAX_FS_CHILDS] = {{0}};
 
 static directory_t* fs_traverse(const char* path) {
 
@@ -69,9 +74,13 @@ static directory_t* fs_traverse(const char* path) {
 		}
 		pos++; //Salteamos la barra
 	}
+
+	return NULL;
 }
 
 void fs_mount(device_t *dev, const char* mountpoint) {
+
+	uint32_t i;
 
 	if (rootdevice == NULL && strcmp(mountpoint, "/") != 0) {
 		//TODO errno
@@ -88,11 +97,18 @@ void fs_mount(device_t *dev, const char* mountpoint) {
 		kdebug("Null root device, mounting as root.\n");
 		rootdevice = dev;
 	} else {
-		uint32_t i;
+
+		for (i = 0; i < MAX_FS_CHILDS; i++) {
+			if (mountinfo[i].dev == dev) {
+				kdebug("El dispositivo ya se encuentra montado!\n");
+				return;
+			}
+		}
+
 		directory_t *dir = fs_traverse(mountpoint);
 
 		for (i = 0; i < MAX_FS_CHILDS; i++) {
-			if (dir->childs[i] != NULL) {
+			if (dir->childs[i] == NULL) {
 				dir->childs[i] = dev->rootdir;
 				break;
 			}
@@ -104,6 +120,46 @@ void fs_mount(device_t *dev, const char* mountpoint) {
 		}
 	}
 
+	//Guardamos la informacion del volumen
+	for (i = 0; i < MAX_FS_CHILDS; i++) {
+		if (mountinfo[i].dev == NULL) {
+			mountinfo[i].dev = dev;
+			mountinfo[i].path = mountpoint;
+			break;
+		}
+	}
+
+}
+
+void fs_unmount(device_t *dev) {
+
+	char* mountpoint;
+	int32_t mount;
+	int32_t child;
+
+	for (mount = 0; mount < MAX_FS_CHILDS; mount++) {
+		if (mountinfo[mount].dev == dev) {
+			mountpoint = mountinfo[mount].path;
+			break;
+		}
+	}
+
+	kdebug("Unmounting device with name: ");
+	_kdebug(dev->name);
+	_kdebug(" at ");
+	_kdebug(mountpoint);
+	kdebug_nl();
+
+	directory_t *dir = fs_traverse(mountpoint);
+
+	for (child = 0; child < MAX_FS_CHILDS; child++) {
+		if (dir->childs[child] == dev->rootdir) {
+			mountinfo[mount].dev = NULL;
+			mountinfo[mount].path = NULL;
+			dir->childs[child] = NULL;
+			break;
+		}
+	}
 }
 
 static void dumpdir(directory_t *dir, int level) {
@@ -154,8 +210,8 @@ static void dumpfs() {
 void fs_test() {
 
 	device_t rootdev = {0};
-	directory_t dirpool[10] = {0};
-	file_t filepool[10] = {0};
+	directory_t dirpool[10] = {{0}};
+	file_t filepool[10] = {{0}};
 
 	device_t newdev = {0};
 
@@ -202,7 +258,14 @@ void fs_test() {
 	newdev.name = "New Device";
 	newdev.rootdir = &(dirpool[6]);
 
+	dumpfs();
+
 	fs_mount(&newdev, "/dir1/dir3");
+	fs_mount(&newdev, "/dir1/dir4");
+
+	dumpfs();
+
+	fs_unmount(&newdev);
 
 	dumpfs();
 

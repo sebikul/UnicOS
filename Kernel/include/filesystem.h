@@ -24,6 +24,7 @@ struct device {
 };
 
 void fs_mount(device_t *dev, const char* mountpoint);
+void fs_unmount(device_t *dev);
 
 file_t* fs_open(const char *path);
 int32_t fs_read(file_t *file, char* buf, uint32_t size);
