@@ -1,16 +1,10 @@
+#include "types.h"
+
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#define MAX_FS_CHILDS 16
-
 typedef struct device device_t;
 typedef struct directory directory_t;
-
-typedef struct {
-	char 			*name;
-	uint32_t 		start;
-	uint32_t 		size;
-} file_t;
 
 struct directory {
 	char 			*name;

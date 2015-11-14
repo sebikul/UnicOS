@@ -2,6 +2,7 @@
 #include "filesystem.h"
 #include "string.h"
 #include "kernel.h"
+#include "mem.h"
 
 static device_t *rootdevice = NULL;
 
@@ -28,6 +29,11 @@ static directory_t* fs_traverse(const char* path) {
 	dir = rootdevice->rootdir;
 	pos++;
 
+	//Pide recorrer /
+	if (*pos == '\0') {
+		kdebug("Traversing /\n");
+		return dir;
+	}
 
 	while (TRUE) {
 
@@ -201,6 +207,80 @@ static void dumpdir(directory_t *dir, int level) {
 	}
 }
 
+static char* fs_basedir(const char* path) {
+
+	uint32_t len = strlen(path);
+	char* base = malloc(len + 1);
+
+	strcpy(base, path);
+
+	kdebug("Parsing basedir of: ");
+	_kdebug(base);
+	kdebug_nl();
+
+	char* aux = base + len;
+
+	while (*aux != '/' && aux > base) {
+		aux--;
+	}
+
+	if (aux == base) {
+		base[1] = '\0';
+	} else {
+		*aux = '\0';
+	}
+
+	kdebug("Returning: ");
+	_kdebug(base);
+	kdebug_nl();
+
+	return base;
+}
+
+static char* fs_filename(const char* path) {
+
+	char* name = path + strlen(path);
+
+	while (*name != '/' && name != path) {
+		name--;
+	}
+
+	return name + 1;
+}
+
+file_t* fs_open(const char *path) {
+
+	if (rootdevice == NULL) {
+		return NULL;
+	}
+
+	char* parent = fs_basedir(path);
+
+	directory_t *dir = fs_traverse(parent);
+
+	kdebug("Searching for file in: ");
+	_kdebug(parent);
+	kdebug_nl();
+
+	free(parent);
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+
+		char* filename = fs_filename(path);
+		kdebug("Looking for: ");
+		_kdebug(filename);
+		_kdebug(" in directory.");
+		kdebug_nl();
+
+		if (strcmp(dir->leaves[i]->name, filename) == 0) {
+			kdebug("Archivo encontrado!\n");
+			return dir->leaves[i];
+		}
+	}
+
+	return NULL;
+}
+
 static void dumpfs() {
 	kdebug("Dumping filesystem!\n");
 
@@ -265,8 +345,20 @@ void fs_test() {
 
 	dumpfs();
 
-	fs_unmount(&newdev);
+	file_t *file1 = fs_open("/file1");
 
-	dumpfs();
+	if (file1 == &filepool[0]) {
+		kdebug("Archivo corresponde\n");
+	}
+
+	file_t *file2 = fs_open("/dir1/dir3/file4");
+
+	if (file2 == &filepool[3]) {
+		kdebug("Archivo corresponde\n");
+	}
+
+	// fs_unmount(&newdev);
+
+	// dumpfs();
 
 }

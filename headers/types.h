@@ -83,13 +83,20 @@ typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBI
 typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
 
 #define MAX_TASK_KBD_HANDLERS 16
+#define MAX_FS_CHILDS 16
+
+typedef struct {
+	char 			*name;
+	void* 			start;
+	uint64_t 		size;
+} file_t;
 
 typedef struct task_t {
-	struct task_t *prev;
-	struct task_t *next;
-	struct task_t *join;
-	void *stack;
-	char *name;
+	struct task_t* prev;
+	struct task_t* next;
+	struct task_t* join;
+	void* stack;
+	char* name;
 	pid_t pid;
 	uint64_t sleep_limit;
 	uint64_t retval;
@@ -97,6 +104,7 @@ typedef struct task_t {
 	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];
 	int64_t kbdhandlers[MAX_TASK_KBD_HANDLERS];
+	file_t* files[MAX_FS_CHILDS];
 	task_state_t state;
 	uint8_t console;
 } task_t;

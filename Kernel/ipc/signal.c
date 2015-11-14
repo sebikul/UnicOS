@@ -81,7 +81,7 @@ void signal_send(task_t *dest, signal_t sig) {
 	// break;
 
 	case SIGINT:
-
+		signal_dispatch(dest, sig);
 		task_schedule_removal(dest);
 		break;
 
