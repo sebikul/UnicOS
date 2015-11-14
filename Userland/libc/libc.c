@@ -23,9 +23,9 @@ void* calloc(int len) {
 }
 
 void free(void* m) {
-	if (m == lastMalloc) {
-		mallocBuffer = m;
-	}
+	//if (m == lastMalloc) {
+	//	mallocBuffer = m;
+	//}
 	//return sys_free(m);
 }
 

@@ -10,7 +10,7 @@ elif [[ "$1" == "monitor" ]]; then
 
 else
 
-	qemu-system-x86_64 -hda Image/x64BareBonesImage.qcow2 -m 512 -serial stdio -no-reboot # -d cpu_reset,int
+	qemu-system-x86_64 -hda Image/x64BareBonesImage.qcow2 -m 512 -serial stdio -no-reboot -d cpu_reset,int
 
 	#RIP=`grep "RIP" last_run.log | tail -n1 | awk -F'=' '{print $2}' | awk -F' ' '{print $1}'`
 	#RIP=$((RIP + 2))

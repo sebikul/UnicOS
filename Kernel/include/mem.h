@@ -8,5 +8,6 @@ void pmm_initialize();
 void* pmm_page_alloc();
 void pmm_page_free(void* dir);
 void dump_last_n_pages(int n);
+void mem_panic(char* message);
 
 #endif

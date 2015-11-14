@@ -3,6 +3,8 @@
 #include "video.h"
 #include "kernel.h"
 
+#define PAGE_MASK 0xFFFFFFFFFFFFF000
+
 static const uint64_t page_size = 0x1000;
 
 static uint64_t* pmm_stack_start = (uint64_t*)(10*0x100000);
@@ -22,7 +24,7 @@ void* malloc(int len) {
 	//video_write_hex(KERNEL_CONSOLE, (uint64_t)(mallocBuffer + len));
 	//video_write_nl(KERNEL_CONSOLE);
 	if((mallocBuffer + len) > pmm_stack_start){
-		mem_panic();
+		mem_panic("OUT OF MEMORY!");
 	}
 	mallocBuffer += len;
 
@@ -37,9 +39,9 @@ void* calloc(int len) {
 
 void free(void* m) {
 
-	if (m == lastMalloc) {
-		mallocBuffer = m;
-	}
+	// if (m == lastMalloc) {
+	// 	mallocBuffer = m;
+	// }
 
 }
 
@@ -81,7 +83,7 @@ void pmm_initialize() {
 
 void* pmm_page_alloc(){
 	if (pmm_stack_current-1 == pmm_stack_start)
-		mem_panic();
+		mem_panic("OUT OF MEMORY!");
 
 	pmm_stack_current--;
 	memset_long((void*)*pmm_stack_current, 0, 512);
@@ -89,13 +91,20 @@ void* pmm_page_alloc(){
 }
 
 void pmm_page_free(void* dir){
+	uint64_t current = (uint64_t)dir;
+	if (current % 0x1000 != 0) {
+		video_write_string(KERNEL_CONSOLE, "SE INTENTO LIBERAR UNA PAGINA NO ALINEADA, ALINEANDO.");
+		*pmm_stack_current = (current & PAGE_MASK);
+		return;
+	}
 	*pmm_stack_current = (uint64_t)dir;
 	pmm_stack_current++;
 }
 
-void mem_panic() {
+void mem_panic(char* message) {
 	intsoff();
-	video_write_string(KERNEL_CONSOLE, "PANIC: OUT OF MEMORY!");
+	video_write_string(KERNEL_CONSOLE, "PANIC: ");
+	video_write_string(message);
 	while(1);
 }
 

@@ -216,7 +216,7 @@ keyboard:
 align 16
 INT0E: ; page fault handler
     pusha
-    mov     eax, [rsp+32] ; error code
+    mov     eax, [rsp+136] ; error code
     mov     rdi, rax
     mov     rsi, cr2
     call    page_fault_handler
