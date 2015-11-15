@@ -4,18 +4,6 @@
 
 extern uint64_t syscall(uint64_t callid, ...);
 
-void sys_write(FD fd, char* s, uint64_t len) {
-
-	syscall((uint64_t)SYSCALL_WRITE, (uint64_t)fd, (uint64_t)s, (uint64_t)len);
-
-}
-
-uint64_t sys_read(FD fd, char* s, uint64_t len) {
-
-	return syscall((uint64_t)SYSCALL_READ, (uint64_t)fd, (uint64_t)s, (uint64_t)len);
-
-}
-
 void sys_rtc_get(time_t* t) {
 	syscall((uint64_t)SYSCALL_RTC, (uint64_t)t);
 }
@@ -134,4 +122,20 @@ void sys_signal_kill(pid_t pid, signal_t sig) {
 }
 void sys_signal_set(signal_t sig, sighandler_t handler) {
 	syscall((uint64_t)SYSCALL_SIGNAL_SET, (uint64_t)sig, (uint64_t)handler);
+}
+
+int32_t sys_open(const char* path, uint64_t flags) {
+	return (int32_t)syscall((uint64_t)SYSCALL_FS_OPEN, (uint64_t)path, flags);
+}
+
+int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
+	return (int32_t)syscall((uint64_t)SYSCALL_FS_READ, (int32_t) fd, (char*) buf, (uint32_t) size);
+}
+
+int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
+	return (int32_t)syscall((uint64_t)SYSCALL_FS_WRITE, (int32_t) fd, (uint64_t)data, (uint32_t) size);
+}
+
+void sys_close(int32_t fd) {
+	syscall((uint64_t)SYSCALL_FS_CLOSE, (int32_t)fd);
 }

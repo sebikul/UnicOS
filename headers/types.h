@@ -29,10 +29,10 @@ typedef enum {
 } vga_color;
 
 
-typedef enum FD {
-	FD_STDERR,
-	FD_STDOUT
-} FD;
+// typedef enum FD {
+// 	stderr,
+// 	FD_STDOUT
+// } FD;
 
 typedef struct {
 	uint8_t hour;
@@ -86,7 +86,7 @@ typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
 #define MAX_FS_CHILDS 16
 
 typedef struct {
-	char 			*name;
+	char* 			name;
 	void* 			start;
 	uint64_t 		size;
 } file_t;
@@ -95,6 +95,12 @@ typedef struct {
 	file_t* file;
 	uint64_t cursor;
 } fd_t;
+
+#define stdin  0
+#define stdout 1
+#define stderr 2
+
+
 
 typedef struct task_t {
 	struct task_t* prev;

@@ -283,6 +283,35 @@ file_t* fs_open(const char *path, uint64_t flags) {
 	return NULL;
 }
 
+int32_t fs_read(file_t *file, char* buf, uint32_t size, uint32_t offset) {
+
+	uint32_t i = 0;
+
+	char* data = file->start;
+
+	data += offset;
+
+	for (; i < size && i < file->size; i++) {
+		buf[i] = data[i];
+	}
+
+	return i;
+}
+
+int32_t fs_write(file_t *file, const char* data, uint32_t size, uint32_t offset) {
+	uint32_t i = 0;
+
+	char* buf = file->start;
+
+	buf += offset;
+
+	for (; i < size && i < file->size; i++) {
+		buf[i] = data[i];
+	}
+
+	return i;
+}
+
 static void dumpfs() {
 	kdebug("Dumping filesystem!\n");
 
@@ -348,6 +377,8 @@ void fs_test() {
 	dumpfs();
 
 	file_t *file1 = fs_open("/file1", 0);
+	file1->start=malloc(50);
+	file1->size=50;
 
 	if (file1 == &filepool[0]) {
 		kdebug("Archivo corresponde\n");
@@ -358,6 +389,25 @@ void fs_test() {
 	if (file2 == &filepool[3]) {
 		kdebug("Archivo corresponde\n");
 	}
+
+	char data[] = "hola que tal";
+	char response[50];
+
+	int w =	fs_write(file1, data, strlen(data)+1, 0);
+
+	kdebug("Escrito en el archivo: '");
+	_kdebug(data);
+	_kdebug("' tamano: ");
+	kdebug_base(w, 10);
+	kdebug_nl();
+
+	int r = fs_read(file1, response, sizeof(response), 0);
+
+	kdebug("Leido del archivo: '");
+	_kdebug(response);
+	_kdebug("' tamano: ");
+	kdebug_base(r, 10);
+	kdebug_nl();
 
 	// fs_unmount(&newdev);
 

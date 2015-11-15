@@ -120,9 +120,9 @@ void main() {
 
 	// intson();
 
-	// fs_test();
+	fs_test();
 
-	// while(TRUE);
+	while(TRUE);
 
 	// while(TRUE){
 	// 	video_write_string(KERNEL_CONSOLE, "PIT Timer: ");

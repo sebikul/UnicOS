@@ -210,7 +210,7 @@ static uint64_t _main(int argc, char** argv) {
 			}
 
 			if (comillas) {
-				fprintf(FD_STDERR, "Comando mal formateado. Contiene comillas sin cerrar!\n");
+				fprintf(stderr, "Comando mal formateado. Contiene comillas sin cerrar!\n");
 			}
 
 			//si al argumento le siguen espacios los limpiamos
@@ -240,7 +240,7 @@ static uint64_t _main(int argc, char** argv) {
 			}
 		}
 
-		fprintf(FD_STDERR, "Comando no encontrado.");
+		fprintf(stderr, "Comando no encontrado.");
 	}
 
 	// //Test if BSS is properly set up

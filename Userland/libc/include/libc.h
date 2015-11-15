@@ -8,7 +8,7 @@
 void* malloc(int len);
 void* calloc(int len);
 void free(void* m);
-void fprintf(FD fd, char* fmt, ...) __attribute__ ((format (printf, 2, 3)));;
+void fprintf(int fd, char* fmt, ...) __attribute__ ((format (printf, 2, 3)));;
 void printf(char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void putchar(char c);
 int getchar();
