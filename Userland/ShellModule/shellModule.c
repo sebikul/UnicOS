@@ -67,7 +67,7 @@ static uint64_t _main(int argc, char** argv) {
 
 		cmdlist = malloc(sizeof(command_list_t));
 		cmdlist->count = 0;
-		cmdlist->commands = malloc(32 * sizeof(command_t));
+		cmdlist->commands = malloc(COMMANDS_LIST_SIZE * sizeof(command_t));
 
 		COMMAND_INIT(help);
 		COMMAND_INIT(echo);
@@ -84,6 +84,7 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(ps);
 		COMMAND_INIT(sigsend);
 		COMMAND_INIT(sigrcv);
+		COMMAND_INIT(cat);
 
 		initialize_names();
 

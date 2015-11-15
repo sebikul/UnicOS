@@ -6,6 +6,12 @@
 typedef struct device device_t;
 typedef struct directory directory_t;
 
+struct file{
+	char* 			name;
+	void* 			start;
+	uint64_t 		size;
+};
+
 struct directory {
 	char 			*name;
 	file_t 			*leaves[MAX_FS_CHILDS];

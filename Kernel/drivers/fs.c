@@ -289,17 +289,35 @@ int32_t fs_read(file_t *file, char* buf, uint32_t size, uint32_t offset) {
 
 	char* data = file->start;
 
+	kdebug("Reading ");
+	kdebug_base(size, 10);
+	_kdebug(" bytes from file starting at ");
+	kdebug_base(offset, 10);
+	kdebug_nl();
+
 	data += offset;
 
 	for (; i < size && i < file->size; i++) {
 		buf[i] = data[i];
 	}
 
+	kdebug("Leido: ");
+	_kdebug(buf);
+	kdebug_nl();
+
 	return i;
 }
 
 int32_t fs_write(file_t *file, const char* data, uint32_t size, uint32_t offset) {
 	uint32_t i = 0;
+
+	if (size > file->size) {
+		kdebug("File size exceded for writting, reallocating!\n");
+		void* newstart = malloc(size);
+		memcpy(newstart, file->start, file->size);
+		free(file->start);
+		file->start = newstart;
+	}
 
 	char* buf = file->start;
 
@@ -320,9 +338,9 @@ static void dumpfs() {
 
 void fs_test() {
 
-	device_t rootdev = {0};
-	directory_t dirpool[10] = {{0}};
-	file_t filepool[10] = {{0}};
+	device_t* rootdev = malloc(sizeof(device_t));
+	directory_t* dirpool = malloc(10 * sizeof(directory_t));
+	file_t* filepool = malloc(10 * sizeof(file_t));
 
 	device_t newdev = {0};
 
@@ -354,10 +372,10 @@ void fs_test() {
 	filepool[2].name = "file3";
 	filepool[3].name = "file4";
 
-	rootdev.name = "rootfs";
-	rootdev.rootdir = &(dirpool[0]);
+	rootdev->name = "rootfs";
+	rootdev->rootdir = &(dirpool[0]);
 
-	fs_mount(&rootdev, "/");
+	fs_mount(rootdev, "/");
 
 	dirpool[6].name = "dir6";
 	dirpool[7].name = "dir7";
@@ -377,8 +395,8 @@ void fs_test() {
 	dumpfs();
 
 	file_t *file1 = fs_open("/file1", 0);
-	file1->start=malloc(50);
-	file1->size=50;
+	file1->start = malloc(50);
+	file1->size = 50;
 
 	if (file1 == &filepool[0]) {
 		kdebug("Archivo corresponde\n");
@@ -393,7 +411,7 @@ void fs_test() {
 	char data[] = "hola que tal";
 	char response[50];
 
-	int w =	fs_write(file1, data, strlen(data)+1, 0);
+	int w =	fs_write(file1, data, strlen(data) + 1, 0);
 
 	kdebug("Escrito en el archivo: '");
 	_kdebug(data);

@@ -156,6 +156,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_close((int32_t) rsi);
 		break;
 
+	case SYSCALL_FS_SIZE:
+		return sys_size((int32_t) rsi);
+		break;
+
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
@@ -341,7 +345,7 @@ int32_t sys_open(const char* path, uint64_t flags) {
 
 	kdebug("Syscall open\n");
 
-	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+	for (uint32_t i = 3; i < MAX_FS_CHILDS; i++) {
 		if (task->files[i].file == NULL) {
 
 			file_t *file = fs_open(path, 0);
@@ -352,8 +356,9 @@ int32_t sys_open(const char* path, uint64_t flags) {
 
 			task->files[i].file = file;
 			task->files[i].cursor = 0;
+			task->files[i].flags = flags;
 
-			return 0;
+			return i;
 		}
 	}
 
@@ -402,14 +407,25 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 		fds = &(task->files[fd]);
 
-		len = fs_read(fds->file, buf, len, fds->cursor);
+		if (fds->file == NULL) {
+			return -1;
+		}
+
+		kdebug("Reading content of file: ");
+		_kdebug(fds->file->name);
+		kdebug_nl();
+
+		len = fs_read(fds->file, buf, size, fds->cursor);
+
+		kdebug("Read: '");
+		_kdebug(buf);
+		_kdebug("'");
+		kdebug_nl();
 
 		fds->cursor += len;
 
 		return len;
-
 	}
-
 }
 
 int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
@@ -445,6 +461,10 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 	default:
 		fds = &(task->files[fd]);
 
+		if (fds->file == NULL) {
+			return -1;
+		}
+
 		kdebug("Writing to fs\n");
 
 		len = fs_write(fds->file, data, size, fds->cursor);
@@ -463,4 +483,18 @@ void sys_close(int32_t fd) {
 
 	task->files[fd].file = NULL;
 	task->files[fd].cursor = 0;
+}
+
+uint32_t sys_size(int32_t fd) {
+
+	task_t *task = task_get_current();
+	fd_t *fds;
+
+	fds = &(task->files[fd]);
+
+	if (fds->file == NULL) {
+		return -1;
+	}
+
+	return fds->file->size;
 }

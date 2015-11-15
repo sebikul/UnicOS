@@ -85,22 +85,24 @@ typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
 #define MAX_TASK_KBD_HANDLERS 16
 #define MAX_FS_CHILDS 16
 
-typedef struct {
-	char* 			name;
-	void* 			start;
-	uint64_t 		size;
-} file_t;
+typedef struct file file_t;
 
 typedef struct {
 	file_t* file;
 	uint64_t cursor;
+	uint64_t flags;
 } fd_t;
+
+#define O_RDONLY 	(1<<1) 
+#define O_WRONLY 	(1<<2)
+#define O_RDWR 		(1<<3)
+#define O_APPEND 	(1<<4)
+#define O_CREAT 	(1<<5)
+#define O_TRUNC 	(1<<5)
 
 #define stdin  0
 #define stdout 1
 #define stderr 2
-
-
 
 typedef struct task_t {
 	struct task_t* prev;

@@ -139,3 +139,7 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 void sys_close(int32_t fd) {
 	syscall((uint64_t)SYSCALL_FS_CLOSE, (int32_t)fd);
 }
+
+uint32_t sys_size(int32_t fd) {
+	return (uint32_t)syscall((uint64_t)SYSCALL_FS_SIZE, (int32_t)fd);
+}
