@@ -148,21 +148,21 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_signal_set((signal_t) rsi, (sighandler_t) rdx);
 		break;
 
-	case SYSCALL_FS_OPEN:
-		return sys_open((const char*) rsi, rdx);
-		break;
+	// case SYSCALL_FS_OPEN:
+	// 	return sys_open((const char*) rsi, rdx);
+	// 	break;
 
-	case SYSCALL_FS_READ:
-		return sys_read((int32_t) rsi, (char*)rdx, (uint32_t)rcx);
-		break;
+	// case SYSCALL_FS_READ:
+	// 	return sys_read((int32_t) rsi, (char*)rdx, (uint32_t)rcx);
+	// 	break;
 
-	case SYSCALL_FS_WRITE:
-		return  sys_write((int32_t) rsi, (const char*)rdx, (uint32_t)rcx);
-		break;
+	// case SYSCALL_FS_WRITE:
+	// 	return  sys_write((int32_t) rsi, (const char*)rdx, (uint32_t)rcx);
+	// 	break;
 
-	case SYSCALL_FS_CLOSE:
-		sys_close((uint32_t) rsi);
-		break;
+	// case SYSCALL_FS_CLOSE:
+	// 	sys_close((uint32_t) rsi);
+	// 	break;
 
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
@@ -400,13 +400,13 @@ void sys_signal_set(signal_t sig, sighandler_t handler) {
 	signal_set(task, sig, handler);
 }
 
-int32_t sys_open(const char* path, uint64_t flags){
+// int32_t sys_open(const char* path, uint64_t flags){
 
 	
 
-}
-int32_t sys_read(int32_t fd, char* buf, uint32_t size);
-int32_t sys_write(int32_t fd, const char* data, uint32_t size);
-void sys_close(int32_t fd);
+// }
+// int32_t sys_read(int32_t fd, char* buf, uint32_t size);
+// int32_t sys_write(int32_t fd, const char* data, uint32_t size);
+// void sys_close(int32_t fd);
 
 

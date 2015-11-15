@@ -347,13 +347,13 @@ void fs_test() {
 
 	dumpfs();
 
-	file_t *file1 = fs_open("/file1");
+	file_t *file1 = fs_open("/file1", 0);
 
 	if (file1 == &filepool[0]) {
 		kdebug("Archivo corresponde\n");
 	}
 
-	file_t *file2 = fs_open("/dir1/dir3/file4");
+	file_t *file2 = fs_open("/dir1/dir3/file4", 0);
 
 	if (file2 == &filepool[3]) {
 		kdebug("Archivo corresponde\n");

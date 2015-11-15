@@ -77,10 +77,10 @@ task_t* sys_task_getall();
 void sys_sleep(uint64_t ms);
 uint64_t sys_uptime();
 
-int32_t sys_open(const char* path, uint64_t flags);
-int32_t sys_read(int32_t fd, char* buf, uint32_t size);
-int32_t sys_write(int32_t fd, const char* data, uint32_t size);
-void sys_close(int32_t fd);
+// int32_t sys_open(const char* path, uint64_t flags);
+// int32_t sys_read(int32_t fd, char* buf, uint32_t size);
+// int32_t sys_write(int32_t fd, const char* data, uint32_t size);
+// void sys_close(int32_t fd);
 
 void sys_signal_kill(pid_t pid, signal_t sig);
 void sys_signal_set(signal_t sig, sighandler_t handler);

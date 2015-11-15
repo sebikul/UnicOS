@@ -94,7 +94,7 @@ typedef struct {
 typedef struct {
 	file_t* file;
 	uint64_t cursor;
-} fd_t
+} fd_t;
 
 typedef struct task_t {
 	struct task_t* prev;
