@@ -46,7 +46,7 @@ static uint64_t _main(int argc, char** argv) {
 	char* shell_history[MAX_HISTORY_SIZE] = {0};
 	int current_history = 0;
 	int max_history = 0;
-	int arrows_handlers[2] = {0};
+	int32_t arrows_handlers[2] = {0};
 
 	auto void keyboard_uparrow_handler(uint64_t s);
 	auto void keyboard_downarrow_handler(uint64_t s);

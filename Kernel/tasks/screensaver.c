@@ -32,7 +32,7 @@ static void screensaver_kbdhandler(uint64_t s) {
 	}
 }
 
-static void screensaver_task(int argc, char **argv) {
+static uint64_t screensaver_task(int argc, char **argv) {
 
 	while (TRUE) {
 		kdebug("Durmiendo la tarea del screensaver\n");
@@ -79,6 +79,6 @@ void screensaver_init() {
 	task_setconsole(screensaver, SCREENSAVER_CONSOLE);
 	task_ready(screensaver);
 
-	keyboard_catch(0x00, screensaver_kbdhandler, NULL, KEYBOARD_ALLCONSOLES | KEYBOARD_WILDCARD | KEYBOARD_IGNORE, "screensaver");
+	keyboard_catch(0x00, screensaver_kbdhandler, screensaver, KEYBOARD_ALLCONSOLES | KEYBOARD_WILDCARD | KEYBOARD_IGNORE, "screensaver");
 }
 

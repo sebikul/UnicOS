@@ -10,6 +10,7 @@
 #include "kernel.h"
 #include "input.h"
 #include "signal.h"
+#include "filesystem.h"
 
 extern uint64_t pit_timer;
 
@@ -147,6 +148,22 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_signal_set((signal_t) rsi, (sighandler_t) rdx);
 		break;
 
+	// case SYSCALL_FS_OPEN:
+	// 	return sys_open((const char*) rsi, rdx);
+	// 	break;
+
+	// case SYSCALL_FS_READ:
+	// 	return sys_read((int32_t) rsi, (char*)rdx, (uint32_t)rcx);
+	// 	break;
+
+	// case SYSCALL_FS_WRITE:
+	// 	return  sys_write((int32_t) rsi, (const char*)rdx, (uint32_t)rcx);
+	// 	break;
+
+	// case SYSCALL_FS_CLOSE:
+	// 	sys_close((uint32_t) rsi);
+	// 	break;
+
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
@@ -233,7 +250,7 @@ void sys_free(void* m) {
 	free(m);
 }
 
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
+int32_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {
 	//Un proceso de usersoace no deberia poder imprimir en todas las consolas
 	flags = flags & ~KEYBOARD_ALLCONSOLES;
 	task_t *current = task_get_current();
@@ -278,7 +295,7 @@ void sys_screensaver_trigger() {
 	screensaver_trigger();
 }
 
-void sys_keyboard_clear_handler(uint64_t handler) {
+void sys_keyboard_clear_handler(uint32_t handler) {
 	keyboard_clear_handler(handler);
 }
 
@@ -382,3 +399,14 @@ void sys_signal_set(signal_t sig, sighandler_t handler) {
 
 	signal_set(task, sig, handler);
 }
+
+// int32_t sys_open(const char* path, uint64_t flags){
+
+	
+
+// }
+// int32_t sys_read(int32_t fd, char* buf, uint32_t size);
+// int32_t sys_write(int32_t fd, const char* data, uint32_t size);
+// void sys_close(int32_t fd);
+
+

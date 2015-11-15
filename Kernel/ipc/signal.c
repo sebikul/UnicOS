@@ -5,6 +5,12 @@
 #include "kernel.h"
 
 void signal_set(task_t *task, signal_t sig, sighandler_t handler) {
+
+	if (sig == SIGKILL) {
+		//TODO errno
+		return;
+	}
+
 	task->sighandlers[sig] = handler;
 }
 
@@ -13,7 +19,11 @@ static void sigwrapper(task_t* task, signal_t sig, task_state_t oldstate) {
 	kdebug("Executing signal handler\n");
 
 	if (task->sighandlers[sig] != NULL) {
+
+		task_atomic(task);
 		task->sighandlers[sig](sig);
+		task_unatomic(task);
+
 	} else {
 		video_write_line(video_current_console(), "Signal handler not set!");
 	}
@@ -25,8 +35,7 @@ static void sigwrapper(task_t* task, signal_t sig, task_state_t oldstate) {
 	halt();
 }
 
-void signal_send(task_t *dest, signal_t sig) {
-
+static void signal_dispatch(task_t *dest, signal_t sig) {
 	context_t *context;
 
 	dest->stack = dest->stack - sizeof(context_t) + sizeof(uint64_t); //Eliminamos context->base que no sirve para el contexto
@@ -58,6 +67,28 @@ void signal_send(task_t *dest, signal_t sig) {
 	context->ss = 0x000;
 
 	task_ready(dest);
+}
+
+void signal_send(task_t *dest, signal_t sig) {
+
+	switch (sig) {
+	case SIGKILL:
+	// if (task_get_current() == dest) {
+	// 	//TODO errno
+	// 	return;
+	// }
+	// task_remove(dest);
+	// break;
+
+	case SIGINT:
+		signal_dispatch(dest, sig);
+		task_schedule_removal(dest);
+		break;
+
+	default:
+		signal_dispatch(dest, sig);
+	}
+
 }
 
 static void sigwrapper_witharg(task_t* task, task_state_t oldstate, dka_handler func, uint64_t arg) {

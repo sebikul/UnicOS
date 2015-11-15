@@ -7,7 +7,7 @@ COMMAND_HELP(rawkbd, "[rawkbd] Imprime los scancodes presionados del teclado.");
 
 COMMAND_START(rawkbd) {
 
-	int index;
+	int32_t index;
 	bool _exit = 0;
 
 	void keyboard_handler(uint64_t s) {

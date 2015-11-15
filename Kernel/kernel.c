@@ -32,7 +32,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 uint64_t pit_timer = 0;
 
-void *kernel_stack = NULL;
+void *kernel_stack = NULL; 
 
 void load_kernel_modules();
 
@@ -119,6 +119,10 @@ void main() {
 	screensaver_init();
 
 	// intson();
+
+	// fs_test();
+
+	// while(TRUE);
 
 	// while(TRUE){
 	// 	video_write_string(KERNEL_CONSOLE, "PIT Timer: ");

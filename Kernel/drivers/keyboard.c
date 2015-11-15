@@ -208,8 +208,7 @@ static kstatus keyboard_status = {.caps = FALSE, .ctrl = FALSE, .alt =  FALSE, .
 static msgqueue_t* kbdqueue;
 static task_t *kbdtask;
 
-static dka_catch* dka_catched_scancodes[256] = {NULL};
-static int dka_catched_len = 0;
+static dka_catch* dka_catched_scancodes[MAX_KBD_HANDLERS] = {NULL};
 
 static void keyboard_caps_handler(uint64_t s) {
 	keyboard_status.caps = !keyboard_status.caps;
@@ -273,91 +272,61 @@ static inline bool keyboard_is_scode_in_range(uint64_t range, uint64_t scode) {
 
 static bool keyboard_run_handlers(uint64_t scode) {
 
-	if (dka_catched_len > 0) {
+	bool catched = FALSE;
 
-		bool catched = FALSE;
+	for (uint32_t i = 0; i < MAX_KBD_HANDLERS; i++) {
 
-		for (int i = 0; i < dka_catched_len; i++) {
+		if (dka_catched_scancodes[i] == NULL) {
+			continue;
+		}
 
-			if (dka_catched_scancodes[i] == NULL) {
-				continue;
-			}
+		bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
+		bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
+		bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
+		bool is_console_equal;
 
-			bool is_wildcard = (dka_catched_scancodes[i]->flags & KEYBOARD_WILDCARD);
-			bool is_range = (dka_catched_scancodes[i]->flags & KEYBOARD_RANGE);
-			bool is_all_consoles = (dka_catched_scancodes[i]->flags & KEYBOARD_ALLCONSOLES);
-			bool is_console_equal;
+		if (dka_catched_scancodes[i]->task == NULL) {
+			is_console_equal = (video_current_console() == KERNEL_CONSOLE);
 
-			if (dka_catched_scancodes[i]->task == NULL) {
-				is_console_equal = (video_current_console() == KERNEL_CONSOLE);
+		} else {
+			is_console_equal = (video_current_console() == dka_catched_scancodes[i]->task->console);
+		}
 
+		if (!is_wildcard) {
+			if (is_range) {
+				if (!keyboard_is_scode_in_range(dka_catched_scancodes[i]->scancode, scode)) {
+					continue;
+				}
 			} else {
-				is_console_equal = (video_current_console() == dka_catched_scancodes[i]->task->console);
-			}
-
-			if (!is_wildcard) {
-				if (is_range) {
-					if (!keyboard_is_scode_in_range(dka_catched_scancodes[i]->scancode, scode)) {
-						continue;
-					}
-				} else {
-					if (dka_catched_scancodes[i]->scancode != scode) {
-						continue;
-					}
+				if (dka_catched_scancodes[i]->scancode != scode) {
+					continue;
 				}
 			}
-
-			if (!is_all_consoles && !is_console_equal) {
-				continue;
-			}
-
-			kdebug("Ejecutando handler \"");
-			_kdebug(dka_catched_scancodes[i]->name);
-			_kdebug("\" en consola: ");
-			kdebug_base((dka_catched_scancodes[i]->task->console == NULL) ? KERNEL_CONSOLE : dka_catched_scancodes[i]->task->console, 10);
-			kdebug_nl();
-
-			// //Creamos un backup de la consola actual. Como esta funcion se ejecuta dentro de la consola 0,
-			// //que corresponde a la consola de la tarea del teclado, debemos cambiar momentaneamente a la consola
-			// //de la tarea que seteo el handler
-			// console_t backup = video_current_console();
-			// console_t newconsole;
-
-			// if (dka_catched_scancodes[i]->task == NULL) {
-			// 	newconsole = KERNEL_CONSOLE;
-			// } else {
-			// 	newconsole = dka_catched_scancodes[i]->task->console;
-			// }
-
-			// video_change_console(newconsole);
-			// input_change_console(newconsole);
-
-			// task_t *dest;
-
-			// if (dka_catched_scancodes[i]->task == NULL) {
-			// 	dest = task_get_null();
-			// } else {
-			// 	dest = dka_catched_scancodes[i]->task;
-			// }
-
-			// signal_func_witharg(dest, dka_catched_scancodes[i]->handler, scode);
-
-			dka_catched_scancodes[i]->handler(scode);
-
-			// video_change_console(backup);
-			// input_change_console(backup);
-
-			if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
-				continue;
-			} else {
-				catched = TRUE;
-			}
 		}
 
-		if (catched) {
-			return TRUE;
+		if (!is_all_consoles && !is_console_equal) {
+			continue;
+		}
+
+		kdebug("Ejecutando handler \"");
+		_kdebug(dka_catched_scancodes[i]->name);
+		_kdebug("\" en consola: ");
+		kdebug_base((dka_catched_scancodes[i]->task == NULL) ? KERNEL_CONSOLE : dka_catched_scancodes[i]->task->console, 10);
+		kdebug_nl();
+
+		dka_catched_scancodes[i]->handler(scode);
+
+		if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
+			continue;
+		} else {
+			catched = TRUE;
 		}
 	}
+
+	if (catched) {
+		return TRUE;
+	}
+
 
 	return FALSE;
 }
@@ -452,9 +421,9 @@ void keyboard_change_console(console_t console) {
 	kbdtask->console = console;
 }
 
-int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name) {
+int32_t keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_t flags, char* name) {
 
-	int index;
+	uint32_t index = 0;
 
 	dka_catch* tmp = (dka_catch*)calloc(sizeof(dka_catch));
 
@@ -466,17 +435,86 @@ int keyboard_catch(uint64_t scancode, dka_handler handler, task_t *task, uint64_
 	tmp->name = malloc(strlen(name) + 1);
 	strcpy(tmp->name, name);
 
-	index = dka_catched_len;
+	while (index < MAX_KBD_HANDLERS && dka_catched_scancodes[index] != NULL) {
+		index++;
+	}
+
+	if (index == MAX_KBD_HANDLERS) {
+		kdebug("Se lleno el almacen de handlers!\n");
+		return -1;
+	}
+
 	dka_catched_scancodes[index] = tmp;
-	dka_catched_len++;
+
+
+	if (task != NULL) {
+
+		uint32_t i;
+
+		for (i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+			if (task->kbdhandlers[i] == -1) {
+				task->kbdhandlers[i] = index;
+				break;
+			}
+		}
+
+		if (i == MAX_KBD_HANDLERS) {
+			kdebug("La tarea: '");
+			_kdebug(task->name);
+			_kdebug("' pid=");
+			kdebug_base(task->pid, 10);
+			_kdebug(" alcanzo el maximo de handlers del teclado. Abortando!");
+			kdebug_nl();
+			free(tmp->name);
+			free(tmp);
+			return -1;
+		}
+
+		kdebug("La tarea: '");
+		_kdebug(task->name);
+		_kdebug("' pid=");
+		kdebug_base(task->pid, 10);
+		_kdebug(" reservo el handler con indice: ");
+		kdebug_base(index, 10);
+		kdebug_nl();
+	}
 
 	return index;
 }
 
-void keyboard_clear_handler(int index) {
+void keyboard_clear_handler(uint32_t index) {
+
+	task_t *task = dka_catched_scancodes[index]->task;
+
+	if (task != NULL) {
+		for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+			if (task->kbdhandlers[i] == index) {
+				task->kbdhandlers[i] = -1;
+				break;
+			}
+		}
+
+		kdebug("La tarea: '");
+		_kdebug(task->name);
+		_kdebug("' pid=");
+		kdebug_base(task->pid, 10);
+		_kdebug(" libero el handler con indice: ");
+		kdebug_base(index, 10);
+		kdebug_nl();
+	}
+
 	free(dka_catched_scancodes[index]->name);
 	free(dka_catched_scancodes[index]);
 	dka_catched_scancodes[index] = NULL;
+}
+
+void keyboard_clear_from_task(task_t *task) {
+
+	for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+		if (task->kbdhandlers[i] != -1) {
+			keyboard_clear_handler(task->kbdhandlers[i]);
+		}
+	}
 }
 
 void keyboard_set_distribution(keyboard_distrib d) {
