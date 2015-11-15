@@ -248,7 +248,9 @@ static char* fs_filename(const char* path) {
 	return name + 1;
 }
 
-file_t* fs_open(const char *path) {
+file_t* fs_open(const char *path, uint64_t flags) {
+
+	//TODO flags
 
 	if (rootdevice == NULL) {
 		return NULL;

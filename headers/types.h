@@ -91,6 +91,11 @@ typedef struct {
 	uint64_t 		size;
 } file_t;
 
+typedef struct {
+	file_t* file;
+	uint64_t cursor;
+} fd_t
+
 typedef struct task_t {
 	struct task_t* prev;
 	struct task_t* next;
@@ -104,7 +109,7 @@ typedef struct task_t {
 	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];
 	int64_t kbdhandlers[MAX_TASK_KBD_HANDLERS];
-	file_t* files[MAX_FS_CHILDS];
+	fd_t files[MAX_FS_CHILDS];
 	task_state_t state;
 	uint8_t console;
 } task_t;

@@ -37,7 +37,11 @@ typedef enum {
      SYSCALL_ATOMIC,
      SYSCALL_UNATOMIC,
      SYSCALL_SIGNAL_KILL,
-     SYSCALL_SIGNAL_SET
+     SYSCALL_SIGNAL_SET,
+     SYSCALL_FS_OPEN,
+     SYSCALL_FS_READ,
+     SYSCALL_FS_WRITE,
+     SYSCALL_FS_CLOSE
 } syscall_t;
 
 void sys_write(FD fd, char* s, uint64_t len);
@@ -72,6 +76,11 @@ void sys_task_yield();
 task_t* sys_task_getall();
 void sys_sleep(uint64_t ms);
 uint64_t sys_uptime();
+
+int32_t sys_open(const char* path, uint64_t flags);
+int32_t sys_read(int32_t fd, char* buf, uint32_t size);
+int32_t sys_write(int32_t fd, const char* data, uint32_t size);
+void sys_close(int32_t fd);
 
 void sys_signal_kill(pid_t pid, signal_t sig);
 void sys_signal_set(signal_t sig, sighandler_t handler);

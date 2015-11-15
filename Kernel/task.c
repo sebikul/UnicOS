@@ -251,6 +251,9 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 		task->kbdhandlers[i] = -1;
 	}
 
+	memset(task->files, 0, MAX_FS_CHILDS * sizeof(fd_t));
+
+
 	if (func != NULL) {
 		task->console = task_get_current()->console;
 	} else {
