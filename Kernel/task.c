@@ -4,6 +4,8 @@
 #include "string.h"
 #include "kernel.h"
 #include "keyboard.h"
+#include "paging.h"
+#include "syscalls.h"
 
 static task_t *last = NULL;
 static task_t *current = NULL;
@@ -58,10 +60,6 @@ static uint64_t task_shell(int argc, char** argv) {
 		// video_write_dec(console, console);
 		// video_write_nl(console);
 
-		kdebug("Running task with pid: ");
-		kdebug_base(task_get_current()->pid, 10);
-		kdebug_nl();
-
 		// if (task_get_current()->pid == 4) {
 		// 	kdebug("Rescheduling task with pid: ");
 		// 	kdebug_base(task_get_current()->pid, 10);
@@ -72,7 +70,7 @@ static uint64_t task_shell(int argc, char** argv) {
 
 		// while (TRUE);
 
-		((task_entry_point)shellCodeModuleAddress)(argc, argv);
+		//((task_entry_point)shellCodeModuleAddress)(argc, argv);
 
 	}
 
@@ -129,8 +127,11 @@ void task_remove(task_t *task) {
 
 	keyboard_clear_from_task(task);
 	free(task->name);
-	free(task->stack);
+	//free(task->stack);
+	PM_L4_TABLE* task_l4 = (PM_L4_TABLE*)task->cr3;
+	free_l4_table(task_l4);
 	free(task);
+	writeCR3(get_kernel_cr3());
 
 	kset_ints(ints);
 }
@@ -238,7 +239,6 @@ static  __attribute__ ((noreturn)) void wrapper(task_entry_point func, int argc,
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv) {
 
 	task_t *task = malloc(sizeof(task_t));
-	context_t *context;
 
 	task->state = TASK_PAUSED;
 	task->pid = getnewpid();
@@ -264,34 +264,12 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->name = malloc(strlen(name) + 1);
 	memcpy(task->name, name, strlen(name) + 1);
 
-	task->stack = malloc(STACK_SIZE);
-	task->stack = task->stack + STACK_SIZE - sizeof(context_t);
+	PM_L4_TABLE* cr3 = new_process_cr3();
+	uint64_t rsp = alloc_new_process_stack(cr3, func, name, argc, argv, (uint64_t)wrapper);
 
-	context = (context_t *) task->stack;
-
-	context->gs = 0x001;
-	context->fs = 0x002;
-	context->r15 =	0x003;
-	context->r14 =	0x004;
-	context->r13 =	0x005;
-	context->r12 =	0x006;
-	context->r11 =	0x007;
-	context->r10 =	0x008;
-	context->r9 = 0x009;
-	context->r8 = 0x00A;
-	context->rsi =	(uint64_t)argc;
-	context->rdi =	(uint64_t)func;
-	context->rbp =	0x00D;
-	context->rdx =	(uint64_t)argv;
-	context->rcx =	0x00F;
-	context->rbx =	0x010;
-	context->rax =	0x011;
-	context->rip =	(uint64_t)wrapper;
-	context->cs = 0x008;
-	context->rflags = 0x202;
-	context->rsp =	(uint64_t) (&context->base);
-	context->ss = 0x000;
-	context->base =	0x000;
+	task->stack = (void*)rsp;
+	task->cr3 = (uint64_t)cr3;
+	task->malloc_current = get_sys_malloc();
 
 	task_add(task);
 
@@ -402,6 +380,7 @@ void task_next() {
 	}
 
 	current = task;
+	set_process_last_malloc(task->malloc_current);
 
 	kdebug("Next task: '");
 	_kdebug(task->name);
@@ -409,6 +388,10 @@ void task_next() {
 	kdebug_base(task->pid, 10);
 	_kdebug(" stack at 0x");
 	kdebug_base((uint64_t) task->stack, 16);
+	_kdebug(" CR3 is 0x");
+	kdebug_base(task->cr3, 16);
+	_kdebug(" malloc is 0x");
+	kdebug_base(task->malloc_current, 16);
 	kdebug_nl();
 }
 

@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "types.h"
 #include "mem.h"
+#include "paging.h"
 #include "string.h"
 #include "task.h"
 #include "input.h"
@@ -32,7 +33,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 uint64_t pit_timer = 0;
 
-void *kernel_stack = NULL; 
+void *kernel_stack = NULL;
 
 void load_kernel_modules();
 
@@ -54,6 +55,11 @@ void initializeKernelBinary() {
 	load_kernel_modules();
 
 	clearBSS(&bss, &endOfKernel - &bss);
+
+	video_preinit();
+
+	pmm_initialize();
+	vmm_initialize();
 
 	serial_init();
 	keyboard_init();
@@ -97,8 +103,52 @@ void load_kernel_modules() {
 	loadModules(&endOfKernelBinary, moduleAddresses);
 }
 
-void main() {
+static  __attribute__ ((noreturn)) uint64_t test_stack_and_heap() {
+	uint64_t* aux = sys_malloc(sizeof(uint64_t));
+	uint64_t* stack = (uint64_t*)((38*0x100000)-0x200);
+	kdebug("HEAP VARIABLE & AT: 0x");
+	kdebug_base((uint64_t)&aux, 16);
+	kdebug_nl();
+	kdebug("HEAP VARIABLE : 0x");
+	kdebug_base((uint64_t)aux, 16);
+	kdebug_nl();
+	kdebug("HEAP VALUE : 0x");
+	kdebug_base((uint64_t)*aux, 16);
+	kdebug_nl();
+	*aux = 0xDEADBEEF;
+	kdebug("HEAP VARIABLE & AT: 0x");
+	kdebug_base((uint64_t)&aux, 16);
+	kdebug_nl();
+	kdebug("HEAP VARIABLE : 0x");
+	kdebug_base((uint64_t)aux, 16);
+	kdebug_nl();
+	kdebug("HEAP VALUE : 0x");
+	kdebug_base((uint64_t)*aux, 16);
+	kdebug_nl();
 
+	kdebug("STACK VARIABLE & AT: 0x");
+	kdebug_base((uint64_t)&stack, 16);
+	kdebug_nl();
+	kdebug("STACK VARIABLE : 0x");
+	kdebug_base((uint64_t)stack, 16);
+	kdebug_nl();
+	kdebug("STACK VALUE : 0x");
+	kdebug_base((uint64_t)*stack, 16);
+	kdebug_nl();
+	*stack = 0xDEADBEEF;
+	kdebug("STACK VARIABLE & AT: 0x");
+	kdebug_base((uint64_t)&stack, 16);
+	kdebug_nl();
+	kdebug("STACK VARIABLE : 0x");
+	kdebug_base((uint64_t)stack, 16);
+	kdebug_nl();
+	kdebug("STACK VALUE : 0x");
+	kdebug_base((uint64_t)*stack, 16);
+	kdebug_nl();
+	while(1);
+}
+
+void main() {
 	video_write_string(KERNEL_CONSOLE, "-->Kernel Stack at: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)kernel_stack);
 	video_write_nl(KERNEL_CONSOLE);
@@ -113,6 +163,14 @@ void main() {
 	task_init();
 
 	pit_setup(10);
+
+	task_t* test1 = task_create(test_stack_and_heap, "test1", 0, NULL);
+	task_setconsole(test1, 0);
+	task_ready(test1);
+
+	task_t* test2 = task_create(test_stack_and_heap, "test2", 0, NULL);
+	task_setconsole(test2, 0);
+	task_ready(test2);
 	//beep();
 
 	// TAREAS DEL KERNEL
@@ -120,7 +178,7 @@ void main() {
 
 	// intson();
 
-	fs_test();
+	//fs_test();
 
 	//while(TRUE);
 

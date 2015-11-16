@@ -66,8 +66,7 @@ static void video_fn_handler(uint64_t s) {
 	}
 }
 
-void video_init() {
-
+void video_preinit() {
 	for (console_t i = 0; i < VIRTUAL_CONSOLES; i++) {
 
 		current_console = i;
@@ -82,6 +81,9 @@ void video_init() {
 	}
 
 	video_change_console(0);
+}
+
+void video_init() {
 
 	keyboard_catch( ((uint64_t)0x41 << 32) | 0x3b, video_fn_handler, NULL, KEYBOARD_IGNORE | KEYBOARD_RANGE | KEYBOARD_ALLCONSOLES, "fn");
 }
