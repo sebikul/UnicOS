@@ -92,6 +92,16 @@ void * memset(void * destiation, char c, uint64_t length) {
 	return destiation;
 }
 
+void * memset_long(void * destiation, uint64_t c, uint64_t length) {
+	uint64_t * dst = (uint64_t*)destiation;
+
+	for (uint64_t i = 0; i < length; i++) {
+		dst[i] = c;
+	}
+
+	return destiation;
+}
+
 int strpos(const char* s, char n) {
 
 	for (int pos = 0; s[pos] != 0; pos++) {

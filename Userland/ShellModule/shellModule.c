@@ -40,10 +40,12 @@ uint64_t main(int argc, char** argv) {
 
 static uint64_t _main(int argc, char** argv) {
 
-	char buffer[CMD_BUFFER_SIZE] = {0};
+	//char buffer[CMD_BUFFER_SIZE] = {0};
+	char* buffer = calloc(CMD_BUFFER_SIZE);
 
 	//Variables "globales"
-	char* shell_history[MAX_HISTORY_SIZE] = {0};
+	//char* shell_history[MAX_HISTORY_SIZE] = {0};
+	char* shell_history = calloc(MAX_HISTORY_SIZE);
 	int current_history = 0;
 	int max_history = 0;
 	int32_t arrows_handlers[2] = {0};

@@ -1,4 +1,14 @@
 global		loader
+global 		writeCR0
+global 		readCR0
+global 		writeCR1
+global 		readCR1
+global 		writeCR2
+global 		readCR2
+global 		writeCR3
+global 		readCR3
+global 		writeCR4
+global 		readCR4
 global		intson
 global		intsoff
 global 		gdt_flush
@@ -19,6 +29,8 @@ extern 		task_getquantum
 extern 		task_decquantum
 
 extern 		stack_init
+extern 		kdebug_base
+extern 		kdebug_nl
 
 extern 		pit_timer
 
@@ -108,13 +120,9 @@ create_gate:
 		ret
 
 set_interrupt_handlers:
-		; mov 		rdi, 0xE 					; Set up page fault handler
-		; mov 		rax, page_fault_handler
-		; call 		create_gate
-
-		; mov 		rdi, 0xE 					; Set up page fault handler
-		; mov 		rax, gpe_handler
-		; call 		create_gate
+		mov 		rdi, 0xE 					; Set up page fault handler
+		mov 		rax, INT0E
+		call 		create_gate
 
 		mov 		rdi, 	0x80				; Set up Software Interrups handler
 		mov 		rax, 	soft_interrupt
@@ -124,7 +132,7 @@ set_interrupt_handlers:
 		mov 		rax,	keyboard
 		call 		create_gate
 
-		mov 		rdi, 	0x20				; Set up Keyboard handler
+		mov 		rdi, 	0x20				; Set up PIT handler
 		mov 		rax,	pit_handler
 		call 		create_gate
 
@@ -170,7 +178,7 @@ pit_handler:
 		call 		irq0_handler
 		call 		task_next
 
-		call  		scheduler_k2u
+		call  	scheduler_k2u
 		mov			rsp,	 rax
 		jmp 		_eoi
 
@@ -182,8 +190,9 @@ _eoi:
 		mov			al, 	0x20				; Acknowledge the IRQ
 		out 		0x20, 	al
 
-		sti
 		popa
+		sti
+
 		iretq
 
 reschedule:
@@ -229,7 +238,7 @@ keyboard:
 		xor			rax, 	rax
 
 		in 			al, 	0x60				; Get the scancode from the keyboard
-		
+
 		mov 		rdi,	 rax
 		call 		keyboard_irq_handler
 
@@ -251,11 +260,53 @@ gpe_handler:
 		cli
 		pusha
 
-		
-		
+
+
 		popa
 		sti
 
+align 16
+INT0E: ; page fault handler
+    pusha
+    mov     eax, [rsp+136] ; error code
+    mov     rdi, rax
+    mov     rsi, cr2
+    call    page_fault_handler
+    popa
+    add     esp, 8 ; error code
+    iretq
+
+writeCR0:
+		mov cr0, rdi
+		ret
+
+readCR0:
+		mov rax, cr0
+		ret
+
+writeCR2:
+		mov cr2, rdi
+		ret
+
+readCR2:
+		mov rax, cr2
+		ret
+
+writeCR3:
+		mov cr3, rdi
+		ret
+
+readCR3:
+		mov rax, cr3
+		ret
+
+writeCR4:
+		mov cr4, rdi
+		ret
+
+readCR4:
+		mov rax, cr4
+		ret
 
 intson:
 		sti

@@ -12,7 +12,11 @@
 #include "signal.h"
 #include "filesystem.h"
 
+#define PROCESS_MALLOC_START 30*0x100000
+
 extern uint64_t pit_timer;
+static void* process_malloc_buffer;
+static void* process_last_malloc;
 
 uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
 
@@ -186,15 +190,45 @@ void sys_rtc_set(time_t* t) {
 }
 
 void* sys_malloc(uint64_t len) {
-	return malloc(len);
+	bool ints = kset_ints(FALSE);
+
+	process_last_malloc = process_malloc_buffer;
+
+	process_malloc_buffer += len * sizeof(char);
+	_kdebug(" SYS MALLOC AT 0x");
+	kdebug_base((uint64_t)process_last_malloc, 16);
+	kdebug_nl();
+	_kdebug(" RSP AT 0x");
+	kdebug_base((uint64_t)task_get_current()->stack, 16);
+	kdebug_nl();
+
+	kset_ints(ints);
+	return process_last_malloc;
 }
 
 void* sys_calloc(uint64_t len) {
-	return calloc(len);
+	char* space = (char*)sys_malloc(len);
+	memset((void*) space, 0, len);
+	return (void*)space;
 }
 
 void sys_free(void* m) {
-	free(m);
+
+}
+
+/* This is used in the task creation */
+void* get_sys_malloc() {
+	return PROCESS_MALLOC_START;
+}
+
+/* This restores the process malloc stack pointer when restoring a process */
+void set_process_last_malloc(void* last) {
+	process_malloc_buffer = last;
+}
+
+/* Each task needs to save this in the context */
+void* get_process_malloc() {
+	return process_malloc_buffer;
 }
 
 int32_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name) {

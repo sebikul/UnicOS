@@ -73,12 +73,12 @@ void signal_send(task_t *dest, signal_t sig) {
 
 	switch (sig) {
 	case SIGKILL:
-	// if (task_get_current() == dest) {
-	// 	//TODO errno
-	// 	return;
-	// }
-	// task_remove(dest);
-	// break;
+	if (task_get_current() == dest) {
+		//TODO errno
+		return;
+	}
+	task_remove(dest);
+	break;
 
 	case SIGINT:
 		signal_dispatch(dest, sig);

@@ -13,7 +13,9 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-#define kdebug(str) _kdebug(__FILE__ ":" STR(__LINE__) ": " str)
+extern uint64_t pit_timer;
+	
+#define kdebug(str) (_kdebug("["), kdebug_base(pit_timer, 10), _kdebug(" ms] "__FILE__ ":" STR(__LINE__) ": " str))
 #define kdebugs(str) (kdebug(""), _kdebug(str), kdebug_nl())
 
 void _kdebug(const char* s);
