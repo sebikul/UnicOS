@@ -12,7 +12,7 @@ COMMAND_START(help) {
 	if (argc == 1) {
 
 		for (int cmd = 0; cmd < cmdlist->count; cmd++) {
-			printf("\t%s\n", cmdlist->commands[cmd]->help);
+			printf("\t%s\n", cmdlist->commands[cmd]->name);
 		}
 
 		printf("\nEjecute 'help [comando]' para obtener mas ayuda.\n");
@@ -24,7 +24,6 @@ COMMAND_START(help) {
 				break;
 			}
 		}
-
 	}
 
 	return 0;
