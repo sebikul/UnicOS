@@ -355,7 +355,17 @@ int32_t sys_open(const char* path, uint64_t flags) {
 			}
 
 			task->files[i].file = file;
-			task->files[i].cursor = 0;
+
+			if (flags & O_APPEND) {
+				task->files[i].cursor = file->size;
+			} else if (flags & O_TRUNC) {
+				free(file->start);
+				file->start = NULL;
+				file->size = 0;
+			} else {
+				task->files[i].cursor = 0;
+			}
+
 			task->files[i].flags = flags;
 
 			return i;
@@ -406,6 +416,10 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 	default:
 
 		fds = &(task->files[fd]);
+
+		if (!((fds->flags & O_RDWR) || (fds->flags & O_RDONLY))) {
+			return -2;
+		}
 
 		if (fds->file == NULL) {
 			return -1;
@@ -460,6 +474,10 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 
 	default:
 		fds = &(task->files[fd]);
+
+		if (!((fds->flags & O_RDWR) || (fds->flags & O_WRONLY))) {
+			return -2;
+		}
 
 		if (fds->file == NULL) {
 			return -1;
