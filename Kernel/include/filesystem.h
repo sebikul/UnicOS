@@ -43,6 +43,8 @@ int32_t fs_read(file_t *file, char* buf, uint32_t size, uint32_t offset);
 int32_t fs_write(file_t *file, const char* data, uint32_t size, uint32_t offset);
 //void fs_close(file_t *file);
 
+void fs_dump();
+
 void fs_test();
 
 

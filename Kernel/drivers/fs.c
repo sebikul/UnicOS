@@ -178,18 +178,26 @@ static void dumpdir(directory_t *dir, int level) {
 
 			while (j > 0) {
 				_kdebug("    ");
+				video_write_string(video_current_console(), "    ");
 				j--;
 			}
 
 			_kdebug("|-");
+			video_write_string(video_current_console(), "|-");
 
 			if (dir->device != dir->childs[i]->device) {
+				video_write_string(video_current_console(), "!!");
 				_kdebug("!!");
 			}
 
+			video_write_string(video_current_console(), dir->childs[i]->name);
 			_kdebug(dir->childs[i]->name);
 
 			if (dir->device != dir->childs[i]->device) {
+
+				video_write_string(video_current_console(), " (");
+				video_write_string(video_current_console(), dir->childs[i]->device->name);
+				video_write_string(video_current_console(), " )");
 
 				_kdebug(" (");
 				_kdebug(dir->childs[i]->device->name);
@@ -197,6 +205,7 @@ static void dumpdir(directory_t *dir, int level) {
 			}
 
 			kdebug_nl();
+			video_write_nl(video_current_console());
 
 			dumpdir(dir->childs[i], level + 1);
 		}
@@ -209,12 +218,18 @@ static void dumpdir(directory_t *dir, int level) {
 
 			while (j > 0) {
 				_kdebug("    ");
+				video_write_string(video_current_console(), "    ");
 				j--;
 			}
 
 			_kdebug("|~");
+			video_write_string(video_current_console(), "|~");
+
 			_kdebug(dir->leaves[i]->name);
+			video_write_string(video_current_console(), dir->leaves[i]->name);
+
 			kdebug_nl();
+			video_write_nl(video_current_console());
 		}
 	}
 }
@@ -385,6 +400,23 @@ file_t* fs_open(const char *path, uint64_t flags) {
 	return NULL;
 }
 
+directory_t* fs_opendir(const char* path) {
+
+	if (rootdevice == NULL) {
+		return NULL;
+	}
+
+	char* tmp = path;
+
+	tmp += strlen(path) - 1;
+
+	if (*tmp == '/') {
+		*tmp = '\0';
+	}
+
+	return fs_traverse(path);
+}
+
 int32_t fs_read(file_t *file, char* buf, uint32_t size, uint32_t offset) {
 
 	return file->device->funcs.read(file, buf, size, offset);
@@ -394,7 +426,7 @@ int32_t fs_write(file_t *file, const char* data, uint32_t size, uint32_t offset)
 	return file->device->funcs.write(file, data, size, offset);
 }
 
-static void dumpfs() {
+void fs_dump() {
 	kdebug("Dumping filesystem!\n");
 
 	dumpdir(rootdevice->rootdir, 0);
@@ -433,7 +465,7 @@ void fs_test() {
 	fs_open("/dir2/file2", O_CREAT);
 	fs_open("/dir2/dir5/file3", O_CREAT);
 
-	dumpfs();
+	fs_dump();
 
 	char data[] = "hola que tal";
 	char response[50];
@@ -467,7 +499,7 @@ void fs_test() {
 
 	fs_mount(newdev, "/dir2/dir5");
 
-	dumpfs();
+	fs_dump();
 
 	w =	fs_write(file1, data, strlen(data) + 1, w - 1);
 
@@ -485,6 +517,15 @@ void fs_test() {
 	kdebug_base(r, 10);
 	kdebug_nl();
 
+	directory_t* dir = fs_opendir("/dir2/dir5");
+
+	if (dir != NULL) {
+		kdebug("Directory found!\n");
+	} else {
+		kdebug("Directory NOT found!\n");
+	}
+
+	fs_mkdir("/dir2/dir5/newroot/holaaa");
 
 	// dirpool[0].name = "root";
 
