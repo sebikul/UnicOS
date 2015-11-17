@@ -10,6 +10,10 @@ static int32_t ramfs_read(file_t *file, char* buf, uint32_t size, uint32_t offse
 
 	char* data = file->start;
 
+	if (size == 0) {
+		size = file->size;
+	}
+
 	kdebug("Reading ");
 	kdebug_base(size, 10);
 	_kdebug(" bytes from file starting at ");
@@ -38,7 +42,9 @@ static int32_t ramfs_write(file_t *file, const char* data, uint32_t size, uint32
 		int newsize = size + offset;
 
 		if (file->start != NULL) {
-			kdebug("Copying old data!\n");
+			kdebug("Copying old data!: ");
+			_kdebug(file->start);
+			kdebug_nl();
 			memcpy(newstart, file->start, file->size);
 			free(file->start);
 		}
@@ -49,11 +55,21 @@ static int32_t ramfs_write(file_t *file, const char* data, uint32_t size, uint32
 
 	char* buf = file->start;
 
+	kdebug("Writing ");
+	kdebug_base(size, 10);
+	_kdebug(" bytes from file starting at ");
+	kdebug_base(offset, 10);
+	kdebug_nl();
+
 	buf += offset;
 
 	for (; i < size && i < file->size; i++) {
 		buf[i] = data[i];
 	}
+
+	kdebug("File now: ");
+	_kdebug(file->start);
+	kdebug_nl();
 
 	return i;
 }

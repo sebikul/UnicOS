@@ -86,6 +86,8 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(sigrcv);
 		COMMAND_INIT(cat);
 		COMMAND_INIT(fstree);
+		COMMAND_INIT(filesend);
+		COMMAND_INIT(filercv);
 
 		initialize_names();
 

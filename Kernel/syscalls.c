@@ -431,6 +431,8 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 		kdebug("Reading content of file: ");
 		_kdebug(fds->file->name);
+		_kdebug(" size: ");
+		kdebug_base(size, 10);
 		kdebug_nl();
 
 		len = fs_read(fds->file, buf, size, fds->cursor);
@@ -487,7 +489,11 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 			return -1;
 		}
 
-		kdebug("Writing to fs\n");
+		kdebug("Writing to fs: ");
+		_kdebug(data);
+		_kdebug(" size: ");
+		kdebug_base(size, 10);
+		kdebug_nl();
 
 		len = fs_write(fds->file, data, size, fds->cursor);
 

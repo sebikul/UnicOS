@@ -58,5 +58,7 @@ DECLARE_COMMAND(sigsend);
 DECLARE_COMMAND(sigrcv);
 DECLARE_COMMAND(cat);
 DECLARE_COMMAND(fstree);
+DECLARE_COMMAND(filesend);
+DECLARE_COMMAND(filercv);
 
 #endif
