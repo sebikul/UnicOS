@@ -3,6 +3,7 @@
 #include "string.h"
 #include "kernel.h"
 #include "mem.h"
+#include "video.h"
 
 static device_t *rootdevice = NULL;
 
