@@ -116,13 +116,13 @@ void main() {
 	//beep();
 
 	// TAREAS DEL KERNEL
-	screensaver_init();
+	//screensaver_init();
 
 	// intson();
 
-	// fs_test();
+	fs_test();
 
-	// while(TRUE);
+	//while(TRUE);
 
 	// while(TRUE){
 	// 	video_write_string(KERNEL_CONSOLE, "PIT Timer: ");

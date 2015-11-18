@@ -9,7 +9,7 @@ COMMAND_HELP(set_distribution, "[keyboard set] Recibe una distribucion de teclad
 COMMAND_START(set_distribution) {
 
 	if (argc != 3) {
-		fprintf(FD_STDERR, "Cantidad invalida de argumentos.\n");
+		fprintf(stderr, "Cantidad invalida de argumentos.\n");
 		return 1;
 	}
 
@@ -20,11 +20,11 @@ COMMAND_START(set_distribution) {
 		} else if (strcmp(argv[2], "usa") == 0) {
 			sys_kbd_set_distribution(KEYBOARD_USA);
 		} else {
-			fprintf(FD_STDERR, "Distribucion de teclado invalida. Distribuciones disponibles [usa] [latin].\n");
+			fprintf(stderr, "Distribucion de teclado invalida. Distribuciones disponibles [usa] [latin].\n");
 		}
 
 	} else {
-		fprintf(FD_STDERR, "Comando invalido. Comando disponible [keyboard set].\n");
+		fprintf(stderr, "Comando invalido. Comando disponible [keyboard set].\n");
 	}
 
 	return 0;

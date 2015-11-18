@@ -17,7 +17,7 @@ void free(void* m) {
 	sys_free(m);
 }
 
-static void vfprintf(FD fd, char* fmt, va_list ap) {
+static void vfprintf(int fd, char* fmt, va_list ap) {
 
 	char* str = calloc(MAX_PRINTF_LEN);
 	int i = 0;
@@ -97,9 +97,9 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 
 						uint32_t numlen = strlen(number);
 
-						if (arg < 0) {
-							str[j++] = '-';
-						}
+						// if (arg < 0) {
+						// 	str[j++] = '-';
+						// }
 
 						//k: posicion en el argumento
 
@@ -201,7 +201,7 @@ static void vfprintf(FD fd, char* fmt, va_list ap) {
 	free(str);
 }
 
-void fprintf(FD fd, char* fmt, ...) {
+void fprintf(int fd, char* fmt, ...) {
 
 	va_list ap;
 	va_start(ap, fmt);
@@ -216,20 +216,20 @@ void printf(char* fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 
-	vfprintf(FD_STDOUT, fmt, ap);
+	vfprintf(stdout, fmt, ap);
 
 	va_end(ap);
 }
 
 void putchar(char c) {
-	sys_write(FD_STDOUT, &c, 1);
+	sys_write(stdout, &c, 1);
 }
 
 int getchar() {
 
 	static char buffer[2] = {0};
 
-	char read = sys_read(FD_STDOUT, buffer, 1);
+	char read = sys_read(stdout, buffer, 1);
 
 	if (read == EOF) {
 		return EOF;
@@ -239,7 +239,7 @@ int getchar() {
 }
 
 int scanf(char* c, int len) {
-	return (int)sys_read(FD_STDOUT, c, len);
+	return (int)sys_read(stdin, c, len);
 }
 
 char* strcat(char* str1, char* str2) {

@@ -8,7 +8,7 @@ COMMAND_START(clear) {
 	if (argc == 1) {
 		clear_screen();
 	} else {
-		fprintf(FD_STDERR, "Comando invalido, no se esperan parametros.\n");
+		fprintf(stderr, "Comando invalido, no se esperan parametros.\n");
 	}
 
 	return 0;

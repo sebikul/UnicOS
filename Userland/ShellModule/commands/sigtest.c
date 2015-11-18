@@ -2,12 +2,12 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(sigsend, "[sigsend] Envia una senal al programa con pid <pid>");
+COMMAND_HELP(sigsend, "[sigsend] <pid> <signal>:  Envia una senal al programa con pid <pid>");
 
 COMMAND_START(sigsend) {
 
 	if (argc != 3) {
-		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un pid.\n");
+		fprintf(stderr, "Comando invalido. Debe ingresar un pid.\n");
 	} else {
 		pid_t pid = ctoi(argv[1]);
 		signal_t sig;
@@ -21,7 +21,7 @@ COMMAND_START(sigsend) {
 		} else if (strcmp(argv[2], "SIGKILL") == 0) {
 			sig = SIGKILL;
 		} else {
-			fprintf(FD_STDERR, "Senal invalida.\n");
+			fprintf(stderr, "Senal invalida.\n");
 		}
 
 		sys_signal_kill(pid, sig);
@@ -30,7 +30,7 @@ COMMAND_START(sigsend) {
 	return 0;
 }
 
-COMMAND_HELP(sigrcv, "[host] Recibe una senal");
+COMMAND_HELP(sigrcv, "[sigrcv] <signal>: Recibe una senal");
 
 COMMAND_START(sigrcv) {
 
@@ -51,7 +51,7 @@ COMMAND_START(sigrcv) {
 	}
 
 	if (argc != 2) {
-		fprintf(FD_STDERR, "Comando invalido. Debe ingresar una senal.\n");
+		fprintf(stderr, "Comando invalido. Debe ingresar una senal.\n");
 		return 1;
 	}
 
@@ -69,7 +69,7 @@ COMMAND_START(sigrcv) {
 	} else if (strcmp(argv[1], "SIGKILL") == 0) {
 		sig = SIGKILL;
 	} else {
-		fprintf(FD_STDERR, "Senal invalida.\n");
+		fprintf(stderr, "Senal invalida.\n");
 	}
 
 	sys_signal_set(sig, sighandler);

@@ -50,7 +50,7 @@ COMMAND_START(color) {
     case 5:
 
         if (icolor == EOF) {
-            fprintf(FD_STDERR, "NO ES UN COLOR");
+            fprintf(stderr, "NO ES UN COLOR");
             return 1;
         }
 
@@ -68,18 +68,18 @@ COMMAND_START(color) {
                 set_color(video_get_fg(c), icolor);
 
             } else {
-                fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [front] [background].\n" );
+                fprintf(stderr, "Comando invalido. Comandos disponibles [front] [background].\n" );
 
             }
 
         } else {
-            fprintf(FD_STDERR, "Comando Invalido. Comandos disponibles [color] [color set] \n" );
+            fprintf(stderr, "Comando Invalido. Comandos disponibles [color] [color set] \n" );
         }
         break;
 
 
     default :
-        fprintf(FD_STDERR, "Cantidad invalida de parametros. \n" );
+        fprintf(stderr, "Cantidad invalida de parametros. \n" );
     }
 
     return 0;

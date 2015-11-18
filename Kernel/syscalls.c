@@ -28,14 +28,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_rtc_set((time_t*)rsi);
 		break;
 
-	case SYSCALL_READ:
-		return sys_read((FD)rsi, (char*)rdx, rcx);
-		break;
-
-	case SYSCALL_WRITE:
-		sys_write((FD)rsi, (char*)rdx, rcx);
-		break;
-
 	case SYSCALL_MALLOC:
 		return (uint64_t) sys_malloc(rsi);
 		break;
@@ -148,21 +140,33 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_signal_set((signal_t) rsi, (sighandler_t) rdx);
 		break;
 
-	// case SYSCALL_FS_OPEN:
-	// 	return sys_open((const char*) rsi, rdx);
-	// 	break;
+	case SYSCALL_FS_OPEN:
+		return sys_open((const char*) rsi, rdx);
+		break;
 
-	// case SYSCALL_FS_READ:
-	// 	return sys_read((int32_t) rsi, (char*)rdx, (uint32_t)rcx);
-	// 	break;
+	case SYSCALL_FS_READ:
+		return sys_read((int32_t) rsi, (char*)rdx, (uint32_t)rcx);
+		break;
 
-	// case SYSCALL_FS_WRITE:
-	// 	return  sys_write((int32_t) rsi, (const char*)rdx, (uint32_t)rcx);
-	// 	break;
+	case SYSCALL_FS_WRITE:
+		return  sys_write((int32_t) rsi, (const char*)rdx, (uint32_t)rcx);
+		break;
 
-	// case SYSCALL_FS_CLOSE:
-	// 	sys_close((uint32_t) rsi);
-	// 	break;
+	case SYSCALL_FS_CLOSE:
+		sys_close((int32_t) rsi);
+		break;
+
+	case SYSCALL_FS_SIZE:
+		return sys_size((int32_t) rsi);
+		break;
+
+	case SYSCALL_FS_LS:
+		sys_ls();
+		break;
+
+	case SYSCALL_FS_MKDIR:
+		return sys_mkdir((const char*) rsi);
+		break;
 
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
@@ -179,63 +183,6 @@ void sys_rtc_get(time_t* t) {
 
 void sys_rtc_set(time_t* t) {
 	rtc_set_time(t);
-}
-
-void sys_write(FD fd, char* s, uint64_t len) {
-
-	color_t colorbk;
-	task_t *current = task_get_current();
-
-
-	switch (fd) {
-	case FD_STDOUT:
-		kdebug("Writing to console ");
-		kdebug_base(current->console, 10);
-		kdebug_nl();
-
-		video_write_string(current->console, s);
-		break;
-
-	case FD_STDERR:
-
-		colorbk = video_get_color(current->console);
-
-		video_set_color(current->console, COLOR_RED, COLOR_BLACK);
-
-		video_write_string(current->console, s);
-
-		video_set_full_color(current->console, colorbk);
-		break;
-	}
-}
-
-uint64_t sys_read(FD fd, char* s, uint64_t len) {
-
-	uint64_t i = 0;
-
-	kdebug("Esperando entrada\n");
-
-	task_pause(task_get_current());
-
-	kdebug("Entrada recibida!\n");
-
-	while (i < len) {
-		s[i] = input_getc();
-
-		if (s[i] == '\n') {
-			break;
-		}
-		i++;
-	}
-
-	s[i] = 0;
-
-	kdebugs(s);
-	kdebug("Caracteres ingresados: ");
-	kdebug_base(i, 10);
-	kdebug_nl();
-
-	return i;
 }
 
 void* sys_malloc(uint64_t len) {
@@ -400,13 +347,194 @@ void sys_signal_set(signal_t sig, sighandler_t handler) {
 	signal_set(task, sig, handler);
 }
 
-// int32_t sys_open(const char* path, uint64_t flags){
+int32_t sys_open(const char* path, uint64_t flags) {
 
-	
+	task_t *task = task_get_current();
 
-// }
-// int32_t sys_read(int32_t fd, char* buf, uint32_t size);
-// int32_t sys_write(int32_t fd, const char* data, uint32_t size);
-// void sys_close(int32_t fd);
+	kdebug("Syscall open\n");
 
+	for (uint32_t i = 3; i < MAX_FS_CHILDS; i++) {
+		if (task->files[i].file == NULL) {
 
+			file_t *file = fs_open(path, flags);
+
+			if (file == NULL) {
+				return -1;
+			}
+
+			task->files[i].file = file;
+
+			if (flags & O_APPEND) {
+				task->files[i].cursor = file->size;
+			} else if (flags & O_TRUNC) {
+				free(file->start);
+				file->start = NULL;
+				file->size = 0;
+			} else {
+				task->files[i].cursor = 0;
+			}
+
+			task->files[i].flags = flags;
+
+			return i;
+		}
+	}
+
+	return -2;
+}
+
+int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
+
+	task_t *task = task_get_current();
+	int32_t len = 0;
+	fd_t *fds;
+
+	kdebug("Syscall read. fd: ");
+	kdebug_base(fd, 10);
+	kdebug_nl();
+
+	switch (fd) {
+	case stdin:
+
+		kdebug("Esperando entrada\n");
+
+		task_pause(task_get_current());
+
+		kdebug("Entrada recibida!\n");
+
+		while (len < size) {
+			buf[len] = input_getc();
+
+			if (buf[len] == '\n') {
+				break;
+			}
+			len++;
+		}
+
+		buf[len] = 0;
+
+		kdebugs(buf);
+		kdebug("Caracteres ingresados: ");
+		kdebug_base(len, 10);
+		kdebug_nl();
+
+		return len;
+		break;
+
+	default:
+
+		fds = &(task->files[fd]);
+
+		if (!((fds->flags & O_RDWR) || (fds->flags & O_RDONLY))) {
+			return -2;
+		}
+
+		if (fds->file == NULL) {
+			return -1;
+		}
+
+		kdebug("Reading content of file: ");
+		_kdebug(fds->file->name);
+		_kdebug(" size: ");
+		kdebug_base(size, 10);
+		kdebug_nl();
+
+		len = fs_read(fds->file, buf, size, fds->cursor);
+
+		kdebug("Read: '");
+		_kdebug(buf);
+		_kdebug("'");
+		kdebug_nl();
+
+		fds->cursor += len;
+
+		return len;
+	}
+}
+
+int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
+
+	color_t colorbk;
+	task_t *task = task_get_current();
+	fd_t *fds;
+	int32_t len = 0;
+
+	kdebug("Syscall write. fd: ");
+	kdebug_base(fd, 10);
+	kdebug_nl();
+
+	switch (fd) {
+	case stdout:
+		kdebug("Writing to console ");
+		kdebug_base(task->console, 10);
+		kdebug_nl();
+
+		video_write_string(task->console, data);
+		return size;
+		break;
+
+	case stderr:
+
+		colorbk = video_get_color(task->console);
+		video_set_color(task->console, COLOR_RED, COLOR_BLACK);
+		video_write_string(task->console, data);
+		video_set_full_color(task->console, colorbk);
+		return size;
+		break;
+
+	default:
+		fds = &(task->files[fd]);
+
+		if (!((fds->flags & O_RDWR) || (fds->flags & O_WRONLY))) {
+			return -2;
+		}
+
+		if (fds->file == NULL) {
+			return -1;
+		}
+
+		kdebug("Writing to fs: ");
+		_kdebug(data);
+		_kdebug(" size: ");
+		kdebug_base(size, 10);
+		kdebug_nl();
+
+		len = fs_write(fds->file, data, size, fds->cursor);
+
+		fds->cursor += len;
+
+		return len;
+	}
+}
+
+void sys_close(int32_t fd) {
+
+	task_t *task = task_get_current();
+
+	kdebug("Syscall clsoe\n");
+
+	task->files[fd].file = NULL;
+	task->files[fd].cursor = 0;
+}
+
+uint32_t sys_size(int32_t fd) {
+
+	task_t *task = task_get_current();
+	fd_t *fds;
+
+	fds = &(task->files[fd]);
+
+	if (fds->file == NULL) {
+		return -1;
+	}
+
+	return fds->file->size;
+}
+
+void sys_ls() {
+	fs_dump();
+}
+
+int32_t sys_mkdir(const char* path) {
+	return (fs_mkdir(path) == NULL);
+}

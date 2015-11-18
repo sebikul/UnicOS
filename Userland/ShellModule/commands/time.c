@@ -44,13 +44,13 @@ COMMAND_START(time) {
 
 					set_time(t);
 				} else {
-					fprintf(FD_STDERR, "Horario invalido. Verifique la correctitud de la fecha.\n");
+					fprintf(stderr, "Horario invalido. Verifique la correctitud de la fecha.\n");
 				}
 			} else {
-				fprintf(FD_STDERR, "Horario invalido. La hora se ingresa en formato numerico unicamente.\n");
+				fprintf(stderr, "Horario invalido. La hora se ingresa en formato numerico unicamente.\n");
 			}
 		} else {
-			fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [time] [time set]\n");
+			fprintf(stderr, "Comando invalido. Comandos disponibles [time] [time set]\n");
 		}
 		for (int i = 2; i < 8 && flagn; i++) {
 			if (!string_numeric(argv[i])) {
@@ -61,7 +61,7 @@ COMMAND_START(time) {
 		break;
 
 	default:
-		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
+		fprintf(stderr, "Cantidad invalida de parametros.\n");
 	}
 
 	return 0;

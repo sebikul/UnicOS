@@ -57,7 +57,7 @@ int strcmp(const char* s1, const char* s2) {
 }
 
 int strncmp(const char* s1, const char* s2, int n) {
-
+	n--;
 	while (*s1 != '\0' && *s1 == *s2 && n > 0) {
 		s1++;
 		s2++;

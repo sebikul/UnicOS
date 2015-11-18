@@ -67,7 +67,7 @@ static uint64_t _main(int argc, char** argv) {
 
 		cmdlist = malloc(sizeof(command_list_t));
 		cmdlist->count = 0;
-		cmdlist->commands = malloc(32 * sizeof(command_t));
+		cmdlist->commands = malloc(COMMANDS_LIST_SIZE * sizeof(command_t));
 
 		COMMAND_INIT(help);
 		COMMAND_INIT(echo);
@@ -84,6 +84,12 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(ps);
 		COMMAND_INIT(sigsend);
 		COMMAND_INIT(sigrcv);
+		COMMAND_INIT(cat);
+		COMMAND_INIT(ls);
+		COMMAND_INIT(filesend);
+		COMMAND_INIT(filercv);
+		COMMAND_INIT(mkdir);
+		COMMAND_INIT(edit);
 
 		initialize_names();
 
@@ -210,7 +216,7 @@ static uint64_t _main(int argc, char** argv) {
 			}
 
 			if (comillas) {
-				fprintf(FD_STDERR, "Comando mal formateado. Contiene comillas sin cerrar!\n");
+				fprintf(stderr, "Comando mal formateado. Contiene comillas sin cerrar!\n");
 			}
 
 			//si al argumento le siguen espacios los limpiamos
@@ -240,7 +246,7 @@ static uint64_t _main(int argc, char** argv) {
 			}
 		}
 
-		fprintf(FD_STDERR, "Comando no encontrado.");
+		fprintf(stderr, "Comando no encontrado.");
 	}
 
 	// //Test if BSS is properly set up
