@@ -97,9 +97,9 @@ static void vfprintf(int fd, char* fmt, va_list ap) {
 
 						uint32_t numlen = strlen(number);
 
-						if (arg < 0) {
-							str[j++] = '-';
-						}
+						// if (arg < 0) {
+						// 	str[j++] = '-';
+						// }
 
 						//k: posicion en el argumento
 

@@ -384,7 +384,7 @@ file_t* fs_open(const char *path, uint64_t flags) {
 			_kdebug(" in directory.");
 			kdebug_nl();
 
-			if (strcmp(dir->leaves[i]->name, filename) == 0) {
+			if (dir->leaves[i] != NULL && strcmp(dir->leaves[i]->name, filename) == 0) {
 				kdebug("Archivo encontrado!\n");
 				return dir->leaves[i];
 			}
@@ -470,7 +470,7 @@ void fs_test() {
 	char data[] = "hola que tal";
 	char response[50];
 
-	int w =	fs_write(file1, data, strlen(data) + 1, 0);
+	int w =	fs_write(file1, data, strlen(data), 0);
 
 	kdebug("Escrito en el archivo: '");
 	_kdebug(data);
@@ -501,7 +501,7 @@ void fs_test() {
 
 	fs_dump();
 
-	w =	fs_write(file1, data, strlen(data) + 1, w - 1);
+	w =	fs_write(file1, data, strlen(data), w);
 
 	kdebug("Escrito en el archivo: '");
 	_kdebug(data);

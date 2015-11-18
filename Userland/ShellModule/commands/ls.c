@@ -2,12 +2,12 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(fstree, "[fstree] Lista el contenido del filesystem.\n");
+COMMAND_HELP(ls, "[ls] Lista el contenido del filesystem.\n");
 
-COMMAND_START(fstree) {
+COMMAND_START(ls) {
 
 	sys_atomic();
-	sys_fstree();
+	sys_ls();
 	sys_unatomic();
 
 	return 0;

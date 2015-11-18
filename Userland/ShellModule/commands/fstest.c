@@ -2,7 +2,7 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(filesend, "[filesend] Envia datos a otro proceso mediante archivos");
+COMMAND_HELP(filesend, "[filesend] <pid> <path> <msg>:  Envia datos a otro proceso mediante archivos");
 
 COMMAND_START(filesend) {
 
@@ -15,7 +15,7 @@ COMMAND_START(filesend) {
 
 		sys_write(fd, argv[3], strlen(argv[3]) + 1);
 
-		printf("Sending signal to process: %d\n", pid);
+		printf("Sending signal to process: %ld\n", pid);
 
 		sys_signal_kill(pid, SIGUSR1);
 	}
@@ -23,7 +23,7 @@ COMMAND_START(filesend) {
 	return 0;
 }
 
-COMMAND_HELP(filercv, "[filercv] Recibe una senal");
+COMMAND_HELP(filercv, "[filercv] <path>: Recibe una senal");
 
 COMMAND_START(filercv) {
 

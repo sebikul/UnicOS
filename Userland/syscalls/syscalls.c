@@ -144,6 +144,10 @@ uint32_t sys_size(int32_t fd) {
 	return (uint32_t)syscall((uint64_t)SYSCALL_FS_SIZE, (int32_t)fd);
 }
 
-void sys_fstree(){
-	syscall((uint64_t)SYSCALL_FS_FSTREE);
+void sys_ls() {
+	syscall((uint64_t)SYSCALL_FS_LS);
+}
+
+int32_t sys_mkdir(const char* path) {
+	return (int32_t)syscall((uint64_t)SYSCALL_FS_MKDIR, (uint64_t)path);
 }

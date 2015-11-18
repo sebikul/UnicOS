@@ -7,7 +7,7 @@ extern char* host_name;
 extern int USER_SIZE;
 extern int HOST_SIZE;
 
-COMMAND_HELP(user_name, "[user] Recibe el nombre de usuario y lo setea.");
+COMMAND_HELP(user_name, "[user_name] <name>: Recibe el nombre de usuario y lo setea.");
 
 COMMAND_START(user_name) {
 
@@ -24,7 +24,7 @@ COMMAND_START(user_name) {
 	return 0;
 }
 
-COMMAND_HELP(host_name, "[host] Recibe el nombre del host y lo setea.");
+COMMAND_HELP(host_name, "[host_name] <host>:  Recibe el nombre del host y lo setea.");
 
 COMMAND_START(host_name) {
 

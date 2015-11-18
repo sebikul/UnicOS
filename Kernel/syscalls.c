@@ -160,8 +160,12 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_size((int32_t) rsi);
 		break;
 
-	case SYSCALL_FS_FSTREE:
-		sys_fstree();
+	case SYSCALL_FS_LS:
+		sys_ls();
+		break;
+
+	case SYSCALL_FS_MKDIR:
+		return sys_mkdir((const char*) rsi);
 		break;
 
 	default:
@@ -352,7 +356,7 @@ int32_t sys_open(const char* path, uint64_t flags) {
 	for (uint32_t i = 3; i < MAX_FS_CHILDS; i++) {
 		if (task->files[i].file == NULL) {
 
-			file_t *file = fs_open(path, 0);
+			file_t *file = fs_open(path, flags);
 
 			if (file == NULL) {
 				return -1;
@@ -527,7 +531,10 @@ uint32_t sys_size(int32_t fd) {
 	return fds->file->size;
 }
 
-void sys_fstree() {
+void sys_ls() {
 	fs_dump();
 }
 
+int32_t sys_mkdir(const char* path) {
+	return (fs_mkdir(path) == NULL);
+}
