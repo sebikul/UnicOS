@@ -7,8 +7,6 @@
 typedef enum {
      SYSCALL_RTC,
      SYSCALL_RTC_SET,
-     SYSCALL_READ,
-     SYSCALL_WRITE,
      SYSCALL_MALLOC,
      SYSCALL_CALLOC,
      SYSCALL_FREE,
@@ -37,17 +35,24 @@ typedef enum {
      SYSCALL_ATOMIC,
      SYSCALL_UNATOMIC,
      SYSCALL_SIGNAL_KILL,
-     SYSCALL_SIGNAL_SET
+     SYSCALL_SIGNAL_SET,
+     SYSCALL_FS_OPEN,
+     SYSCALL_FS_READ,
+     SYSCALL_FS_WRITE,
+     SYSCALL_FS_CLOSE,
+     SYSCALL_FS_SIZE,
+     SYSCALL_FS_LS,
+     SYSCALL_FS_MKDIR
 } syscall_t;
 
-void sys_write(FD fd, char* s, uint64_t len);
-uint64_t sys_read(FD fd, char* s, uint64_t len);
+// void sys_write(FD fd, char* s, uint64_t len);
+// uint64_t sys_read(FD fd, char* s, uint64_t len);
 void sys_rtc_get(time_t* t);
 void sys_rtc_set(time_t* t);
 void* sys_malloc(uint64_t len);
 void* sys_calloc(uint64_t len);
 void sys_free(void* m);
-uint64_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name);
+int32_t sys_keyboard_catch(uint64_t scancode, dka_handler handler, uint64_t flags, char* name);
 void sys_clear_indexed_line(uint64_t index);
 void sys_reset_cursor();
 void sys_keyboard_replace_buffer(char* s);
@@ -58,7 +63,7 @@ void sys_set_screensaver_timer(uint64_t t);
 void sys_clear_screen();
 void sys_screensaver_trigger();
 void sys_exit();
-void sys_keyboard_clear_handler(uint64_t index);
+void sys_keyboard_clear_handler(uint32_t index);
 void hang();
 void sys_kdebug(char* str);
 void sys_atomic();
@@ -72,6 +77,15 @@ void sys_task_yield();
 task_t* sys_task_getall();
 void sys_sleep(uint64_t ms);
 uint64_t sys_uptime();
+
+int32_t sys_open(const char* path, uint64_t flags);
+int32_t sys_read(int32_t fd, char* buf, uint32_t size);
+int32_t sys_write(int32_t fd, const char* data, uint32_t size);
+void sys_close(int32_t fd);
+uint32_t sys_size(int32_t fd);
+
+void sys_ls();
+int32_t sys_mkdir(const char* path);
 
 void sys_signal_kill(pid_t pid, signal_t sig);
 void sys_signal_set(signal_t sig, sighandler_t handler);

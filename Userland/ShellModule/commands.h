@@ -15,6 +15,8 @@ typedef struct {
 	uint64_t count;
 } command_list_t;
 
+#define COMMANDS_LIST_SIZE 64
+
 #define DECLARE_COMMAND(command) void command_ ##command ##_init();\
 uint64_t command_ ##command(int argc, char** argv);
 
@@ -54,5 +56,11 @@ DECLARE_COMMAND(help);
 DECLARE_COMMAND(ps);
 DECLARE_COMMAND(sigsend);
 DECLARE_COMMAND(sigrcv);
+DECLARE_COMMAND(cat);
+DECLARE_COMMAND(ls);
+DECLARE_COMMAND(filesend);
+DECLARE_COMMAND(filercv);
+DECLARE_COMMAND(mkdir);
+DECLARE_COMMAND(edit);
 
 #endif

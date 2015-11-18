@@ -2,26 +2,39 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(sigsend, "[sigsend] Envia una senal al programa con pid <pid>");
+COMMAND_HELP(sigsend, "[sigsend] <pid> <signal>:  Envia una senal al programa con pid <pid>");
 
 COMMAND_START(sigsend) {
 
-	if (argc != 2) {
-		fprintf(FD_STDERR, "Comando invalido. Debe ingresar un pid.\n");
+	if (argc != 3) {
+		fprintf(stderr, "Comando invalido. Debe ingresar un pid.\n");
 	} else {
 		pid_t pid = ctoi(argv[1]);
+		signal_t sig;
 
-		sys_signal_kill(pid, SIGKILL);
+		if (strcmp(argv[2], "SIGUSR1") == 0) {
+			sig = SIGUSR1;
+		} else if (strcmp(argv[2], "SIGUSR2") == 0) {
+			sig = SIGUSR2;
+		} else if (strcmp(argv[2], "SIGINT") == 0) {
+			sig = SIGINT;
+		} else if (strcmp(argv[2], "SIGKILL") == 0) {
+			sig = SIGKILL;
+		} else {
+			fprintf(stderr, "Senal invalida.\n");
+		}
+
+		sys_signal_kill(pid, sig);
 	}
 
 	return 0;
 }
 
-COMMAND_HELP(sigrcv, "[host] Recibe una senal");
+COMMAND_HELP(sigrcv, "[sigrcv] <signal>: Recibe una senal");
 
 COMMAND_START(sigrcv) {
 
-	int index;
+	int32_t index;
 	bool _exit = FALSE;
 
 	void sighandler(signal_t s) {
@@ -37,10 +50,29 @@ COMMAND_START(sigrcv) {
 		}
 	}
 
+	if (argc != 2) {
+		fprintf(stderr, "Comando invalido. Debe ingresar una senal.\n");
+		return 1;
+	}
+
 	ksysdebug("Seteando handler de señales\n");
 	printf("PID: %ld\n", sys_task_get_pid());
 
-	sys_signal_set(SIGKILL, sighandler);
+	signal_t sig;
+
+	if (strcmp(argv[1], "SIGUSR1") == 0) {
+		sig = SIGUSR1;
+	} else if (strcmp(argv[1], "SIGUSR2") == 0) {
+		sig = SIGUSR2;
+	} else if (strcmp(argv[1], "SIGINT") == 0) {
+		sig = SIGINT;
+	} else if (strcmp(argv[1], "SIGKILL") == 0) {
+		sig = SIGKILL;
+	} else {
+		fprintf(stderr, "Senal invalida.\n");
+	}
+
+	sys_signal_set(sig, sighandler);
 
 	printf("Installing keyboard handler...\n");
 	index = sys_keyboard_catch(0x00, keyboard_handler, KEYBOARD_WILDCARD, "esc key");

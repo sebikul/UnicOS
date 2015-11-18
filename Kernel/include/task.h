@@ -50,6 +50,8 @@ typedef struct {
 
 void task_init();
 task_t *task_create(task_entry_point func, const char* name, int argc, char** argv);
+void task_remove(task_t *task);
+void task_schedule_removal(task_t *task);
 
 void task_ready(task_t *task);
 void task_pause(task_t *task);

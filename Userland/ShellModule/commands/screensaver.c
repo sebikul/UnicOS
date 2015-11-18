@@ -23,7 +23,7 @@ COMMAND_START(screensaver) {
 
 			if (!string_numeric(argv[2])) {
 
-				fprintf(FD_STDERR, "Debe ingresar una cantidad de segundos como parametro.\n");
+				fprintf(stderr, "Debe ingresar una cantidad de segundos como parametro.\n");
 				return 1;
 			}
 			sec = ctoi(argv[2]);
@@ -34,13 +34,13 @@ COMMAND_START(screensaver) {
 			sys_set_screensaver_timer(sec);
 
 		} else {
-			fprintf(FD_STDERR, "Comando invalido. Comandos disponibles [screensaver set <segundos>]\n");
+			fprintf(stderr, "Comando invalido. Comandos disponibles [screensaver set <segundos>]\n");
 		}
 
 		break;
 
 	default:
-		fprintf(FD_STDERR, "Cantidad invalida de parametros.\n");
+		fprintf(stderr, "Cantidad invalida de parametros.\n");
 	}
 
 	return 0;

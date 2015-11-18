@@ -2,7 +2,7 @@ include ../Makefile.variables
 include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(wildcard *.c) $(wildcard drivers/*.c) $(wildcard ipc/*.c) $(wildcard tasks/*.c) ../common/string.c
+SOURCES=$(wildcard *.c) $(wildcard drivers/*.c) $(wildcard ipc/*.c) $(wildcard tasks/*.c) $(wildcard drivers/filesystem/*.c) ../common/string.c
 OBJECTS=$(SOURCES:.c=.o)
 
 LOADERSRC=loader.asm

@@ -29,10 +29,10 @@ typedef enum {
 } vga_color;
 
 
-typedef enum FD {
-	FD_STDERR,
-	FD_STDOUT
-} FD;
+// typedef enum FD {
+// 	stderr,
+// 	FD_STDOUT
+// } FD;
 
 typedef struct {
 	uint8_t hour;
@@ -69,6 +69,8 @@ typedef uint64_t pid_t;
 typedef enum {
 	SIGINT,
 	SIGKILL,
+	SIGUSR1,
+	SIGUSR2,
 
 	//Debe ser el ultimo para mantener la cuenta!
 	SIGCOUNT
@@ -80,18 +82,42 @@ typedef enum {TASK_PAUSED, TASK_RUNNING, TASK_SLEEPING, TASK_JOINING, TASK_ZOMBI
 
 typedef enum {TASK_FOREGROUND, TASK_BACKGROUND} task_mode_t;
 
+#define MAX_TASK_KBD_HANDLERS 16
+#define MAX_FS_CHILDS 16
+
+typedef struct file file_t;
+
+typedef struct {
+	file_t* file;
+	uint64_t cursor;
+	uint64_t flags;
+} fd_t;
+
+#define O_RDONLY 	(1<<1) 
+#define O_WRONLY 	(1<<2)
+#define O_RDWR 		(1<<3)
+#define O_APPEND 	(1<<4)
+#define O_CREAT 	(1<<5)
+#define O_TRUNC 	(1<<6)
+
+#define stdin  0
+#define stdout 1
+#define stderr 2
+
 typedef struct task_t {
-	struct task_t *prev;
-	struct task_t *next;
-	struct task_t *join;
-	void *stack;
-	char *name;
+	struct task_t* prev;
+	struct task_t* next;
+	struct task_t* join;
+	void* stack;
+	char* name;
 	pid_t pid;
 	uint64_t sleep_limit;
 	uint64_t retval;
 	uint64_t atomic_level;
 	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];
+	int64_t kbdhandlers[MAX_TASK_KBD_HANDLERS];
+	fd_t files[MAX_FS_CHILDS];
 	task_state_t state;
 	uint8_t console;
 } task_t;

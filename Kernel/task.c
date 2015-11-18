@@ -3,6 +3,7 @@
 #include "task.h"
 #include "string.h"
 #include "kernel.h"
+#include "keyboard.h"
 
 static task_t *last = NULL;
 static task_t *current = NULL;
@@ -99,9 +100,22 @@ static inline void task_add(task_t *task) {
 	kset_ints(ints);
 }
 
-static inline void task_remove(task_t *task) {
+void task_remove(task_t *task) {
 
 	bool ints = kset_ints(FALSE);
+
+	if (task->join != NULL) {
+		task_ready(task->join);
+		task->join = NULL;
+	}
+
+	//Si la tarea esta en foreground, le devolvemos el foco a la consola
+	if (task_get_foreground(task->console) == task) {
+		kdebug("Devolviendo el foco a la consola ");
+		kdebug_base(task->console, 10);
+		kdebug_nl();
+		task_set_foreground(consoles[task->console], task->console);
+	}
 
 	task_t *prev = task->prev;
 	task_t *next = task->next;
@@ -113,9 +127,29 @@ static inline void task_remove(task_t *task) {
 		last = prev;
 	}
 
+	keyboard_clear_from_task(task);
 	free(task->name);
 	free(task->stack);
 	free(task);
+
+	kset_ints(ints);
+}
+
+void task_schedule_removal(task_t *task) {
+
+	bool ints = kset_ints(FALSE);
+
+	task->state = TASK_ZOMBIE;
+	if (task->join != NULL) {
+		task_ready(task->join);
+		task->join = NULL;
+	}
+	// if (task_get_foreground(task->console) == task) {
+	// 	kdebug("Devolviendo el foco a la consola ");
+	// 	kdebug_base(task->console, 10);
+	// 	kdebug_nl();
+	// 	task_set_foreground(consoles[task->console], task->console);
+	// }
 
 	kset_ints(ints);
 }
@@ -212,6 +246,13 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->retval = 0;
 	task->atomic_level = 0;
 	memset(task->sighandlers, 0, SIGCOUNT * sizeof(sighandler_t));
+
+	for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
+		task->kbdhandlers[i] = -1;
+	}
+
+	memset(task->files, 0, MAX_FS_CHILDS * sizeof(fd_t));
+
 
 	if (func != NULL) {
 		task->console = task_get_current()->console;
