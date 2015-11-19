@@ -2,22 +2,26 @@
 #include "shmem.h"
 #include "mem.h"
 
-#define SHM_RLOCK 			300
-#define SHM_WLOCK			301
-#define SHM_UNLOCK			302
-#define SHM_RMID			303 
-#define SHM_SETU			304
+uint32_t idcont=1;
+mpoint_t* shmem_array[256]; 
+ 
 
-#define LOCKED_WRITE		400
-#define LOCKED_READ			401
-#define UNLOCKED			402
+void shmadd(mpoint_t *mp){
+	shmem_array[idcont] = malloc(sizeof(mpoint_t));
+	memcpy(shmem_array[idcont],mp,sizeof(mpoint_t));
+	idcont++;
+}
 
-uint32_t idcont=0;
+mpoint_t *shmget(uint32_t shmid){
+	//manejo correcto... TODO
+	if(shmid > idcont)
+		return NULL;
+	return shmem_array[shmid];
+}
 
-
-mpoint_t *shmget(uint64_t size, uint32_t user) {
+uint32_t shmcreate(uint64_t size, uint32_t user) {
 	mpoint_t *mem = malloc(sizeof(mpoint_t));
-	mem->memid = idcont++;
+	mem->memid = idcont;
 	mem->user = user;
 	mem->size = size;
 	mem->used = 0;
@@ -25,8 +29,8 @@ mpoint_t *shmget(uint64_t size, uint32_t user) {
 	mem->r_flag = FALSE;
 	mem->atcount = 0;
 	mem->shmaddr = malloc(mem->size);
-
-	return mem;
+	shmadd(mem);
+	return mem->memid;
 }
 
 bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
@@ -80,7 +84,7 @@ bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 
 uint32_t shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 
-	if ( mp->locked != LOCKED_WRITE ) 
+	if ( mp->locked == LOCKED_WRITE ) 
 		return -1;
 
 	shmctl(SHM_RLOCK, user, mp);
@@ -94,7 +98,7 @@ uint32_t shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 
 uint32_t shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
 
-	if ( mp->user != user || mp->locked != UNLOCKED )
+	if ( mp->user != user || mp->locked != LOCKED_WRITE )
 		return -1;
 
 	shmctl(SHM_WLOCK, user, mp);
@@ -111,7 +115,7 @@ void shmat(mpoint_t *mp) {
 	mp->atcount++;	
 }
 
-int shmdt(mpoint_t *mp) {
+uint32_t shmdt(mpoint_t *mp) {
 	if ( mp->atcount > 0 )
 		mp->atcount--;
 
@@ -128,5 +132,7 @@ void freemem(mpoint_t *mp) {
 		free(mp->shmaddr);
 		free(mp);
 	}
+
 }
+
 

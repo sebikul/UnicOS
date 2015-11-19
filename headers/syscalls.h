@@ -44,8 +44,26 @@ typedef enum {
      SYSCALL_FS_LS,
      SYSCALL_FS_MKDIR,
      SYSCALL_ERRNO,
-     SYSCALL_FS_LSEEK
+     SYSCALL_FS_LSEEK,
+     SYSCALL_SHM_GET,
+     SYSCALL_SHM_FIND,
+     SYSCALL_SHM_CTL,
+     SYSCALL_SHM_AT,
+     SYSCALL_SHM_DT,
+     SYSCALL_SHM_READ,
+     SYSCALL_SHM_WRITE,
+     SYSCALL_SHM_FREE
 } syscall_t;
+
+//TOQUE ALGO
+mpoint_t* sys_shm_find(uint32_t shmid);
+uint32_t sys_shm_get(uint64_t size, uint32_t user);
+bool sys_shm_ctl(uint32_t cmd, uint32_t user, mpoint_t *mp);
+void sys_shm_at(mpoint_t *mp);
+uint32_t sys_shm_dt(mpoint_t *mp);
+uint32_t sys_shm_read(char* data, uint32_t size , uint32_t user, mpoint_t *mp);
+uint32_t sys_shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp);
+void sys_shm_free(mpoint_t *mp);
 
 // void sys_write(FD fd, char* s, uint64_t len);
 // uint64_t sys_read(FD fd, char* s, uint64_t len);

@@ -4,6 +4,42 @@
 
 extern uint64_t syscall(uint64_t callid, ...);
 
+//TOQUE ALGO
+
+mpoint_t* sys_shm_find(uint32_t shmid){
+	return (mpoint_t*)syscall((uint64_t)SYSCALL_SHM_FIND, shmid);
+}
+
+uint32_t sys_shm_get(uint64_t size, uint32_t user) {
+	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_GET, size, user);
+}
+
+bool sys_shm_ctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
+	return (bool)syscall((uint64_t)SYSCALL_SHM_CTL, cmd, user, mp); 
+}
+
+void sys_shm_at(mpoint_t *mp) {
+	syscall((uint64_t)SYSCALL_SHM_AT, mp);	
+}
+
+uint32_t sys_shm_dt(mpoint_t *mp) {
+	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_DT, mp);
+}
+
+uint32_t sys_shm_read(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_READ, data, size, user, mp);
+}
+
+uint32_t sys_shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_WRITE, data, size, user, mp);
+}
+
+void sys_shm_free(mpoint_t *mp) {
+	syscall((uint64_t)SYSCALL_SHM_FREE, mp);
+}
+
+
+
 void sys_rtc_get(time_t* t) {
 	syscall((uint64_t)SYSCALL_RTC, (uint64_t)t);
 }
