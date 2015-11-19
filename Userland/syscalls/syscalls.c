@@ -151,3 +151,7 @@ void sys_ls() {
 int32_t sys_mkdir(const char* path) {
 	return (int32_t)syscall((uint64_t)SYSCALL_FS_MKDIR, (uint64_t)path);
 }
+
+uint8_t sys_errno() {
+	return (uint8_t)syscall((uint64_t)SYSCALL_ERRNO);
+}

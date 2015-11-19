@@ -168,6 +168,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_mkdir((const char*) rsi);
 		break;
 
+	case SYSCALL_ERRNO:
+		return sys_errno();
+		break;
+
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
@@ -273,12 +277,13 @@ void sys_task_ready(pid_t pid) {
 	task_ready(task);
 }
 
+//todo convertir a int64_t
 uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	task_t *task = task_find_by_pid(pid);
 	task_t *other = task_find_by_pid(otherpid);
 
-	if (task == NULL) {
-		//TODO errno
+	if (task == NULL || other == NULL) {
+		task_errno(EINVALID_TASK);
 		return 0;
 	}
 	return task_join(task, other);
@@ -318,7 +323,7 @@ void sys_signal_kill(pid_t pid, signal_t sig) {
 	task_t *task = task_find_by_pid(pid);
 
 	if (task == NULL) {
-		//TODO errno
+		task_errno(EINVALID_TASK);
 		return;
 	}
 
@@ -359,7 +364,8 @@ int32_t sys_open(const char* path, uint64_t flags) {
 			file_t *file = fs_open(path, flags);
 
 			if (file == NULL) {
-				return -1;
+				task_errno(ENOT_FOUND);
+				return -ENOT_FOUND;
 			}
 
 			task->files[i].file = file;
@@ -380,7 +386,8 @@ int32_t sys_open(const char* path, uint64_t flags) {
 		}
 	}
 
-	return -2;
+	task_errno(EFD_TABLE_FULL);
+	return -EFD_TABLE_FULL;
 }
 
 int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
@@ -426,11 +433,13 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 		fds = &(task->files[fd]);
 
 		if (!((fds->flags & O_RDWR) || (fds->flags & O_RDONLY))) {
-			return -2;
+			task_errno(ENO_PERM);
+			return -ENO_PERM;
 		}
 
 		if (fds->file == NULL) {
-			return -1;
+			task_errno(ENOT_FOUND);
+			return -ENOT_FOUND;
 		}
 
 		kdebug("Reading content of file: ");
@@ -486,11 +495,13 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 		fds = &(task->files[fd]);
 
 		if (!((fds->flags & O_RDWR) || (fds->flags & O_WRONLY))) {
-			return -2;
+			task_errno(ENO_PERM);
+			return -ENO_PERM;
 		}
 
 		if (fds->file == NULL) {
-			return -1;
+			task_errno(ENOT_FOUND);
+			return -ENOT_FOUND;
 		}
 
 		kdebug("Writing to fs: ");
@@ -525,7 +536,8 @@ uint32_t sys_size(int32_t fd) {
 	fds = &(task->files[fd]);
 
 	if (fds->file == NULL) {
-		return -1;
+		task_errno(ENOT_FOUND);
+		return -ENOT_FOUND;
 	}
 
 	return fds->file->size;
@@ -537,4 +549,10 @@ void sys_ls() {
 
 int32_t sys_mkdir(const char* path) {
 	return (fs_mkdir(path) == NULL);
+}
+
+uint8_t sys_errno() {
+	task_t* task = task_get_current();
+
+	return task->errno;
 }

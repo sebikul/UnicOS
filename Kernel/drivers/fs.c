@@ -4,6 +4,7 @@
 #include "kernel.h"
 #include "mem.h"
 #include "video.h"
+#include "task.h"
 
 static device_t *rootdevice = NULL;
 
@@ -150,7 +151,7 @@ static int32_t find_device(device_t* device) {
 void fs_mount(device_t *dev, const char* mountpoint) {
 
 	if (rootdevice == NULL && strcmp(mountpoint, "/") != 0) {
-		//TODO errno
+		task_errno(ENO_ROOT);
 		return;
 	}
 
@@ -177,7 +178,7 @@ void fs_mount(device_t *dev, const char* mountpoint) {
 		pos = find_free_child(dir);
 
 		if (pos == -1) {
-			//TODO errno not found
+			task_errno(ENOT_FOUND);
 			return;
 		} else {
 			dir->childs[pos] = dev->rootdir;
@@ -189,7 +190,7 @@ void fs_mount(device_t *dev, const char* mountpoint) {
 	int32_t pos = find_free_device();
 
 	if (pos == -1) {
-		//TODO errno not found
+		task_errno(ENOT_FOUND);
 		return;
 	} else {
 		mountinfo[pos].dev = dev;
@@ -206,8 +207,8 @@ void fs_unmount(device_t *dev) {
 	int32_t pos = find_device(dev);
 
 	if (pos == -1) {
-		//todo errno
-		//return
+		task_errno(ENOT_FOUND);
+		return;
 	}
 
 	mountpoint = mountinfo[pos].path;
@@ -385,7 +386,7 @@ file_t* fs_open(const char *path, uint64_t flags) {
 	directory_t *dir = fs_traverse(parent);
 
 	if (dir == NULL) {
-		//todo errno
+		task_errno(ENOT_FOUND);
 		kdebug("File not found!\n");
 		return NULL;
 	}

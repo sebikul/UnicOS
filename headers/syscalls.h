@@ -42,7 +42,8 @@ typedef enum {
      SYSCALL_FS_CLOSE,
      SYSCALL_FS_SIZE,
      SYSCALL_FS_LS,
-     SYSCALL_FS_MKDIR
+     SYSCALL_FS_MKDIR,
+     SYSCALL_ERRNO
 } syscall_t;
 
 // void sys_write(FD fd, char* s, uint64_t len);
@@ -89,6 +90,8 @@ int32_t sys_mkdir(const char* path);
 
 void sys_signal_kill(pid_t pid, signal_t sig);
 void sys_signal_set(signal_t sig, sighandler_t handler);
+
+uint8_t sys_errno();
 
 #define sSTR_HELPER(x) #x
 #define sSTR(x) sSTR_HELPER(x)

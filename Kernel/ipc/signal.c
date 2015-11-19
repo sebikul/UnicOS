@@ -7,7 +7,7 @@
 void signal_set(task_t *task, signal_t sig, sighandler_t handler) {
 
 	if (sig == SIGKILL) {
-		//TODO errno
+		task_errno(EINV_OP);
 		return;
 	}
 
@@ -73,12 +73,8 @@ void signal_send(task_t *dest, signal_t sig) {
 
 	switch (sig) {
 	case SIGKILL:
-	// if (task_get_current() == dest) {
-	// 	//TODO errno
-	// 	return;
-	// }
-	// task_remove(dest);
-	// break;
+		task_schedule_removal(dest);
+		break;
 
 	case SIGINT:
 		signal_dispatch(dest, sig);
