@@ -6,13 +6,33 @@
 #include "types.h"
 #include "msgqueue.h"
 
-semaphore_t * create_sem(msgqueue_t *queue, uint32_t value, uint32_t id){
+uint32_t index=0;
+semaphore_t* sem_array[256]; 
+
+void semadd(semaphore_t *sem){
+	if( index > 255 )
+		return;
+
+	sem_array[index] = malloc(sizeof(semaphore_t));
+	memcpy(sem_array[index],sem,sizeof(semaphore_t));
+	index++;
+}
+
+semaphore_t *semget(uint32_t semid){
+	for ( int i = 0 ; i < index ; i++ ) {
+		if( sem_array[i] != NULL && sem_array[i]->id == semid )
+			return sem_array[i];
+	}
+	return NULL;
+}
+
+void create_sem(msgqueue_t *queue, uint32_t value, uint32_t id){
 
 	semaphore_t *sem = malloc(sizeof(semaphore_t));
 	sem->id = id;
 	sem->value = value;
 	sem->queue = queue;
-	return sem;
+	semadd(sem);
 }
 
 void delete_sem(semaphore_t *sem){
@@ -22,7 +42,11 @@ void delete_sem(semaphore_t *sem){
 	free(sem);
 }
 
-bool wait_sem(task_t * tsk, semaphore_t *sem){
+bool wait_sem(pid_t pid, semaphore_t *sem){
+
+	task_t *tsk = task_find_by_pid(pid);
+	if( tsk == NULL )
+		return FALSE;
 
 	if( sem->value == 0 ){
 		task_pause(tsk);
@@ -41,7 +65,11 @@ bool wait_cond(semaphore_t *sem){
 	}	
 	return FALSE;
 }
-bool wait_time(task_t * tsk, semaphore_t *sem, uint64_t msec){
+bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
+
+	task_t *tsk = task_find_by_pid(pid);
+	if( tsk == NULL )
+		return FALSE;
 
 	if( sem->value != 0 ) {
 		sem->value--;

@@ -2,19 +2,22 @@
 #include "shmem.h"
 #include "mem.h"
 
+#include "video.h"
+
 uint32_t idcont=1;
 mpoint_t* shmem_array[256]; 
  
 
 void shmadd(mpoint_t *mp){
+	if( idcont > 255 )
+		return;
 	shmem_array[idcont] = malloc(sizeof(mpoint_t));
 	memcpy(shmem_array[idcont],mp,sizeof(mpoint_t));
 	idcont++;
 }
 
 mpoint_t *shmget(uint32_t shmid){
-	//manejo correcto... TODO
-	if(shmid > idcont)
+	if( shmid > idcont || shmid < 0 )
 		return NULL;
 	return shmem_array[shmid];
 }
@@ -35,9 +38,8 @@ uint32_t shmcreate(uint64_t size, uint32_t user) {
 
 bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 
-	switch(cmd) {
+	switch( cmd ) {
 		case SHM_RLOCK: 
-
 			if ( mp->locked != UNLOCKED || mp->user != user ) 
 				return FALSE;
 
@@ -45,7 +47,6 @@ bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 			break;
 
 		case SHM_WLOCK:
-
 			if ( mp->locked != UNLOCKED || mp->user != user ) 
 				return FALSE;
 
@@ -53,7 +54,6 @@ bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 			break;
 
 		case SHM_UNLOCK:
-
 			if ( mp->user != user ) 
 				return FALSE;
 
@@ -61,7 +61,6 @@ bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 			break;
 
 		case SHM_RMID:
-
 			if ( mp->r_flag ) {
 				mp->r_flag = FALSE;
 			} else {
@@ -70,12 +69,10 @@ bool shmctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
 			break;
 
 		case SHM_SETU:
-
 			mp->user = user;
 			break;
 
 		default:
-
 			return FALSE;			
 	}
 
@@ -88,17 +85,18 @@ uint32_t shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 		return -1;
 
 	shmctl(SHM_RLOCK, user, mp);
-
 	uint32_t data_size = (size > mp->used)? mp->used : size;
 	memcpy(data, mp->shmaddr, data_size);
+	video_write_line(video_current_console(), "leyendo...");
+	video_write_line(video_current_console(), data);
 
 	shmctl(SHM_UNLOCK, user, mp);
 	return data_size;
 }
 
-uint32_t shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+uint32_t shm_write(const char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
 
-	if ( mp->user != user || mp->locked != LOCKED_WRITE )
+	if ( mp->locked != LOCKED_WRITE || mp->user != user )
 		return -1;
 
 	shmctl(SHM_WLOCK, user, mp);
@@ -129,6 +127,7 @@ uint32_t shmdt(mpoint_t *mp) {
 
 void freemem(mpoint_t *mp) {
 	if ( mp->atcount == 0 ) {
+		shmem_array[mp->memid] = NULL;
 		free(mp->shmaddr);
 		free(mp);
 	}

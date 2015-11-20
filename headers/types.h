@@ -128,6 +128,7 @@ typedef struct task_t {
 } task_t;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define EINVALID_TASK 1
 #define ENOT_FOUND 2
 #define ENO_ROOT 3
@@ -147,6 +148,8 @@ typedef struct task_t {
 */
 
 
+=======
+>>>>>>> d168d3f... Implementacion de semaforos y Fixes de shmem
 #define SHM_RLOCK 			300
 #define SHM_WLOCK			301
 #define SHM_UNLOCK			302
@@ -169,6 +172,18 @@ typedef struct mpoint_t{
 	uint32_t atcount;
 }mpoint_t;
 
+<<<<<<< HEAD
 >>>>>>> 6af0146... Implementacion de shmem
+=======
+typedef struct msgqueue msgqueue_t;
+
+typedef struct smaphore_t{
+
+	uint32_t id;
+	uint32_t value; 	
+	msgqueue_t *queue; 		
+						
+}semaphore_t;
+>>>>>>> d168d3f... Implementacion de semaforos y Fixes de shmem
 
 #endif
