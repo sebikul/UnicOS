@@ -100,22 +100,22 @@ COMMAND_START(shmwrite) {
 	return 0;
 }
 
-COMMAND_HELP(shmctl, "[shmctl] <comando> <user ID> <shm ID> Ejecuta comandos de memoria compartida.\n Comandos: SHM_RLOCK SHM_WLOCK SHM_UNLOCK SHM_RMID SHM_SETU");
+COMMAND_HELP(shmctl, "[shmctl] <comando> <user ID> <shm ID> Ejecuta comandos de memoria compartida.\n Comandos: READ WRITE UNLOCK REMOVE SETU");
 COMMAND_START(shmctl) {
 
 	if ( argc != 4 ) {
 		fprintf(stderr, "Comando invalido. Ingrese el tipo de comando, y los ID de usuario y memoria.\n");
 	} else {
 		uint32_t cmd;
-		if ( strcmp(argv[1], "SHM_RLOCK") == 0 ) {
+		if ( strcmp(argv[1], "READ") == 0 ) {
 			cmd = SHM_RLOCK;
-		} else if ( strcmp(argv[1], "SHM_WLOCK") == 0 ) {
+		} else if ( strcmp(argv[1], "WRITE") == 0 ) {
 			cmd = SHM_WLOCK;
-		} else if ( strcmp(argv[1], "SHM_UNLOCK") == 0 ) {
+		} else if ( strcmp(argv[1], "UNLOCK") == 0 ) {
 			cmd = SHM_UNLOCK;
-		} else if ( strcmp(argv[1], "SHM_RMID") == 0 ) {
+		} else if ( strcmp(argv[1], "REMOVE") == 0 ) {
 			cmd = SHM_RMID;
-		} else if ( strcmp(argv[1], "SHM_SETU") == 0 ) {
+		} else if ( strcmp(argv[1], "SETU") == 0 ) {
 			cmd = SHM_SETU;
 		} else {
 			fprintf(stderr, "Comando invalido.\n");
