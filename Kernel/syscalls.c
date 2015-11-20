@@ -11,7 +11,8 @@
 #include "input.h"
 #include "signal.h"
 #include "filesystem.h"
-#include "shmem.h" //TOQUE ALGO
+#include "shmem.h"
+#include "semaphores.h"
 
 extern uint64_t pit_timer;
 
@@ -169,8 +170,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_mkdir((const char*) rsi);
 		break;
 
-	//TOQUE ALGO
-
 	case SYSCALL_SHM_FIND:
 		return (uint64_t) sys_shm_find((uint32_t) rsi);
 		break;
@@ -196,13 +195,28 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SHM_WRITE:
-		return sys_shm_write((char*) rsi, (uint32_t) rdx , (uint32_t) rcx, (mpoint_t*) r8);
+		return sys_shm_write((const char*) rsi, (uint32_t) rdx , (uint32_t) rcx, (mpoint_t*) r8);
 		break;
 
 	case SYSCALL_SHM_FREE:
 		sys_shm_free((mpoint_t*) rsi);
 		break;
 
+	case SYSCALL_SEM_FIND:
+		return (uint64_t) sys_sem_find((uint32_t) rsi);
+		break;
+
+	case SYSCALL_SEM_GET:
+		sys_sem_get((msgqueue_t*) rsi, (uint32_t) rdx, (uint32_t) rcx);
+		break;
+
+	case SYSCALL_SEM_WAIT:
+		return sys_sem_wait((semaphore_t*) rsi, (pid_t) rdx, (uint64_t) rcx);
+		break;
+
+	case SYSCALL_SEM_SIG:
+			sys_sem_sig((semaphore_t*) rsi);
+		break;
 
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
@@ -212,8 +226,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 
 	return 0;
 }
-
-//TOQUE ALGO
 
 mpoint_t* sys_shm_find(uint32_t shmid){
 	return shmget(shmid);
@@ -235,11 +247,11 @@ uint32_t sys_shm_dt(mpoint_t *mp) {
 	return shmdt(mp);
 }
 
-uint32_t sys_shm_read(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+uint32_t sys_shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 	return shm_read(data, size, user, mp);
 }
 
-uint32_t sys_shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+uint32_t sys_shm_write(const char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 	return shm_write(data, size, user, mp);
 }
 
@@ -247,7 +259,26 @@ void sys_shm_free(mpoint_t *mp) {
 	freemem(mp);
 }
 
+semaphore_t* sys_sem_find(uint32_t semid) {
+	return semget(semid);
+}
 
+void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id) {
+	return create_sem(queue, value, id);
+}
+
+bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
+	if( pid == -1 )
+		return wait_cond(sem);
+	if( msec == -1 )
+		return wait_sem(pid, sem);
+
+	return wait_time(sem, pid, msec);
+}
+
+void sys_sem_sig(semaphore_t *sem) {
+	return signal_sem(sem);
+}
 
 void sys_rtc_get(time_t* t) {
 	rtc_get_time(t);

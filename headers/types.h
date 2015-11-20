@@ -122,18 +122,6 @@ typedef struct task_t {
 	uint8_t console;
 } task_t;
 
-//TOQUE ALGO
-
-/*typedef struct smaphore_t{
-
-	uint32_t id;
-	uint32_t value; 	
-	msgqueue_t *queue; 		
-						
-}semaphore_t;
-*/
-
-
 #define SHM_RLOCK 			300
 #define SHM_WLOCK			301
 #define SHM_UNLOCK			302
@@ -156,5 +144,14 @@ typedef struct mpoint_t{
 	uint32_t atcount;
 }mpoint_t;
 
+typedef struct msgqueue msgqueue_t;
+
+typedef struct smaphore_t{
+
+	uint32_t id;
+	uint32_t value; 	
+	msgqueue_t *queue; 		
+						
+}semaphore_t;
 
 #endif

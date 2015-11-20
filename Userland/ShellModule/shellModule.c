@@ -90,13 +90,15 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(filercv);
 		COMMAND_INIT(mkdir);
 		COMMAND_INIT(edit);
-		//TOQUE ALGO
 		COMMAND_INIT(shmget);
 		COMMAND_INIT(shmwrite);
 		COMMAND_INIT(shmread);
 		COMMAND_INIT(shmctl);
 		COMMAND_INIT(shmstatus);
 		COMMAND_INIT(shmfree);
+		COMMAND_INIT(semget);
+		COMMAND_INIT(semwait);
+		COMMAND_INIT(semsig);
 		initialize_names();
 
 		sys_unatomic();

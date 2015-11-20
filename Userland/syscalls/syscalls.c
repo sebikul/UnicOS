@@ -4,8 +4,6 @@
 
 extern uint64_t syscall(uint64_t callid, ...);
 
-//TOQUE ALGO
-
 mpoint_t* sys_shm_find(uint32_t shmid){
 	return (mpoint_t*)syscall((uint64_t)SYSCALL_SHM_FIND, shmid);
 }
@@ -30,7 +28,7 @@ uint32_t sys_shm_read(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
 	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_READ, data, size, user, mp);
 }
 
-uint32_t sys_shm_write(char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
+uint32_t sys_shm_write(const char* data, uint32_t size , uint32_t user, mpoint_t *mp) {
 	return (uint32_t)syscall((uint64_t)SYSCALL_SHM_WRITE, data, size, user, mp);
 }
 
@@ -38,7 +36,21 @@ void sys_shm_free(mpoint_t *mp) {
 	syscall((uint64_t)SYSCALL_SHM_FREE, mp);
 }
 
+semaphore_t* sys_sem_find(uint32_t semid) {
+	return (semaphore_t*)syscall((uint64_t)SYSCALL_SEM_FIND, semid);	
+}
 
+void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id) {
+	syscall((uint64_t)SYSCALL_SEM_GET, queue, value, id);
+}
+
+bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
+	return (bool)syscall((uint64_t)SYSCALL_SEM_WAIT, sem, pid, msec);
+}
+
+void sys_sem_sig(semaphore_t *sem) {
+	syscall((uint64_t)SYSCALL_SEM_SIG, sem);
+}
 
 void sys_rtc_get(time_t* t) {
 	syscall((uint64_t)SYSCALL_RTC, (uint64_t)t);
