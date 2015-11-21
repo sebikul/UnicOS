@@ -5,6 +5,8 @@
 
 #define MAX_PRINTF_LEN 1024
 
+#define errno sys_errno();
+
 void* malloc(int len);
 void* calloc(int len);
 void free(void* m);

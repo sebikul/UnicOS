@@ -4,6 +4,7 @@
 #include "kernel.h"
 #include "mem.h"
 #include "video.h"
+#include "task.h"
 
 static device_t *rootdevice = NULL;
 
@@ -85,12 +86,72 @@ static directory_t* fs_traverse(const char* path) {
 	return NULL;
 }
 
+static int32_t find_free_child(directory_t* dir) {
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+		if (dir->childs[i] == NULL) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static int32_t find_free_leave(directory_t* dir) {
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+		if (dir->leaves[i] == NULL) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static file_t* find_file(directory_t* dir, const char* filename) {
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+
+		kdebug("Looking for: ");
+		_kdebug(filename);
+		_kdebug(" in directory.");
+		kdebug_nl();
+
+		if (dir->leaves[i] != NULL && strcmp(dir->leaves[i]->name, filename) == 0) {
+			kdebug("Archivo encontrado!\n");
+			return dir->leaves[i];
+		}
+	}
+
+	return NULL;
+}
+
+static int32_t find_free_device() {
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+		if (mountinfo[i].dev == NULL) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static int32_t find_device(device_t* device) {
+
+	for (uint32_t i = 0; i < MAX_FS_CHILDS; i++) {
+		if (mountinfo[i].dev == device) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 void fs_mount(device_t *dev, const char* mountpoint) {
 
-	uint32_t i;
-
 	if (rootdevice == NULL && strcmp(mountpoint, "/") != 0) {
-		//TODO errno
+		task_errno(ENO_ROOT);
 		return;
 	}
 
@@ -105,51 +166,52 @@ void fs_mount(device_t *dev, const char* mountpoint) {
 		rootdevice = dev;
 	} else {
 
-		for (i = 0; i < MAX_FS_CHILDS; i++) {
-			if (mountinfo[i].dev == dev) {
-				kdebug("El dispositivo ya se encuentra montado!\n");
-				return;
-			}
+		int32_t pos = find_device(dev);
+
+		if (pos != -1) {
+			kdebug("El dispositivo ya se encuentra montado!\n");
+			return;
 		}
 
 		directory_t *dir = fs_traverse(mountpoint);
 
-		for (i = 0; i < MAX_FS_CHILDS; i++) {
-			if (dir->childs[i] == NULL) {
-				dir->childs[i] = dev->rootdir;
-				kdebug("Mounting device!\n");
-				break;
-			}
+		pos = find_free_child(dir);
+
+		if (pos == -1) {
+			task_errno(ENOT_FOUND);
+			return;
+		} else {
+			dir->childs[pos] = dev->rootdir;
+			kdebug("Mounting device!\n");
 		}
 
-		if (i == MAX_FS_CHILDS) {
-			//TODO errno not found
-			return;
-		}
 	}
 
-	//Guardamos la informacion del volumen
-	for (i = 0; i < MAX_FS_CHILDS; i++) {
-		if (mountinfo[i].dev == NULL) {
-			mountinfo[i].dev = dev;
-			mountinfo[i].path = mountpoint;
-			break;
-		}
+	int32_t pos = find_free_device();
+
+	if (pos == -1) {
+		task_errno(ENOT_FOUND);
+		return;
+	} else {
+		mountinfo[pos].dev = dev;
+		mountinfo[pos].path = mountpoint;
+
 	}
 }
 
 void fs_unmount(device_t *dev) {
 
 	char* mountpoint;
-	int32_t mount;
 	int32_t child;
 
-	for (mount = 0; mount < MAX_FS_CHILDS; mount++) {
-		if (mountinfo[mount].dev == dev) {
-			mountpoint = mountinfo[mount].path;
-			break;
-		}
+	int32_t pos = find_device(dev);
+
+	if (pos == -1) {
+		task_errno(ENOT_FOUND);
+		return;
 	}
+
+	mountpoint = mountinfo[pos].path;
 
 	kdebug("Unmounting device with name: ");
 	_kdebug(dev->name);
@@ -161,8 +223,8 @@ void fs_unmount(device_t *dev) {
 
 	for (child = 0; child < MAX_FS_CHILDS; child++) {
 		if (dir->childs[child] == dev->rootdir) {
-			mountinfo[mount].dev = NULL;
-			mountinfo[mount].path = NULL;
+			mountinfo[pos].dev = NULL;
+			mountinfo[pos].path = NULL;
 			dir->childs[child] = NULL;
 			break;
 		}
@@ -278,8 +340,6 @@ static char* fs_filename(const char* path) {
 
 directory_t* fs_mkdir(const char* path) {
 
-	uint32_t i = 0;
-
 	if (rootdevice == NULL) {
 		return NULL;
 	}
@@ -289,41 +349,33 @@ directory_t* fs_mkdir(const char* path) {
 	directory_t *parentdir = fs_traverse(parent);
 	char* dirname = fs_filename(path);
 
-	for (; i < MAX_FS_CHILDS; i++) {
+	int32_t pos = find_free_child(parentdir);
 
-		if (parentdir->childs[i] == NULL) {
-			kdebug("Creating firectory: ");
-			_kdebug(dirname);
-			kdebug_nl();
+	if (pos != -1) {
+		kdebug("Creating firectory: ");
+		_kdebug(dirname);
+		kdebug_nl();
 
-			directory_t* dir = malloc(sizeof(directory_t));
-			dir->device = parentdir->device;
+		directory_t* dir = malloc(sizeof(directory_t));
+		dir->device = parentdir->device;
 
-			dir->name = malloc(strlen(dirname) + 1);
-			strcpy(dir->name, dirname);
+		dir->name = malloc(strlen(dirname) + 1);
+		strcpy(dir->name, dirname);
 
-			for (uint32_t j = 0; j < MAX_FS_CHILDS; j++) {
-				dir->leaves[j] = NULL;
-				dir->childs[j] = NULL;
-			}
-
-			parentdir->childs[i] = dir;
-
-			return dir;
+		for (uint32_t j = 0; j < MAX_FS_CHILDS; j++) {
+			dir->leaves[j] = NULL;
+			dir->childs[j] = NULL;
 		}
-	}
 
-	if (i == MAX_FS_CHILDS) {
-		//TODO no space
-		return NULL;
+		parentdir->childs[pos] = dir;
+
+		return dir;
 	}
 
 	return NULL;
 }
 
 file_t* fs_open(const char *path, uint64_t flags) {
-
-	uint32_t i = 0;
 
 	if (rootdevice == NULL) {
 		return NULL;
@@ -334,7 +386,7 @@ file_t* fs_open(const char *path, uint64_t flags) {
 	directory_t *dir = fs_traverse(parent);
 
 	if (dir == NULL) {
-		//todo errno
+		task_errno(ENOT_FOUND);
 		kdebug("File not found!\n");
 		return NULL;
 	}
@@ -349,53 +401,35 @@ file_t* fs_open(const char *path, uint64_t flags) {
 
 	if (flags & O_CREAT) {
 
-		for (; i < MAX_FS_CHILDS; i++) {
+		int32_t pos = find_free_leave(dir);
 
-			if (dir->leaves[i] == NULL) {
-				kdebug("Creating file: ");
-				_kdebug(filename);
-				_kdebug(" in directory.");
-				kdebug_nl();
-
-				file_t* file = malloc(sizeof(file_t));
-				file->device = dir->device;
-
-				file->name = malloc(strlen(filename) + 1);
-				strcpy(file->name, filename);
-
-				file->size = 0;
-				file->start = NULL;
-
-				dir->leaves[i] = file;
-
-				return dir->leaves[i];
-			}
-		}
-
-		if (i == MAX_FS_CHILDS) {
-			//TODO no space
-			return NULL;
-		}
-
-	} else {
-		for (; i < MAX_FS_CHILDS; i++) {
-
-			kdebug("Looking for: ");
+		if (pos != -1) {
+			kdebug("Creating file: ");
 			_kdebug(filename);
 			_kdebug(" in directory.");
 			kdebug_nl();
 
-			if (dir->leaves[i] != NULL && strcmp(dir->leaves[i]->name, filename) == 0) {
-				kdebug("Archivo encontrado!\n");
-				return dir->leaves[i];
-			}
-		}
+			file_t* file = malloc(sizeof(file_t));
+			file->device = dir->device;
 
+			file->name = malloc(strlen(filename) + 1);
+			strcpy(file->name, filename);
 
-		if (i == MAX_FS_CHILDS) {
-			//TODO not found
+			file->size = 0;
+			file->start = NULL;
+
+			dir->leaves[pos] = file;
+
+			return dir->leaves[pos];
+		} else {
 			return NULL;
 		}
+
+	} else {
+
+		file_t* file = find_file(dir, filename);
+
+		return file;
 	}
 
 	return NULL;

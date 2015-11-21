@@ -120,6 +120,14 @@ typedef struct task_t {
 	fd_t files[MAX_FS_CHILDS];
 	task_state_t state;
 	uint8_t console;
+	uint8_t errno;
 } task_t;
+
+#define EINVALID_TASK 1
+#define ENOT_FOUND 2
+#define ENO_ROOT 3
+#define EFD_TABLE_FULL 4
+#define ENO_PERM 5
+#define EINV_OP 6
 
 #endif

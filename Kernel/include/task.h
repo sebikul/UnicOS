@@ -79,4 +79,6 @@ task_t* task_get_foreground(console_t console);
 
 task_t* task_find_by_pid(pid_t pid);
 
+void task_errno(uint8_t n);
+
 #endif

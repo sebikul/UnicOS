@@ -245,6 +245,7 @@ task_t *task_create(task_entry_point func, const char* name, int argc, char** ar
 	task->join = NULL;
 	task->retval = 0;
 	task->atomic_level = 0;
+	task->errno = 0;
 	memset(task->sighandlers, 0, SIGCOUNT * sizeof(sighandler_t));
 
 	for (uint32_t i = 0; i < MAX_TASK_KBD_HANDLERS; i++) {
@@ -467,4 +468,10 @@ task_t* task_find_by_pid(pid_t pid) {
 	kdebug_nl();
 
 	return task;
+}
+
+void task_errno(uint8_t n) {
+	if (current != NULL) {
+		current->errno = n;
+	}
 }
