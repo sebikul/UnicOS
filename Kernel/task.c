@@ -70,7 +70,7 @@ static uint64_t task_shell(int argc, char** argv) {
 
 		// while (TRUE);
 
-		//((task_entry_point)shellCodeModuleAddress)(argc, argv);
+		((task_entry_point)shellCodeModuleAddress)(argc, argv);
 
 	}
 

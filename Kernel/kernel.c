@@ -162,15 +162,15 @@ void main() {
 	video_write_line(KERNEL_CONSOLE, "Creando consolas...");
 	task_init();
 
-	pit_setup(10);
+	// pit_setup(10);
 
-	task_t* test1 = task_create(test_stack_and_heap, "test1", 0, NULL);
-	task_setconsole(test1, 0);
-	task_ready(test1);
+	// task_t* test1 = task_create(test_stack_and_heap, "test1", 0, NULL);
+	// task_setconsole(test1, 0);
+	// task_ready(test1);
 
-	task_t* test2 = task_create(test_stack_and_heap, "test2", 0, NULL);
-	task_setconsole(test2, 0);
-	task_ready(test2);
+	// task_t* test2 = task_create(test_stack_and_heap, "test2", 0, NULL);
+	// task_setconsole(test2, 0);
+	// task_ready(test2);
 	//beep();
 
 	// TAREAS DEL KERNEL

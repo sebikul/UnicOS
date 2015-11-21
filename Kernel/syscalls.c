@@ -12,7 +12,7 @@
 #include "signal.h"
 #include "filesystem.h"
 
-#define PROCESS_MALLOC_START 30*0x100000
+#define PROCESS_MALLOC_START (30*0x100000)
 
 extern uint64_t pit_timer;
 static void* process_malloc_buffer;
@@ -203,10 +203,10 @@ void* sys_malloc(uint64_t len) {
 	process_last_malloc = process_malloc_buffer;
 
 	process_malloc_buffer += len * sizeof(char);
-	_kdebug(" SYS MALLOC AT 0x");
+	kdebug(" SYS MALLOC AT 0x");
 	kdebug_base((uint64_t)process_last_malloc, 16);
 	kdebug_nl();
-	_kdebug(" RSP AT 0x");
+	kdebug(" RSP AT 0x");
 	kdebug_base((uint64_t)task_get_current()->stack, 16);
 	kdebug_nl();
 
@@ -296,8 +296,14 @@ pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name,
 	task_t *task;
 	console_t curr_console = task_get_current()->console;
 
+	kdebug("Creating new task\n");
+
 	task = task_create(func, name, argc, argv);
+
+	kdebug("Task created\n");
+
 	task_setconsole(task, curr_console);
+
 
 	if (mode == TASK_FOREGROUND) {
 		task_set_foreground(task, curr_console);
