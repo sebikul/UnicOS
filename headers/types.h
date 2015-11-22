@@ -93,12 +93,16 @@ typedef struct {
 	uint64_t flags;
 } fd_t;
 
-#define O_RDONLY 	(1<<1) 
+#define O_RDONLY 	(1<<1)
 #define O_WRONLY 	(1<<2)
 #define O_RDWR 		(1<<3)
 #define O_APPEND 	(1<<4)
 #define O_CREAT 	(1<<5)
 #define O_TRUNC 	(1<<6)
+
+#define SEEK_SET 	(1<<1)
+#define SEEK_CUR 	(1<<2)
+#define SEEK_END 	(1<<3)
 
 #define stdin  0
 #define stdout 1

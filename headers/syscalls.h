@@ -43,7 +43,8 @@ typedef enum {
      SYSCALL_FS_SIZE,
      SYSCALL_FS_LS,
      SYSCALL_FS_MKDIR,
-     SYSCALL_ERRNO
+     SYSCALL_ERRNO,
+     SYSCALL_FS_LSEEK
 } syscall_t;
 
 // void sys_write(FD fd, char* s, uint64_t len);
@@ -84,6 +85,7 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size);
 int32_t sys_write(int32_t fd, const char* data, uint32_t size);
 void sys_close(int32_t fd);
 uint32_t sys_size(int32_t fd);
+int32_t sys_lseek(int32_t fd, uint32_t offset, uint8_t flags);
 
 void sys_ls();
 int32_t sys_mkdir(const char* path);

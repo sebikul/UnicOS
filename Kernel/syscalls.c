@@ -172,6 +172,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_errno();
 		break;
 
+	case SYSCALL_FS_LSEEK:
+		return  sys_lseek((int32_t) rsi, (uint32_t) rdx, (uint8_t) rcx);
+		break;
+
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
@@ -393,12 +397,12 @@ int32_t sys_open(const char* path, uint64_t flags) {
 int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 	task_t *task = task_get_current();
-	int32_t len = 0;
+	uint32_t len = 0;
 	fd_t *fds;
 
-	kdebug("Syscall read. fd: ");
-	kdebug_base(fd, 10);
-	kdebug_nl();
+	// kdebug("Syscall read. fd: ");
+	// kdebug_base(fd, 10);
+	// kdebug_nl();
 
 	switch (fd) {
 	case stdin:
@@ -468,15 +472,15 @@ int32_t sys_write(int32_t fd, const char* data, uint32_t size) {
 	fd_t *fds;
 	int32_t len = 0;
 
-	kdebug("Syscall write. fd: ");
-	kdebug_base(fd, 10);
-	kdebug_nl();
+	// kdebug("Syscall write. fd: ");
+	// kdebug_base(fd, 10);
+	// kdebug_nl();
 
 	switch (fd) {
 	case stdout:
-		kdebug("Writing to console ");
-		kdebug_base(task->console, 10);
-		kdebug_nl();
+		// kdebug("Writing to console ");
+		// kdebug_base(task->console, 10);
+		// kdebug_nl();
 
 		video_write_string(task->console, data);
 		return size;
@@ -556,3 +560,36 @@ uint8_t sys_errno() {
 
 	return task->errno;
 }
+
+int32_t sys_lseek(int32_t fd, uint32_t offset, uint8_t flags) {
+	task_t* task = task_get_current();
+	fd_t *fds;
+
+	fds = &(task->files[fd]);
+
+	if (fds->file == NULL) {
+		task_errno(ENOT_FOUND);
+		return -ENOT_FOUND;
+	}
+
+	switch (flags) {
+	case SEEK_SET:
+		fds->cursor = offset;
+		break;
+
+	case SEEK_CUR:
+		fds->cursor += offset;
+		break;
+
+	case SEEK_END:
+		fds->cursor = fds->file->size + offset;
+		break;
+
+	default:
+		task_errno(EINV_OP);
+		return -EINV_OP;
+	}
+
+	return fds->cursor;
+}
+

@@ -155,3 +155,7 @@ int32_t sys_mkdir(const char* path) {
 uint8_t sys_errno() {
 	return (uint8_t)syscall((uint64_t)SYSCALL_ERRNO);
 }
+
+int32_t sys_lseek(int32_t fd, uint32_t offset, uint8_t flags) {
+	return (int32_t)syscall((uint64_t)SYSCALL_FS_LSEEK, (uint64_t)offset, (uint8_t) flags);
+}
