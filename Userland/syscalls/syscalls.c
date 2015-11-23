@@ -44,13 +44,8 @@ semaphore_t* sys_sem_find(uint32_t semid) {
 	return (semaphore_t*)syscall((uint64_t)SYSCALL_SEM_FIND, semid);	
 }
 
-<<<<<<< HEAD
 uint32_t sys_sem_get(uint32_t value) {
 	return (uint32_t)syscall((uint64_t)SYSCALL_SEM_GET, value);
-=======
-void sys_sem_get(uint32_t value) {
-	syscall((uint64_t)SYSCALL_SEM_GET, value);
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {

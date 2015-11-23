@@ -5,11 +5,8 @@
 uint32_t sem_count();
 void semadd(semaphore_t *sem);
 semaphore_t *semget(uint32_t id);
-<<<<<<< HEAD
+
 uint32_t create_sem(uint32_t value);
-=======
-void create_sem(uint32_t value);
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 void delete_sem(semaphore_t *sem);
 
 bool wait_sem(pid_t pid, semaphore_t *sem);

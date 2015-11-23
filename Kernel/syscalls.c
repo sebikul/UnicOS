@@ -170,7 +170,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_mkdir((const char*) rsi);
 		break;
 
-<<<<<<< HEAD
 	case SYSCALL_ERRNO:
 		return sys_errno();
 		break;
@@ -179,8 +178,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return  sys_lseek((int32_t) rsi, (uint32_t) rdx, (uint8_t) rcx);
 		break;
 
-=======
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 	case SYSCALL_SHM_FIND:
 		return (uint64_t) sys_shm_find((uint32_t) rsi);
 		break;
@@ -222,11 +219,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SEM_GET:
-<<<<<<< HEAD
 		return (uint64_t)sys_sem_get((uint32_t) rsi);
-=======
-		sys_sem_get((uint32_t) rsi);
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		break;
 
 	case SYSCALL_SEM_WAIT:
@@ -290,21 +283,13 @@ semaphore_t* sys_sem_find(uint32_t semid) {
 	return semget(semid);
 }
 
-<<<<<<< HEAD
 uint32_t sys_sem_get(uint32_t value) {
-=======
-void sys_sem_get(uint32_t value) {
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 	return create_sem(value);
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
 	//if( pid == NULL ) //TODO necesito un negativo para sacar el null
-<<<<<<< HEAD
 	if( pid == 0 )
-=======
-	if( pid == 999 )
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		return wait_cond(sem);
 	if( msec == 0 )
 		return wait_sem(pid, sem);

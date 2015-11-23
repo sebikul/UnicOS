@@ -35,11 +35,7 @@ COMMAND_START(semwait) {
 			return -1;
 		}
 		//if (sys_sem_wait(sem, NULL, 0)) { //TODO necesito un negativo para sacar el null
-<<<<<<< HEAD
 		pid_t pid = 0;
-=======
-		pid_t pid = 999;
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		if (sys_sem_wait(sem, pid, 0)) {
 			printf("Operacion ejecutada.\n");
 		}else{
@@ -103,7 +99,6 @@ COMMAND_START(semsig) {
 		fprintf(stderr, "Accion realizada.\n");
 	}
 	return 0;
-<<<<<<< HEAD
 }
 
 COMMAND_HELP(semstatus, "[semstatus] <sem ID> Muestra una descripcion del semaforo.");
@@ -124,6 +119,3 @@ COMMAND_START(semstatus) {
 	return 0;
 }
 
-=======
-}
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5

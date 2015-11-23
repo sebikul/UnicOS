@@ -23,29 +23,18 @@ void semadd(semaphore_t *sem){
 }
 
 semaphore_t *semget(uint32_t semid){
-<<<<<<< HEAD
 	if( semid > index ) //TODO if id es int semid < 0 
-=======
-	if( semid > index || semid < 0 )
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		return NULL;
 	return sem_array[semid];
 }
 
-<<<<<<< HEAD
 uint32_t create_sem(uint32_t value){
-=======
-void create_sem(uint32_t value){
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 	semaphore_t *sem = malloc(sizeof(semaphore_t));
 	sem->id = index;
 	sem->value = value;
 	sem->queue = msgqueue_create(256);
 	semadd(sem);
-<<<<<<< HEAD
 	return sem->id;
-=======
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 }
 
 void delete_sem(semaphore_t *sem){
@@ -68,13 +57,8 @@ bool wait_sem(pid_t pid, semaphore_t *sem){
 		sem->value--;
 	}
 	return TRUE;
-<<<<<<< HEAD
 }
 
-=======
-
-}
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 bool wait_cond(semaphore_t *sem){
 
 	if( sem->value != 0 ) {
@@ -83,10 +67,7 @@ bool wait_cond(semaphore_t *sem){
 	}	
 	return FALSE;
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
 
 	task_t *tsk = task_find_by_pid(pid);
@@ -103,15 +84,9 @@ bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
 }
 
 void signal_sem(semaphore_t *sem){
-
-<<<<<<< HEAD
 	if( !msgqueue_isempty(sem->queue) ) {
 		task_t *t = msgqueue_deq(sem->queue);
 		t = task_find_by_pid(t->pid);
-=======
-	if( msgqueue_isempty(sem->queue) ) {
-		task_t *t = msgqueue_deq(sem->queue); 
->>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		task_ready(t);
 	} else {
 		sem->value++;
