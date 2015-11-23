@@ -45,4 +45,9 @@ uint64_t get_flags();
 //Implementacion segun mtask
 bool kset_ints(bool ints);
 
+void kbd_run_handler(dka_handler handler, uint64_t scode, uint64_t cr3);
+
+void switch_u2k();
+void switch_k2u();
+
 #endif

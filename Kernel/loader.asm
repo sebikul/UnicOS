@@ -40,6 +40,7 @@ extern 		pit_timer
 
 extern 		scheduler_u2k
 extern 		scheduler_k2u
+global 		kbd_run_handler
 
 %macro pusha 0
 		push		rax
@@ -273,6 +274,52 @@ keyboard:
 		popa
 		iretq
 
+kbd_run_handler:
+		; Hacemos un backup de los parametros para cambiar de stack
+		mov 		QWORD[kbdhandler], rdi
+		mov 		QWORD[scode], 	rsi
+		mov 		QWORD[cr3_reg], rdx
+
+		; Cambiamos al stack del kernel
+		call 		switch_u2k
+
+		mov 		rdi, 	QWORD[cr3_reg]
+
+		; Nos fijamos si el handler corresponde al kernel o a una tarea
+		cmp 		rdi, 	0
+		je 			run_handler
+
+		; Corresponde a una tarea
+		; Hacemos un backup del cr3 y traemos la tarea a memoria
+
+		call 		readCR3
+		mov 		QWORD[cr3_bak], rax
+
+		mov 		rdi, 	QWORD[cr3_reg]
+		call 		writeCR3
+
+		; Ya esta la tarea mapeada en memoria, falta ejecutar el handler
+run_handler:
+		mov 		rax, 	QWORD[kbdhandler]
+		mov 		rdi, 	QWORD[scode]
+
+		call 		rax
+
+		; Si tuvimos que reemplazar el cr3, lo volvemos al estado original
+		mov 		rdi, 	QWORD[cr3_reg]
+
+		; Nos fijamos si el handler corresponde al kernel o a una tarea
+		cmp 		rdi, 	0
+		je 			kbd_handler_ret
+
+		mov 		rdi, 	QWORD[cr3_bak]
+		call 		writeCR3
+
+
+kbd_handler_ret:
+		call  		switch_k2u
+		ret
+
 init_pic:										; Enable specific interrupts
 		in 			al, 	0x21
 		mov 		al, 	11111000b			; Enable Cascade, Keyboard
@@ -358,4 +405,13 @@ cs_addr:
 ss_addr:
 		resq 1
 task_stack:
+		resq 1
+
+kbdhandler:
+		resq 1
+scode:
+		resq 1
+cr3_reg:
+	 	resq 1
+cr3_bak:
 		resq 1

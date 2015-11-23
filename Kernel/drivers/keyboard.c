@@ -314,7 +314,15 @@ static bool keyboard_run_handlers(uint64_t scode) {
 		kdebug_base((dka_catched_scancodes[i]->task == NULL) ? KERNEL_CONSOLE : dka_catched_scancodes[i]->task->console, 10);
 		kdebug_nl();
 
-		dka_catched_scancodes[i]->handler(scode);
+		uint64_t cr3 = 0;
+
+		if (dka_catched_scancodes[i]->task != NULL) {
+			cr3 = dka_catched_scancodes[i]->task->cr3;
+		}
+
+		kbd_run_handler(dka_catched_scancodes[i]->handler, scode, cr3);
+
+		//dka_catched_scancodes[i]->handler(scode);
 
 		if (dka_catched_scancodes[i]->flags & KEYBOARD_IGNORE) {
 			continue;
