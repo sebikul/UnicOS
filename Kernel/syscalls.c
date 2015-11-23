@@ -203,12 +203,12 @@ void* sys_malloc(uint64_t len) {
 	process_last_malloc = process_malloc_buffer;
 
 	process_malloc_buffer += len * sizeof(char);
-	kdebug(" SYS MALLOC AT 0x");
-	kdebug_base((uint64_t)process_last_malloc, 16);
-	kdebug_nl();
-	kdebug(" RSP AT 0x");
-	kdebug_base((uint64_t)task_get_current()->stack, 16);
-	kdebug_nl();
+	// kdebug(" SYS MALLOC AT 0x");
+	// kdebug_base((uint64_t)process_last_malloc, 16);
+	// kdebug_nl();
+	// kdebug(" RSP AT 0x");
+	// kdebug_base((uint64_t)task_get_current()->stack, 16);
+	// kdebug_nl();
 
 	kset_ints(ints);
 	return process_last_malloc;

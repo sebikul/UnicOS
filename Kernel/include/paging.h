@@ -127,6 +127,7 @@ void generic_l2_table(PM_L2_TABLE* table);
 PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us);
 PM_L4_TABLE* new_process_cr3();
 uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, const char* name, int argc, char** argv, uint64_t wrapper);
+void* back_up_argv(char** argv, int argc);
 void page_fault_handler(uint64_t error_code, uint64_t cr2);
 uint64_t add_page(uint64_t cr3, VirtualAddress* addr, int us, int rw);
 PM_L3_TABLE* get_l3_table(PM_L4_TABLE* l4_table, uint64_t idx, int us, int rw);

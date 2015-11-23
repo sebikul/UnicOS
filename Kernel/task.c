@@ -134,7 +134,6 @@ void task_remove(task_t *task) {
 
 	free_l4_table(task_l4);
 	free(task);
-	writeCR3(get_kernel_cr3());
 
 	switch_k2u();
 

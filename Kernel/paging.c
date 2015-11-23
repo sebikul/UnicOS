@@ -9,6 +9,9 @@
 #define MEGA_BYTE 0x100000
 
 static uint64_t originalCR3;
+static VirtualAddress* aux;
+static uint64_t faulty_cr3;
+
 static PM_L1_TABLE* k_0_2_MB;
 static PM_L1_TABLE* k_2_4_MB;
 static PM_L1_TABLE* k_4_6_MB;
@@ -149,6 +152,9 @@ PM_L4_TABLE* new_process_cr3() {
 /* Everytime a process is created asign the result of this function to rsp */
 uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, const char* name, int argc, char** argv, uint64_t wrapper) {
   bool ints = kset_ints(FALSE);
+
+  void* argv_back_up = back_up_argv(argv, argc);
+
   uint64_t saved_cr3 = readCR3();
   writeCR3(originalCR3);
 
@@ -198,18 +204,23 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
   // first_stack_page = add_page((uint64_t)l4_table, stack_ptr, 1, 1);
 
   uint64_t first_stack_page;
-  VirtualAddress* aux = (VirtualAddress*)malloc(sizeof(VirtualAddress));
+  uint64_t first_heap_page;
+  uint64_t current_page;
+  //VirtualAddress* aux = (VirtualAddress*)malloc(sizeof(VirtualAddress));
+  //VirtualAddress* aux;
   int i, j;
-  for (i = 11; i <= 15 ; i++) {
+  for (i = 11; i < 15 ; i++) {
     for (j = 0; j < 512; j++) {
       aux->pm_l4_offset = 0;
       aux->pm_l3_offset = 0;
       aux->pm_l2_offset = i;
       aux->pm_l1_offset = j;
-      if (i==14 && j ==511){
-        first_stack_page = add_page((uint64_t)l4_table, aux, 1, 1);
-      } else {
-        add_page((uint64_t)l4_table, aux, 1, 1);
+      current_page = add_page((uint64_t)l4_table, aux, 1, 1);
+      if ( i == 14 && j == 511 ){
+        first_stack_page = current_page;
+      }
+      else if ( i == 15 && j == 0 ) {
+        first_heap_page = add_page((uint64_t)l4_table, aux, 1, 1);
       }
     }
   }
@@ -231,7 +242,7 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
   context->rsi =  (uint64_t)argc;
   context->rdi =  (uint64_t)func;
   context->rbp =  0x00D;
-  context->rdx =  (uint64_t)argv;
+  context->rdx =  (uint64_t)argv_back_up;
   context->rcx =  0x00F;
   context->rbx =  0x010;
   context->rax =  0x011;
@@ -248,7 +259,43 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
   writeCR3(saved_cr3);
   kset_ints(ints);
   //return addr;
+  //pmm_page_free((void*)back_up);
   return (30*MEGA_BYTE) - sizeof(context_t);
+}
+
+void* back_up_argv(char** argv, int argc) {
+  char** argv_b = (char**)malloc(sizeof(char*)*argc);
+  char *arg_1, *arg_2, *arg_3;
+  if (argc >= 1){
+    arg_1 = (char*)malloc(50);
+    strcpy(arg_1, argv[0]);
+    argv_b[0] = arg_1;
+  }
+  if (argc >= 2){
+    arg_2 = (char*)malloc(50);
+    strcpy(arg_2, argv[1]);
+    argv_b[1] = arg_2;
+  }
+  if (argc >= 3){
+    arg_3 = (char*)malloc(50);
+    strcpy(arg_3, argv[2]);
+    argv_b[2] = arg_3;
+  }
+  // int count = 0;
+  // int i = 0;
+  // int to_idx = 0;
+  // while(argc--) {
+  //   int current_idx = 0;
+  //   char* current = argv[i];
+  //   while(current[current_idx]) {
+  //     to[to_idx++] = current[current_idx++];
+  //     count++;
+  //   }
+  //   to[to_idx++] = 0;
+  //   count++;
+  //   i++;
+  // }
+  return (void*)argv_b;
 }
 
 /*
@@ -263,50 +310,52 @@ US RW  P - Description
 1  1  1 - User process tried to write a page and caused a protection fault
 */
 void page_fault_handler(uint64_t error_code, uint64_t cr2) {
-  uint64_t faulty_cr3;
+  faulty_cr3 = readCR3();
   bool ints = kset_ints(FALSE);
 
   // CR2 contains the virtual address that caused the fault
-  video_write_string(KERNEL_CONSOLE, "-------------------------------------------------------------------------------");
-  video_write_nl(KERNEL_CONSOLE);
-  video_write_string(KERNEL_CONSOLE, "PAGE FAULT ");
-  video_write_string(KERNEL_CONSOLE, "CR2: 0x");
-  video_write_hex(KERNEL_CONSOLE, cr2);
-  video_write_nl(KERNEL_CONSOLE);
+  //video_write_string(KERNEL_CONSOLE, "-------------------------------------------------------------------------------");
+  //video_write_nl(KERNEL_CONSOLE);
+  //video_write_string(KERNEL_CONSOLE, "PAGE FAULT ");
+  //video_write_string(KERNEL_CONSOLE, "CR2: 0x");
+  //video_write_hex(KERNEL_CONSOLE, cr2);
+  //video_write_nl(KERNEL_CONSOLE);
   //PAGE_FAULT_ERROR_CODE* error = (PAGE_FAULT_ERROR_CODE*)error_code;
-  video_write_string(KERNEL_CONSOLE, "ERROR: ");
-  video_write_hex(KERNEL_CONSOLE, error_code);
-  video_write_nl(KERNEL_CONSOLE);
+  //video_write_string(KERNEL_CONSOLE, "ERROR: ");
+  //video_write_hex(KERNEL_CONSOLE, error_code);
+  //video_write_nl(KERNEL_CONSOLE);
   kdebug("PAGE FAULT CR2: 0x");
   kdebug_base(cr2, 16);
   kdebug_nl();
 
-  VirtualAddress* faulty_address = translate(cr2);
+  aux = translate(cr2);
 
   if (cr2 < (22*MEGA_BYTE)) {
     // KEEL DAT PROCESS
-    video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA STACK ------------");
+    //video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA STACK ------------");
     signal_send(task_get_current(), SIGKILL);
   }
   else if (cr2 >= (22*MEGA_BYTE) && cr2 < (30*MEGA_BYTE)) {
-    video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN STACK ----------------------");
-    video_write_nl(KERNEL_CONSOLE);
-    faulty_cr3 = readCR3();
+    //video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN STACK ----------------------");
+    //video_write_nl(KERNEL_CONSOLE);
+    switch_u2k();
     writeCR3(originalCR3);
-    add_page(faulty_cr3, faulty_address, 1, 1);
+    add_page(faulty_cr3, aux, 1, 1);
     writeCR3(faulty_cr3);
+    switch_k2u();
   }
   else if (cr2 >= (30*MEGA_BYTE) && cr2 < (32*MEGA_BYTE)) {
-    video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN HEAP -----------------------");
-    video_write_nl(KERNEL_CONSOLE);
-    faulty_cr3 = readCR3();
+    //video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN HEAP -----------------------");
+    //video_write_nl(KERNEL_CONSOLE);
+    switch_u2k();
     writeCR3(originalCR3);
-    add_page(faulty_cr3, faulty_address, 1, 1);
+    add_page(faulty_cr3, aux, 1, 1);
     writeCR3(faulty_cr3);
+    switch_k2u();
   }
   else if (cr2 >= (32*MEGA_BYTE)) {
     // KEEL DAT PROCESS
-    video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA HEAP -------------");
+    //video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA HEAP -------------");
     signal_send(task_get_current(), SIGKILL);
   }
 
@@ -504,7 +553,6 @@ void print_l1(PM_L1_TABLE* table, int amount) {
 }
 
 VirtualAddress* translate(uint64_t dir) {
-  VirtualAddress* aux=malloc(sizeof(VirtualAddress));
   aux->physical_offset = dir & 0x0000000000000FFF;
   aux->pm_l1_offset    = ((dir & 0x00000000001FF000) >> 12) & 0x00000000000001FF;
   aux->pm_l2_offset    = ((dir & 0x000000003FE00000) >> 21) & 0x00000000000001FF;

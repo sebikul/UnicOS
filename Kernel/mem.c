@@ -16,24 +16,15 @@ static void* mallocBuffer = (6*0x100000);
 static void* lastMalloc;
 
 void* malloc(int len) {
-
 	bool ints = kset_ints(FALSE);
 
 	lastMalloc = mallocBuffer;
-
 	if((mallocBuffer + len) > pmm_stack_start){
 		mem_panic("OUT OF MEMORY!");
 	}
 	mallocBuffer += len * sizeof(char);
 
 	kset_ints(ints);
-	//video_write_string(KERNEL_CONSOLE, "***malloc: 0x");
-	//video_write_hex(KERNEL_CONSOLE, (uint64_t)lastMalloc);
-	//video_write_nl(KERNEL_CONSOLE);
-	//video_write_string(KERNEL_CONSOLE, "******: 0x");
-	//video_write_hex(KERNEL_CONSOLE, (uint64_t)(mallocBuffer + len));
-	//video_write_nl(KERNEL_CONSOLE);
-
 	return lastMalloc;
 }
 
