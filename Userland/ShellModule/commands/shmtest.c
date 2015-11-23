@@ -13,7 +13,7 @@ COMMAND_START(shmget) {
 	} else {
 		uint64_t user_id = (uint64_t)ctoi(argv[1]);
 		uint32_t shm_size = (uint32_t)ctoi(argv[2]);
-		if ( shm_size <= 0 ) {
+		if ( shm_size <= 0 || shm_size > 4000 ) {
 			fprintf(stderr, "Tamaño invalido.\n");
 			return -1;
 		}

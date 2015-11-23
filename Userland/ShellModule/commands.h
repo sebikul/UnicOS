@@ -71,5 +71,6 @@ DECLARE_COMMAND(shmfree);
 DECLARE_COMMAND(semget);
 DECLARE_COMMAND(semwait);
 DECLARE_COMMAND(semsig);
+DECLARE_COMMAND(ipcs);
 
 #endif

@@ -36,12 +36,16 @@ void sys_shm_free(mpoint_t *mp) {
 	syscall((uint64_t)SYSCALL_SHM_FREE, mp);
 }
 
+uint32_t sys_shm_count() {
+	return syscall((uint64_t)SYSCALL_SHM_COUNT);
+}
+
 semaphore_t* sys_sem_find(uint32_t semid) {
 	return (semaphore_t*)syscall((uint64_t)SYSCALL_SEM_FIND, semid);	
 }
 
-void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id) {
-	syscall((uint64_t)SYSCALL_SEM_GET, queue, value, id);
+void sys_sem_get(uint32_t value) {
+	syscall((uint64_t)SYSCALL_SEM_GET, value);
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
@@ -50,6 +54,10 @@ bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
 
 void sys_sem_sig(semaphore_t *sem) {
 	syscall((uint64_t)SYSCALL_SEM_SIG, sem);
+}
+
+uint32_t sys_sem_count() {
+	return syscall((uint64_t)SYSCALL_SEM_COUNT);
 }
 
 void sys_rtc_get(time_t* t) {

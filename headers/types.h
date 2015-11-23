@@ -134,7 +134,6 @@ typedef struct task_t {
 
 typedef struct mpoint_t{
 	uint32_t memid;
-	uint32_t semid;
 	uint32_t user;
 	uint64_t size;
 	uint32_t used;
@@ -143,8 +142,6 @@ typedef struct mpoint_t{
 	bool r_flag;
 	uint32_t atcount;
 }mpoint_t;
-
-typedef struct msgqueue msgqueue_t;
 
 typedef struct smaphore_t{
 

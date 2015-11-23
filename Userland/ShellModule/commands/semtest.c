@@ -2,23 +2,20 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(semget, "[semget] <queue ID?> <value> <sem ID> Crea un semaforo con un valor inicial y un ID.");
+COMMAND_HELP(semget, "[semget] <value> Crea un semaforo con un valor inicial.");
 
 COMMAND_START(semget) {
 
-	if ( argc != 4 ) {
+	if ( argc != 2 ) {
 		fprintf(stderr, "Comando invalido. Cantidad de argumentos incompatible.\n");
 	} else {
-		//tomo una msgqueue? crea una vacia y le asigna tareas?
-		msgqueue_t *queue;
 
-		uint32_t value = ctoi(argv[2]);
+		uint32_t value = ctoi(argv[1]);
 		if( value < 0 ) {
 			fprintf(stderr, "Valor negativo invalido.\n");
 			return -1;
 		}
-		uint32_t semid = ctoi(argv[3]);
-		sys_sem_get(queue,value,semid);
+		sys_sem_get(value);
 	}
 	return 0;
 }

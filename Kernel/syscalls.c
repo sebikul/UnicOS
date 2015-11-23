@@ -187,7 +187,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SHM_DT:
-		return (uint32_t) sys_shm_dt((mpoint_t*) rsi);
+		return (uint64_t) sys_shm_dt((mpoint_t*) rsi);
 		break;
 
 	case SYSCALL_SHM_READ:
@@ -202,12 +202,16 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_shm_free((mpoint_t*) rsi);
 		break;
 
+	case SYSCALL_SHM_COUNT:
+		return (uint64_t) sys_shm_count();
+		break;
+
 	case SYSCALL_SEM_FIND:
 		return (uint64_t) sys_sem_find((uint32_t) rsi);
 		break;
 
 	case SYSCALL_SEM_GET:
-		sys_sem_get((msgqueue_t*) rsi, (uint32_t) rdx, (uint32_t) rcx);
+		sys_sem_get((uint32_t) rsi);
 		break;
 
 	case SYSCALL_SEM_WAIT:
@@ -215,7 +219,11 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SEM_SIG:
-			sys_sem_sig((semaphore_t*) rsi);
+		sys_sem_sig((semaphore_t*) rsi);
+		break;
+
+	case SYSCALL_SEM_COUNT:
+		return (uint64_t) sys_sem_count();
 		break;
 
 	default:
@@ -259,12 +267,16 @@ void sys_shm_free(mpoint_t *mp) {
 	freemem(mp);
 }
 
+uint32_t sys_shm_count() {
+	return shm_count();
+}
+
 semaphore_t* sys_sem_find(uint32_t semid) {
 	return semget(semid);
 }
 
-void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id) {
-	return create_sem(queue, value, id);
+void sys_sem_get(uint32_t value) {
+	return create_sem(value);
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
@@ -278,6 +290,10 @@ bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
 
 void sys_sem_sig(semaphore_t *sem) {
 	return signal_sem(sem);
+}
+
+uint32_t sys_sem_count() {
+	return sem_count();
 }
 
 void sys_rtc_get(time_t* t) {

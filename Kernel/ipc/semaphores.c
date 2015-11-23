@@ -9,6 +9,10 @@
 uint32_t index=0;
 semaphore_t* sem_array[256]; 
 
+uint32_t sem_count() {
+	return index;
+}
+
 void semadd(semaphore_t *sem){
 	if( index > 255 )
 		return;
@@ -19,19 +23,16 @@ void semadd(semaphore_t *sem){
 }
 
 semaphore_t *semget(uint32_t semid){
-	for ( int i = 0 ; i < index ; i++ ) {
-		if( sem_array[i] != NULL && sem_array[i]->id == semid )
-			return sem_array[i];
-	}
-	return NULL;
+	if( semid > index || semid < 0 )
+		return NULL;
+	return sem_array[semid];
 }
 
-void create_sem(msgqueue_t *queue, uint32_t value, uint32_t id){
-
+void create_sem(uint32_t value){
 	semaphore_t *sem = malloc(sizeof(semaphore_t));
-	sem->id = id;
+	sem->id = index;
 	sem->value = value;
-	sem->queue = queue;
+	sem->queue = msgqueue_create(256);
 	semadd(sem);
 }
 
