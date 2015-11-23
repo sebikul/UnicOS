@@ -280,12 +280,13 @@ void sys_sem_get(uint32_t value) {
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
-	if( pid == -1 )
+	//if( pid == NULL ) //TODO necesito un negativo para sacar el null
+	if( pid == 999 )
 		return wait_cond(sem);
-	if( msec == -1 )
+	if( msec == 0 )
 		return wait_sem(pid, sem);
 
-	return wait_time(sem, pid, msec);
+	return wait_time(pid, sem, msec);
 }
 
 void sys_sem_sig(semaphore_t *sem) {
@@ -521,7 +522,7 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 		kdebug("Entrada recibida!\n");
 
-		while (len < size) {
+		while (len < size) { //TODO warning de comparacion entre signed y unsigned
 			buf[len] = input_getc();
 
 			if (buf[len] == '\n') {

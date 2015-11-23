@@ -143,6 +143,8 @@ typedef struct mpoint_t{
 	uint32_t atcount;
 }mpoint_t;
 
+typedef struct msgqueue msgqueue_t;
+
 typedef struct smaphore_t{
 
 	uint32_t id;

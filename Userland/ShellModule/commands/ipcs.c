@@ -33,14 +33,13 @@ COMMAND_START(ipcs) {
 				}
 			}
 		}
-		printf("TOTAL:\t\tSemaforos: %d\t\tColas: %d\t\tMemorias: %d\n", sem_cont, sem_cont, shm_cont );
+		printf("TOTAL:\t\tSemaforos: %d\t\tMemorias: %d\n", sem_cont, shm_cont );
 	}
 	return 0;
 }
 
 void show_sem(semaphore_t *sem) {
 	printf("Semaforo de ID:  %d\n", sem->id);
-	printf("Cola de mensajes de tamaño:  %d\n", sem->queue->size);
 }
 
 void show_shm(mpoint_t *mp) {

@@ -31,7 +31,7 @@ void show_stat(mpoint_t *mp) {
 	char* status;
 	printf("ShmID: %d\n", mp->memid);
 	printf("User: %d\n", mp->user);
-	printf("Size: %d\n", mp->size);
+	printf("Size: %d\n", (int)mp->size);
 	printf("Used: %d\n", mp->used);
 	switch(mp->locked) {
 		
@@ -50,7 +50,7 @@ void show_stat(mpoint_t *mp) {
 	printf("Status: %s\n", status);
 	printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
 	printf("Attaches: %d\n", mp->atcount);
-	printf("Shmaddr: %d\n", mp->shmaddr);
+	//printf("Shmaddr: %d\n", (int)mp->shmaddr);
 }
 
 COMMAND_HELP(shmread, "[shmread] <size> <user ID> <shm ID> Lee de una memoria compartida.");
@@ -74,7 +74,7 @@ COMMAND_START(shmread) {
 			return -1;
 		}
 		size = sys_shm_read(data, sizeof(char)*size, user, mp);
-		//printf("Mensaje leido: %s.\n", data); //falla..asumo por el '0'
+		//TODO printf("Mensaje leido: %s.\n", data); //falla..asumo por el '0'
 		return size;
 	}
 	return 0;
@@ -179,7 +179,7 @@ COMMAND_START(shmstatus) {
 		char* status;
 		printf("ShmID: %d\n", mp->memid);
 		printf("User: %d\n", mp->user);
-		printf("Size: %d\n", mp->size);
+		printf("Size: %d\n", (int)mp->size);
 		printf("Used: %d\n", mp->used);
 		switch(mp->locked) {
 			
@@ -198,7 +198,7 @@ COMMAND_START(shmstatus) {
 		printf("Status: %s\n", status);
 		printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
 		printf("Attaches: %d\n", mp->atcount);
-		printf("Shmaddr: %d\n", mp->shmaddr);
+		//printf("Shmaddr: %d\n", mp->shmaddr);
 	}
 	return 0;
 }

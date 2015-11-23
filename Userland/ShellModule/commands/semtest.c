@@ -11,7 +11,7 @@ COMMAND_START(semget) {
 	} else {
 
 		uint32_t value = ctoi(argv[1]);
-		if( value < 0 ) {
+		if( value < 0 ) { //esto nunca pasaria porque uint32_t es unsigned y si le escribo un -3 convierte mal
 			fprintf(stderr, "Valor negativo invalido.\n");
 			return -1;
 		}
@@ -34,7 +34,9 @@ COMMAND_START(semwait) {
 			fprintf(stderr, "ID invalido.\n");
 			return -1;
 		}
-		if (sys_sem_wait(sem, NULL, 0)) {
+		//if (sys_sem_wait(sem, NULL, 0)) { //TODO necesito un negativo para sacar el null
+		pid_t pid = 999;
+		if (sys_sem_wait(sem, pid, 0)) {
 			printf("Operacion ejecutada.\n");
 		}else{
 			printf("Operacion fallida.\n");
@@ -49,7 +51,7 @@ COMMAND_START(semwait) {
 			return -1;
 		}
 		pid_t pid = ctoi(argv[2]);
-		if (sys_sem_wait(sem, pid, -1)) {
+		if (sys_sem_wait(sem, pid, 0)) {
 			printf("Operacion ejecutada.\n");
 		} else {
 			printf("Pid no encontrado.\n");
