@@ -4,6 +4,7 @@
 #include "keyboard.h"
 #include "types.h"
 #include "mem.h"
+#include "paging.h"
 #include "string.h"
 #include "task.h"
 #include "input.h"
@@ -32,7 +33,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 
 uint64_t pit_timer = 0;
 
-void *kernel_stack = NULL; 
+void *kernel_stack = NULL;
 
 void load_kernel_modules();
 
@@ -54,6 +55,11 @@ void initializeKernelBinary() {
 	load_kernel_modules();
 
 	clearBSS(&bss, &endOfKernel - &bss);
+
+	video_preinit();
+
+	pmm_initialize();
+	vmm_initialize();
 
 	serial_init();
 	keyboard_init();
@@ -98,7 +104,6 @@ void load_kernel_modules() {
 }
 
 void main() {
-
 	video_write_string(KERNEL_CONSOLE, "-->Kernel Stack at: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)kernel_stack);
 	video_write_nl(KERNEL_CONSOLE);
@@ -113,6 +118,7 @@ void main() {
 	task_init();
 
 	pit_setup(10);
+
 	//beep();
 
 	// TAREAS DEL KERNEL

@@ -4,44 +4,41 @@
 #include "types.h"
 #include "kernel.h"
 
+#define PAGE_MASK 0xFFFFFFFFFFFFF000
+
 static const uint64_t page_size = 0x1000;
 
-static uint64_t* pmm_stack_start = (uint64_t*)(11 * 0x100000);
-static uint64_t* pmm_stack_end = (uint64_t*)(12 * 0x100000);
+static uint64_t* pmm_stack_start = (uint64_t*)(10*0x100000);
+static uint64_t* pmm_stack_end = (uint64_t*)(12*0x100000);
 static uint64_t* pmm_stack_current;
 
-static void* mallocBuffer = (6 * 0x100000);
-
+static void* mallocBuffer = (6*0x100000);
 static void* lastMalloc;
 
 void* malloc(int len) {
-
 	bool ints = kset_ints(FALSE);
 
 	lastMalloc = mallocBuffer;
-
+	if((mallocBuffer + len) > pmm_stack_start){
+		mem_panic("OUT OF MEMORY!");
+	}
 	mallocBuffer += len * sizeof(char);
 
 	kset_ints(ints);
-
 	return lastMalloc;
 }
 
 void* calloc(int len) {
 	char* space = (char*)malloc(len);
-
-	for (int i = 0; i < len; i++) {
-		space[i] = (char)0;
-	}
-
+	memset((void*) space, 0, len);
 	return (void*)space;
 }
 
 void free(void* m) {
 
-	if (m == lastMalloc) {
-		mallocBuffer = m;
-	}
+	// if (m == lastMalloc) {
+	// 	mallocBuffer = m;
+	// }
 
 }
 
@@ -82,19 +79,30 @@ void pmm_initialize() {
 }
 
 void* pmm_page_alloc() {
+	if (pmm_stack_current-1 == pmm_stack_start)
+		mem_panic("OUT OF MEMORY!");
+
 	pmm_stack_current--;
+	memset_long((void*)*pmm_stack_current, 0, 512);
 	return (void*)(*pmm_stack_current);
 }
 
 void pmm_page_free(void* dir) {
+	uint64_t current = (uint64_t)dir;
+	if (current % 0x1000 != 0) {
+		video_write_string(KERNEL_CONSOLE, "SE INTENTO LIBERAR UNA PAGINA NO ALINEADA, ALINEANDO.");
+		*pmm_stack_current = (current & PAGE_MASK);
+		return;
+	}
 	*pmm_stack_current = (uint64_t)dir;
 	pmm_stack_current++;
 }
 
-void mem_panic() {
+void mem_panic(char* message) {
 	intsoff();
-	video_write_string(KERNEL_CONSOLE, "PANIC: OUT OF MEMORY!");
-	while (1);
+	video_write_string(KERNEL_CONSOLE, "PANIC: ");
+	video_write_string(KERNEL_CONSOLE, message);
+	while(1);
 }
 
 void page_frame_test() {
@@ -154,4 +162,15 @@ void page_frame_test() {
 	video_write_string(KERNEL_CONSOLE, "  pop: 0x");
 	video_write_hex(KERNEL_CONSOLE, (uint64_t)(page3));
 	video_write_nl(KERNEL_CONSOLE);
+}
+
+void dump_last_n_pages(int n) {
+	uint64_t* aux = pmm_stack_current;
+	video_write_string(KERNEL_CONSOLE, "LAST PAGES:");
+	video_write_nl(KERNEL_CONSOLE);
+	for (int i = 0; i < n; i++)	{
+		video_write_string(KERNEL_CONSOLE, "0x");
+		video_write_hex(KERNEL_CONSOLE, (uint64_t)*(--aux));
+		video_write_nl(KERNEL_CONSOLE);
+	}
 }

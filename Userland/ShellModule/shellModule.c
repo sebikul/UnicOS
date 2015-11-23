@@ -41,9 +41,11 @@ uint64_t main(int argc, char** argv) {
 static uint64_t _main(int argc, char** argv) {
 
 	char buffer[CMD_BUFFER_SIZE] = {0};
+	//char* buffer = calloc(CMD_BUFFER_SIZE);
 
 	//Variables "globales"
 	char* shell_history[MAX_HISTORY_SIZE] = {0};
+	//char* shell_history = calloc(MAX_HISTORY_SIZE);
 	int current_history = 0;
 	int max_history = 0;
 	int32_t arrows_handlers[2] = {0};
@@ -63,38 +65,40 @@ static uint64_t _main(int argc, char** argv) {
 		//TODO ATOMIC!!!
 		memset(&bss, 0, &endOfBinary - &bss);
 		has_initialized = TRUE;
-		ksysdebug("Initializing common shell data structures...\n");
-
-		cmdlist = malloc(sizeof(command_list_t));
-		cmdlist->count = 0;
-		cmdlist->commands = malloc(COMMANDS_LIST_SIZE * sizeof(command_t));
-
-		COMMAND_INIT(help);
-		COMMAND_INIT(echo);
-		COMMAND_INIT(set_distribution);
-		COMMAND_INIT(time);
-		COMMAND_INIT(user_name);
-		COMMAND_INIT(host_name);
-		COMMAND_INIT(color);
-		COMMAND_INIT(refresh);
-		COMMAND_INIT(screensaver);
-		COMMAND_INIT(exit);
-		COMMAND_INIT(clear);
-		COMMAND_INIT(rawkbd);
-		COMMAND_INIT(ps);
-		COMMAND_INIT(sigsend);
-		COMMAND_INIT(sigrcv);
-		COMMAND_INIT(cat);
-		COMMAND_INIT(ls);
-		COMMAND_INIT(filesend);
-		COMMAND_INIT(filercv);
-		COMMAND_INIT(mkdir);
-		COMMAND_INIT(edit);
-
-		initialize_names();
-
-		sys_unatomic();
+		ksysdebug("Initialized common shell data structures...\n");
 	}
+
+	cmdlist = malloc(sizeof(command_list_t));
+	cmdlist->count = 0;
+	cmdlist->commands = malloc(COMMANDS_LIST_SIZE * sizeof(command_t));
+
+	COMMAND_INIT(help);
+	COMMAND_INIT(echo);
+	COMMAND_INIT(set_distribution);
+	COMMAND_INIT(time);
+	COMMAND_INIT(user_name);
+	COMMAND_INIT(host_name);
+	COMMAND_INIT(color);
+	COMMAND_INIT(refresh);
+	COMMAND_INIT(screensaver);
+	COMMAND_INIT(exit);
+	COMMAND_INIT(clear);
+	COMMAND_INIT(rawkbd);
+	COMMAND_INIT(ps);
+	COMMAND_INIT(sigsend);
+	COMMAND_INIT(sigrcv);
+	COMMAND_INIT(cat);
+	COMMAND_INIT(ls);
+	COMMAND_INIT(filesend);
+	COMMAND_INIT(filercv);
+	COMMAND_INIT(mkdir);
+	COMMAND_INIT(edit);
+	COMMAND_INIT(mtest);
+
+	initialize_names();
+
+	sys_unatomic();
+	//}
 
 	ksysdebug("Initializing shell\n");
 
@@ -173,7 +177,9 @@ static uint64_t _main(int argc, char** argv) {
 	void command_dispatcher(char* command) {
 
 		int argc = 0;
-		char** argv = calloc(MAX_ARGS * sizeof(char*));
+		char** newargv = calloc(MAX_ARGS * sizeof(char*));
+
+		ksysdebug("Adding to history\n");
 
 		//backup en el historial
 		shell_history[max_history] = calloc(strlen(command) + 1);
@@ -189,13 +195,15 @@ static uint64_t _main(int argc, char** argv) {
 			LEFT_STRIP(command);
 		}
 
+		ksysdebug("Parsing command\n");
+
 		while (*command != 0) {
 
 			//alocamos espacio para el argumento que estamos parseando
-			argv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
+			newargv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
 
 			//copiamos el puntero a la cadena por comodidad, para poder modificarlo
-			char* pos = argv[argc];
+			char* pos = newargv[argc];
 
 			bool comillas = (*command == '"');
 
@@ -227,19 +235,28 @@ static uint64_t _main(int argc, char** argv) {
 			argc++;
 		}
 
-		for (int cmd = 0; cmd < cmdlist->count; cmd++) {
-			// ksysdebug("Comparando ");
-			// ksysdebugs(cmdlist->commands[cmd]->name);
-			// ksysdebug(" con ");
-			// ksysdebugs(argv[0]);
+		ksysdebug("Dispatching\n");
 
-			if (strcmp(cmdlist->commands[cmd]->name, argv[0]) == 0) {
+		for (int cmd = 0; cmd < cmdlist->count; cmd++) {
+			ksysdebug("Comparando ");
+			ksysdebugs(cmdlist->commands[cmd]->name);
+			ksysdebug(" con ");
+			ksysdebugs(newargv[0]);
+
+			if (strcmp(cmdlist->commands[cmd]->name, newargv[0]) == 0) {
 				pid_t shellpid = sys_task_get_pid();
 
-				pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, argv);
+				ksysdebug("Creating task!\n");
+
+				pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, newargv);
+
+				ksysdebug("Task created!\n");
 
 				sys_task_ready(taskpid);
+
 				int64_t retval = sys_task_join(taskpid, shellpid);
+
+				ksysdebug("Joining!\n");
 
 				printf("RETVAL: %ld\n", retval);
 				return;

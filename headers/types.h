@@ -119,6 +119,8 @@ typedef struct task_t {
 	int64_t retval;
 	uint64_t atomic_level;
 	uint64_t quantum;
+	uint64_t cr3;
+	void* malloc_current;
 	sighandler_t sighandlers[SIGCOUNT];
 	int64_t kbdhandlers[MAX_TASK_KBD_HANDLERS];
 	fd_t files[MAX_FS_CHILDS];

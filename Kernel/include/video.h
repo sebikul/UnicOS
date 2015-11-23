@@ -24,6 +24,7 @@ typedef struct {
 typedef uint8_t console_t;
 
 void video_init();
+void video_preinit() ;
 screen_t* get_screen(console_t console);
 
 color_t video_get_color(console_t console);
