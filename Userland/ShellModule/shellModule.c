@@ -58,15 +58,7 @@ static uint64_t _main(int argc, char** argv) {
 		END Definicion de funciones locales
 	 */
 
-	if (!has_initialized) {
-
-		sys_atomic();
-
-		//TODO ATOMIC!!!
-		memset(&bss, 0, &endOfBinary - &bss);
-		has_initialized = TRUE;
-		ksysdebug("Initialized common shell data structures...\n");
-	}
+	sys_atomic();
 
 	cmdlist = malloc(sizeof(command_list_t));
 	cmdlist->count = 0;
@@ -94,6 +86,19 @@ static uint64_t _main(int argc, char** argv) {
 	COMMAND_INIT(mkdir);
 	COMMAND_INIT(edit);
 	COMMAND_INIT(mtest);
+	COMMAND_INIT(shmget);
+	COMMAND_INIT(shmwrite);
+	COMMAND_INIT(shmread);
+	COMMAND_INIT(shmctl);
+	COMMAND_INIT(shmstatus);
+	COMMAND_INIT(shmfree);
+	COMMAND_INIT(semget);
+	COMMAND_INIT(semwait);
+	COMMAND_INIT(semsig);
+	COMMAND_INIT(semstatus);
+	COMMAND_INIT(ipcs);
+	COMMAND_INIT(producer);
+	COMMAND_INIT(consumer);
 
 	initialize_names();
 
@@ -108,8 +113,8 @@ static uint64_t _main(int argc, char** argv) {
 
 	while (TRUE) {
 
-		arrows_handlers[0] = sys_keyboard_catch(0xE048, keyboard_uparrow_handler, 0, "up arrow");
-		arrows_handlers[1] = sys_keyboard_catch(0xE050, keyboard_downarrow_handler, 0, "down arrow");
+		//arrows_handlers[0] = sys_keyboard_catch(0xE048, keyboard_uparrow_handler, 0, "up arrow");
+		//arrows_handlers[1] = sys_keyboard_catch(0xE050, keyboard_downarrow_handler, 0, "down arrow");
 
 		printf("\n%s@%s $ ", user_name, host_name);
 
@@ -121,8 +126,8 @@ static uint64_t _main(int argc, char** argv) {
 
 		printf("\n");
 
-		sys_keyboard_clear_handler(arrows_handlers[0]);
-		sys_keyboard_clear_handler(arrows_handlers[1]);
+		//sys_keyboard_clear_handler(arrows_handlers[0]);
+		//sys_keyboard_clear_handler(arrows_handlers[1]);
 
 		command_dispatcher(buffer);
 	}

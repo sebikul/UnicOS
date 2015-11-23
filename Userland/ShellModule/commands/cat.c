@@ -2,7 +2,7 @@
 #include "commands.h"
 #include "syscalls.h"
 
-COMMAND_HELP(cat, "[cat] Imprime el contenido del archivo.\n");
+COMMAND_HELP(cat, "[cat] <path> Imprime el contenido del archivo.\n");
 
 COMMAND_START(cat) {
 

@@ -11,6 +11,8 @@
 #include "input.h"
 #include "signal.h"
 #include "filesystem.h"
+#include "shmem.h"
+#include "semaphores.h"
 
 #define PROCESS_MALLOC_START (30*0x100000)
 
@@ -180,6 +182,62 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return  sys_lseek((int32_t) rsi, (uint32_t) rdx, (uint8_t) rcx);
 		break;
 
+	case SYSCALL_SHM_FIND:
+		return (uint64_t) sys_shm_find((uint32_t) rsi);
+		break;
+
+	case SYSCALL_SHM_GET:
+		return (uint64_t) sys_shm_get((uint64_t) rsi, (uint32_t) rdx);
+		break;
+
+	case SYSCALL_SHM_CTL:
+		return (uint64_t) sys_shm_ctl((uint32_t) rsi, (uint32_t) rdx, (mpoint_t*) rcx);
+		break;
+
+	case SYSCALL_SHM_AT:
+		sys_shm_at((mpoint_t*) rsi);
+		break;
+
+	case SYSCALL_SHM_DT:
+		return (uint64_t) sys_shm_dt((mpoint_t*) rsi);
+		break;
+
+	case SYSCALL_SHM_READ:
+		return sys_shm_read((char*) rsi, (uint32_t) rdx , (uint32_t) rcx, (mpoint_t*) r8);
+		break;
+
+	case SYSCALL_SHM_WRITE:
+		return sys_shm_write((const char*) rsi, (uint32_t) rdx , (uint32_t) rcx, (mpoint_t*) r8);
+		break;
+
+	case SYSCALL_SHM_FREE:
+		sys_shm_free((mpoint_t*) rsi);
+		break;
+
+	case SYSCALL_SHM_COUNT:
+		return (uint64_t) sys_shm_count();
+		break;
+
+	case SYSCALL_SEM_FIND:
+		return (uint64_t) sys_sem_find((uint32_t) rsi);
+		break;
+
+	case SYSCALL_SEM_GET:
+		return (uint64_t)sys_sem_get((uint32_t) rsi);
+		break;
+
+	case SYSCALL_SEM_WAIT:
+		return sys_sem_wait((semaphore_t*) rsi, (pid_t) rdx, (uint64_t) rcx);
+		break;
+
+	case SYSCALL_SEM_SIG:
+		sys_sem_sig((semaphore_t*) rsi);
+		break;
+
+	case SYSCALL_SEM_COUNT:
+		return (uint64_t) sys_sem_count();
+		break;
+
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
@@ -187,6 +245,68 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 	}
 
 	return 0;
+}
+
+mpoint_t* sys_shm_find(uint32_t shmid){
+	return shmget(shmid);
+}
+
+uint32_t sys_shm_get(uint64_t size, uint32_t user) {
+	return shmcreate(size,user);
+}
+
+bool sys_shm_ctl(uint32_t cmd, uint32_t user, mpoint_t *mp) {
+	return shmctl(cmd, user, mp);
+}
+
+void sys_shm_at(mpoint_t *mp) {
+	shmat(mp);
+}
+
+uint32_t sys_shm_dt(mpoint_t *mp) {
+	return shmdt(mp);
+}
+
+uint32_t sys_shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
+	return shm_read(data, size, user, mp);
+}
+
+uint32_t sys_shm_write(const char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
+	return shm_write(data, size, user, mp);
+}
+
+void sys_shm_free(mpoint_t *mp) {
+	freemem(mp);
+}
+
+uint32_t sys_shm_count() {
+	return shm_count();
+}
+
+semaphore_t* sys_sem_find(uint32_t semid) {
+	return semget(semid);
+}
+
+uint32_t sys_sem_get(uint32_t value) {
+	return create_sem(value);
+}
+
+bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
+	//if( pid == NULL ) //TODO necesito un negativo para sacar el null
+	if( pid == 0 )
+		return wait_cond(sem);
+	if( msec == 0 )
+		return wait_sem(pid, sem);
+
+	return wait_time(pid, sem, msec);
+}
+
+void sys_sem_sig(semaphore_t *sem) {
+	return signal_sem(sem);
+}
+
+uint32_t sys_sem_count() {
+	return sem_count();
 }
 
 void sys_rtc_get(time_t* t) {
@@ -457,7 +577,7 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 		kdebug("Entrada recibida!\n");
 
-		while (len < size) {
+		while (len < size) { //TODO warning de comparacion entre signed y unsigned
 			buf[len] = input_getc();
 
 			if (buf[len] == '\n') {
