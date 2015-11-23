@@ -92,8 +92,7 @@ uint32_t shm_read(char* data, uint32_t size, uint32_t user, mpoint_t *mp) {
 	shmctl(SHM_RLOCK, user, mp);
 	uint32_t data_size = (size > mp->used)? mp->used : size;
 	memcpy(data, mp->shmaddr, data_size);
-	video_write_line(video_current_console(), "leyendo...");
-	video_write_line(video_current_console(), data);
+	mp->used -= data_size;
 
 	shmctl(SHM_UNLOCK, user, mp);
 	return data_size;
@@ -108,7 +107,7 @@ uint32_t shm_write(const char* data, uint32_t size , uint32_t user, mpoint_t *mp
 
 	uint32_t data_size = (size > mp->size)? mp->size : size; 
 	memcpy(mp->shmaddr, data, data_size);
-	mp->used = data_size;
+	mp->used += data_size;
 
 	shmctl(SHM_UNLOCK, user, mp);
 	return data_size;

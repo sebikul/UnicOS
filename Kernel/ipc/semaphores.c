@@ -6,9 +6,6 @@
 #include "types.h"
 #include "msgqueue.h"
 
-char* itoc(int number);
-task_t *t; //TODO remove debugger
-
 uint32_t index=0;
 semaphore_t* sem_array[256]; 
 
@@ -60,18 +57,17 @@ bool wait_sem(pid_t pid, semaphore_t *sem){
 		sem->value--;
 	}
 	return TRUE;
-
 }
+
 bool wait_cond(semaphore_t *sem){
 
-	char* c = itoc(t->state);
-	video_write_line(video_current_console(), c); //TODO why?
 	if( sem->value != 0 ) {
 		sem->value--;
 		return TRUE;
 	}	
 	return FALSE;
 }
+
 bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
 
 	task_t *tsk = task_find_by_pid(pid);
@@ -90,46 +86,12 @@ bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
 void signal_sem(semaphore_t *sem){
 
 	if( !msgqueue_isempty(sem->queue) ) {
-		t = msgqueue_deq(sem->queue);
-		video_write_line(video_current_console(), t->name);
+		task_t *t = msgqueue_deq(sem->queue);
+		t = task_find_by_pid(t->pid);
 		task_ready(t);
-		char* c = itoc(t->state);
-		video_write_line(video_current_console(), c); //TODO why?
 	} else {
 		sem->value++;
 	}
-}
-
-//TODO remove debugger
-char* itoc(int number) {
-
-	int i = 0;
-	int j = 0;
-	int cnt = 0;
-
-	char* c = malloc(10);
-
-	if (number < 0) {
-		number = -number;
-		c[i++] = '-';
-	}
-
-	while (number >= 10 ) {
-		int dig = number % 10;
-		number /= 10;
-		c[i++] = dig + '0';
-		cnt++;
-	}
-	c[i] = number + '0';
-
-	while (cnt >= j) {
-		char aux;
-		aux = c[cnt];
-		c[cnt--] = c[j];
-		c[j++] = aux;
-	}
-
-	return c;
 }
 
 //ATOMIC

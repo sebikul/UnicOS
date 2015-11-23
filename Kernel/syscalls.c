@@ -170,7 +170,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return sys_mkdir((const char*) rsi);
 		break;
 
-<<<<<<< HEAD
 	case SYSCALL_ERRNO:
 		return sys_errno();
 		break;
@@ -179,8 +178,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return  sys_lseek((int32_t) rsi, (uint32_t) rdx, (uint8_t) rcx);
 		break;
 
-=======
->>>>>>> d168d3f... Implementacion de semaforos y Fixes de shmem
 	case SYSCALL_SHM_FIND:
 		return (uint64_t) sys_shm_find((uint32_t) rsi);
 		break;
@@ -213,15 +210,10 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		sys_shm_free((mpoint_t*) rsi);
 		break;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
 	case SYSCALL_SHM_COUNT:
 		return (uint64_t) sys_shm_count();
 		break;
 
->>>>>>> e9ed3ad... Comando ipcs y algunos ajustes
 	case SYSCALL_SEM_FIND:
 		return (uint64_t) sys_sem_find((uint32_t) rsi);
 		break;
@@ -242,7 +234,6 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		return (uint64_t) sys_sem_count();
 		break;
 
->>>>>>> d168d3f... Implementacion de semaforos y Fixes de shmem
 	default:
 		kdebug("ERROR: INVALID SYSCALL: ");
 		kdebug_base(rdi, 10);
