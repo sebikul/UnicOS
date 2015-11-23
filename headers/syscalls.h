@@ -43,8 +43,11 @@ typedef enum {
      SYSCALL_FS_SIZE,
      SYSCALL_FS_LS,
      SYSCALL_FS_MKDIR,
+<<<<<<< HEAD
      SYSCALL_ERRNO,
      SYSCALL_FS_LSEEK,
+=======
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
      SYSCALL_SHM_GET,
      SYSCALL_SHM_FIND,
      SYSCALL_SHM_CTL,
@@ -72,7 +75,11 @@ void sys_shm_free(mpoint_t *mp);
 uint32_t sys_shm_count();
 
 semaphore_t* sys_sem_find(uint32_t semid);
+<<<<<<< HEAD
 uint32_t sys_sem_get(uint32_t value);
+=======
+void sys_sem_get(uint32_t value);
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec);
 void sys_sem_sig(semaphore_t *sem);
 uint32_t sys_sem_count();

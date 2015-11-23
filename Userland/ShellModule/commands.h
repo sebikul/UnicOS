@@ -71,9 +71,13 @@ DECLARE_COMMAND(shmfree);
 DECLARE_COMMAND(semget);
 DECLARE_COMMAND(semwait);
 DECLARE_COMMAND(semsig);
+<<<<<<< HEAD
 DECLARE_COMMAND(semstatus);
 DECLARE_COMMAND(ipcs);
 DECLARE_COMMAND(producer);
 DECLARE_COMMAND(consumer);
+=======
+DECLARE_COMMAND(ipcs);
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 
 #endif

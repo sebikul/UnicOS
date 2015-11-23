@@ -127,6 +127,7 @@ typedef struct task_t {
 	uint8_t errno;
 } task_t;
 
+<<<<<<< HEAD
 #define EINVALID_TASK 1
 #define ENOT_FOUND 2
 #define ENO_ROOT 3
@@ -134,6 +135,8 @@ typedef struct task_t {
 #define ENO_PERM 5
 #define EINV_OP 6
 
+=======
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 #define SHM_RLOCK 			300
 #define SHM_WLOCK			301
 #define SHM_UNLOCK			302

@@ -28,11 +28,36 @@ COMMAND_START(shmget) {
 
 void show_stat(mpoint_t *mp) {
 
+<<<<<<< HEAD
+=======
+	char* status;
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 	printf("ShmID: %d\n", mp->memid);
 	printf("User: %d\n", mp->user);
 	printf("Size: %d\n", (int)mp->size);
 	printf("Used: %d\n", mp->used);
+<<<<<<< HEAD
 
+=======
+	switch(mp->locked) {
+		
+		case UNLOCKED:
+			status = "UNLOCKED";
+			break;
+
+		case LOCKED_READ:
+			status = "LOCKED_READ";
+			break;
+
+		case LOCKED_WRITE:
+			status = "LOCKED_WRITE";
+			break;
+	}
+	printf("Status: %s\n", status);
+	printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
+	printf("Attaches: %d\n", mp->atcount);
+	//printf("Shmaddr: %d\n", (int)mp->shmaddr);
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 }
 
 COMMAND_HELP(shmread, "[shmread] <size> <user ID> <shm ID> Lee de una memoria compartida.");
@@ -56,7 +81,11 @@ COMMAND_START(shmread) {
 			return -1;
 		}
 		size = sys_shm_read(data, sizeof(char)*size, user, mp);
+<<<<<<< HEAD
 		printf("Caracteres leidos: %d.\n", strlen(data)); //TODO se cuelga cuando quiero hacer un printf de data..asumo por el '0'
+=======
+		//TODO printf("Mensaje leido: %s.\n", data); //falla..asumo por el '0'
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 		return size;
 	}
 	return 0;
@@ -180,6 +209,10 @@ COMMAND_START(shmstatus) {
 		printf("Status: %s\n", status);
 		printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
 		printf("Attaches: %d\n", mp->atcount);
+<<<<<<< HEAD
+=======
+		//printf("Shmaddr: %d\n", mp->shmaddr);
+>>>>>>> 27a7e55e63483c6104200bfa81d61da53207dbc5
 	}
 	return 0;
 }
