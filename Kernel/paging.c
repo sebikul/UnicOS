@@ -332,7 +332,7 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
 
   if (cr2 < (22*MEGA_BYTE)) {
     // KEEL DAT PROCESS
-    //video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA STACK ------------");
+    video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA STACK ------------\n");
     signal_send(task_get_current(), SIGKILL);
   }
   else if (cr2 >= (22*MEGA_BYTE) && cr2 < (30*MEGA_BYTE)) {
@@ -355,7 +355,7 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
   }
   else if (cr2 >= (32*MEGA_BYTE)) {
     // KEEL DAT PROCESS
-    //video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA HEAP -------------");
+    video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA HEAP -------------\n");
     signal_send(task_get_current(), SIGKILL);
   }
 

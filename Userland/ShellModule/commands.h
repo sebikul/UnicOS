@@ -62,5 +62,6 @@ DECLARE_COMMAND(filesend);
 DECLARE_COMMAND(filercv);
 DECLARE_COMMAND(mkdir);
 DECLARE_COMMAND(edit);
+DECLARE_COMMAND(mtest);
 
 #endif

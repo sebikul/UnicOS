@@ -93,6 +93,7 @@ static uint64_t _main(int argc, char** argv) {
 	COMMAND_INIT(filercv);
 	COMMAND_INIT(mkdir);
 	COMMAND_INIT(edit);
+	COMMAND_INIT(mtest);
 
 	initialize_names();
 
