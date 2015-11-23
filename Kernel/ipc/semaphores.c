@@ -6,8 +6,15 @@
 #include "types.h"
 #include "msgqueue.h"
 
+char* itoc(int number);
+task_t *t; //TODO remove debugger
+
 uint32_t index=0;
 semaphore_t* sem_array[256]; 
+
+uint32_t sem_count() {
+	return index;
+}
 
 void semadd(semaphore_t *sem){
 	if( index > 255 )
@@ -19,20 +26,18 @@ void semadd(semaphore_t *sem){
 }
 
 semaphore_t *semget(uint32_t semid){
-	for ( int i = 0 ; i < index ; i++ ) {
-		if( sem_array[i] != NULL && sem_array[i]->id == semid )
-			return sem_array[i];
-	}
-	return NULL;
+	if( semid > index ) //TODO if id es int semid < 0 
+		return NULL;
+	return sem_array[semid];
 }
 
-void create_sem(msgqueue_t *queue, uint32_t value, uint32_t id){
-
+uint32_t create_sem(uint32_t value){
 	semaphore_t *sem = malloc(sizeof(semaphore_t));
-	sem->id = id;
+	sem->id = index;
 	sem->value = value;
-	sem->queue = queue;
+	sem->queue = msgqueue_create(256);
 	semadd(sem);
+	return sem->id;
 }
 
 void delete_sem(semaphore_t *sem){
@@ -59,6 +64,8 @@ bool wait_sem(pid_t pid, semaphore_t *sem){
 }
 bool wait_cond(semaphore_t *sem){
 
+	char* c = itoc(t->state);
+	video_write_line(video_current_console(), c); //TODO why?
 	if( sem->value != 0 ) {
 		sem->value--;
 		return TRUE;
@@ -82,12 +89,47 @@ bool wait_time(pid_t pid, semaphore_t *sem, uint64_t msec){
 
 void signal_sem(semaphore_t *sem){
 
-	if( msgqueue_isempty(sem->queue) ) {
-		task_t *t = msgqueue_deq(sem->queue); 
+	if( !msgqueue_isempty(sem->queue) ) {
+		t = msgqueue_deq(sem->queue);
+		video_write_line(video_current_console(), t->name);
 		task_ready(t);
+		char* c = itoc(t->state);
+		video_write_line(video_current_console(), c); //TODO why?
 	} else {
 		sem->value++;
 	}
+}
+
+//TODO remove debugger
+char* itoc(int number) {
+
+	int i = 0;
+	int j = 0;
+	int cnt = 0;
+
+	char* c = malloc(10);
+
+	if (number < 0) {
+		number = -number;
+		c[i++] = '-';
+	}
+
+	while (number >= 10 ) {
+		int dig = number % 10;
+		number /= 10;
+		c[i++] = dig + '0';
+		cnt++;
+	}
+	c[i] = number + '0';
+
+	while (cnt >= j) {
+		char aux;
+		aux = c[cnt];
+		c[cnt--] = c[j];
+		c[j++] = aux;
+	}
+
+	return c;
 }
 
 //ATOMIC

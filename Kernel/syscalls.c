@@ -198,7 +198,7 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SHM_DT:
-		return (uint32_t) sys_shm_dt((mpoint_t*) rsi);
+		return (uint64_t) sys_shm_dt((mpoint_t*) rsi);
 		break;
 
 	case SYSCALL_SHM_READ:
@@ -214,13 +214,20 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+	case SYSCALL_SHM_COUNT:
+		return (uint64_t) sys_shm_count();
+		break;
+
+>>>>>>> e9ed3ad... Comando ipcs y algunos ajustes
 	case SYSCALL_SEM_FIND:
 		return (uint64_t) sys_sem_find((uint32_t) rsi);
 		break;
 
 	case SYSCALL_SEM_GET:
-		sys_sem_get((msgqueue_t*) rsi, (uint32_t) rdx, (uint32_t) rcx);
+		return (uint64_t)sys_sem_get((uint32_t) rsi);
 		break;
 
 	case SYSCALL_SEM_WAIT:
@@ -228,7 +235,11 @@ uint64_t irq80_handler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, u
 		break;
 
 	case SYSCALL_SEM_SIG:
-			sys_sem_sig((semaphore_t*) rsi);
+		sys_sem_sig((semaphore_t*) rsi);
+		break;
+
+	case SYSCALL_SEM_COUNT:
+		return (uint64_t) sys_sem_count();
 		break;
 
 >>>>>>> d168d3f... Implementacion de semaforos y Fixes de shmem
@@ -273,25 +284,34 @@ void sys_shm_free(mpoint_t *mp) {
 	freemem(mp);
 }
 
+uint32_t sys_shm_count() {
+	return shm_count();
+}
+
 semaphore_t* sys_sem_find(uint32_t semid) {
 	return semget(semid);
 }
 
-void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id) {
-	return create_sem(queue, value, id);
+uint32_t sys_sem_get(uint32_t value) {
+	return create_sem(value);
 }
 
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec) {
-	if( pid == -1 )
+	//if( pid == NULL ) //TODO necesito un negativo para sacar el null
+	if( pid == 0 )
 		return wait_cond(sem);
-	if( msec == -1 )
+	if( msec == 0 )
 		return wait_sem(pid, sem);
 
-	return wait_time(sem, pid, msec);
+	return wait_time(pid, sem, msec);
 }
 
 void sys_sem_sig(semaphore_t *sem) {
 	return signal_sem(sem);
+}
+
+uint32_t sys_sem_count() {
+	return sem_count();
 }
 
 void sys_rtc_get(time_t* t) {
@@ -522,7 +542,7 @@ int32_t sys_read(int32_t fd, char* buf, uint32_t size) {
 
 		kdebug("Entrada recibida!\n");
 
-		while (len < size) {
+		while (len < size) { //TODO warning de comparacion entre signed y unsigned
 			buf[len] = input_getc();
 
 			if (buf[len] == '\n') {

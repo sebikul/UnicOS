@@ -99,6 +99,10 @@ static uint64_t _main(int argc, char** argv) {
 		COMMAND_INIT(semget);
 		COMMAND_INIT(semwait);
 		COMMAND_INIT(semsig);
+		COMMAND_INIT(semstatus);
+		COMMAND_INIT(ipcs);
+		COMMAND_INIT(producer);
+		COMMAND_INIT(consumer);
 		initialize_names();
 
 		sys_unatomic();

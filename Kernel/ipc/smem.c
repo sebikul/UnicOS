@@ -4,9 +4,12 @@
 
 #include "video.h"
 
-uint32_t idcont=1;
+uint32_t idcont=0;
 mpoint_t* shmem_array[256]; 
  
+uint32_t shm_count(){
+	return idcont;
+}
 
 void shmadd(mpoint_t *mp){
 	if( idcont > 255 )
@@ -23,6 +26,8 @@ mpoint_t *shmget(uint32_t shmid){
 }
 
 uint32_t shmcreate(uint64_t size, uint32_t user) {
+	if( size < 0 || size > 4000 )
+		return NULL;
 	mpoint_t *mem = malloc(sizeof(mpoint_t));
 	mem->memid = idcont;
 	mem->user = user;

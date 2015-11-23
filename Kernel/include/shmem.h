@@ -1,5 +1,6 @@
 #include "types.h"
 
+uint32_t shm_count();
 void shmadd(mpoint_t *mp);
 mpoint_t* shmget(uint32_t shmid);
 uint32_t shmcreate(uint64_t size, uint32_t user);

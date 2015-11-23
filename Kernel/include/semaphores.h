@@ -2,9 +2,10 @@
 #include "task.h"
 #include "msgqueue.h"
 
+uint32_t sem_count();
 void semadd(semaphore_t *sem);
-semaphore_t *semget(uint32_t semid);
-void create_sem(msgqueue_t *queue, uint32_t value, uint32_t id);
+semaphore_t *semget(uint32_t id);
+uint32_t create_sem(uint32_t value);
 void delete_sem(semaphore_t *sem);
 
 bool wait_sem(pid_t pid, semaphore_t *sem);

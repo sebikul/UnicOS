@@ -13,7 +13,7 @@ COMMAND_START(shmget) {
 	} else {
 		uint64_t user_id = (uint64_t)ctoi(argv[1]);
 		uint32_t shm_size = (uint32_t)ctoi(argv[2]);
-		if ( shm_size <= 0 ) {
+		if ( shm_size <= 0 || shm_size > 4000 ) {
 			fprintf(stderr, "Tamaño invalido.\n");
 			return -1;
 		}
@@ -28,29 +28,11 @@ COMMAND_START(shmget) {
 
 void show_stat(mpoint_t *mp) {
 
-	char* status;
 	printf("ShmID: %d\n", mp->memid);
 	printf("User: %d\n", mp->user);
-	printf("Size: %d\n", mp->size);
+	printf("Size: %d\n", (int)mp->size);
 	printf("Used: %d\n", mp->used);
-	switch(mp->locked) {
-		
-		case UNLOCKED:
-			status = "UNLOCKED";
-			break;
 
-		case LOCKED_READ:
-			status = "LOCKED_READ";
-			break;
-
-		case LOCKED_WRITE:
-			status = "LOCKED_WRITE";
-			break;
-	}
-	printf("Status: %s\n", status);
-	printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
-	printf("Attaches: %d\n", mp->atcount);
-	printf("Shmaddr: %d\n", mp->shmaddr);
 }
 
 COMMAND_HELP(shmread, "[shmread] <size> <user ID> <shm ID> Lee de una memoria compartida.");
@@ -74,7 +56,7 @@ COMMAND_START(shmread) {
 			return -1;
 		}
 		size = sys_shm_read(data, sizeof(char)*size, user, mp);
-		//printf("Mensaje leido: %s.\n", data); //falla..asumo por el '0'
+		printf("Caracteres leidos: %d.\n", strlen(data)); //TODO se cuelga cuando quiero hacer un printf de data..asumo por el '0'
 		return size;
 	}
 	return 0;
@@ -179,7 +161,7 @@ COMMAND_START(shmstatus) {
 		char* status;
 		printf("ShmID: %d\n", mp->memid);
 		printf("User: %d\n", mp->user);
-		printf("Size: %d\n", mp->size);
+		printf("Size: %d\n", (int)mp->size);
 		printf("Used: %d\n", mp->used);
 		switch(mp->locked) {
 			
@@ -198,7 +180,6 @@ COMMAND_START(shmstatus) {
 		printf("Status: %s\n", status);
 		printf("R_flag: %s\n", (mp->r_flag==TRUE)?"TRUE":"FALSE");
 		printf("Attaches: %d\n", mp->atcount);
-		printf("Shmaddr: %d\n", mp->shmaddr);
 	}
 	return 0;
 }

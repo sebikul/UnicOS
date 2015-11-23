@@ -53,10 +53,12 @@ typedef enum {
      SYSCALL_SHM_READ,
      SYSCALL_SHM_WRITE,
      SYSCALL_SHM_FREE,
+     SYSCALL_SHM_COUNT,
      SYSCALL_SEM_FIND,
      SYSCALL_SEM_GET,
      SYSCALL_SEM_WAIT,
-     SYSCALL_SEM_SIG
+     SYSCALL_SEM_SIG,
+     SYSCALL_SEM_COUNT
 } syscall_t;
 
 mpoint_t* sys_shm_find(uint32_t shmid);
@@ -67,11 +69,13 @@ uint32_t sys_shm_dt(mpoint_t *mp);
 uint32_t sys_shm_read(char* data, uint32_t size , uint32_t user, mpoint_t *mp);
 uint32_t sys_shm_write(const char* data, uint32_t size , uint32_t user, mpoint_t *mp);
 void sys_shm_free(mpoint_t *mp);
+uint32_t sys_shm_count();
 
 semaphore_t* sys_sem_find(uint32_t semid);
-void sys_sem_get(msgqueue_t *queue, uint32_t value, uint32_t id);
+uint32_t sys_sem_get(uint32_t value);
 bool sys_sem_wait(semaphore_t *sem, pid_t pid, uint64_t msec);
 void sys_sem_sig(semaphore_t *sem);
+uint32_t sys_sem_count();
 // void sys_write(FD fd, char* s, uint64_t len);
 // uint64_t sys_read(FD fd, char* s, uint64_t len);
 void sys_rtc_get(time_t* t);
