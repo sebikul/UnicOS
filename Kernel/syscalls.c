@@ -290,7 +290,11 @@ pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name,
 
 	kdebug("Creating new task\n");
 
+	switch_u2k();
+
 	task = task_create(func, name, argc, argv);
+
+	switch_k2u();
 
 	kdebug("Task created\n");
 
