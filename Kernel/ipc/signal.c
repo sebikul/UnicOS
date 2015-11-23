@@ -39,6 +39,7 @@ static void sigwrapper(task_t* task, signal_t sig, task_state_t oldstate) {
 }
 
 static void signal_dispatch(task_t *dest, signal_t sig) {
+
 	sig_aux = (context_t*)malloc(sizeof(context_t));
 	sig_aux->gs = 0x001;
 	sig_aux->fs = 0x002;
@@ -63,25 +64,10 @@ static void signal_dispatch(task_t *dest, signal_t sig) {
 	sig_aux->rsp =	(uint64_t) & (sig_aux->base);
 	sig_aux->ss = 0x000;
 
-	kdebug("1\n");
-	sig_cr3 = readCR3();
-	kdebug("2\n");
 
-	switch_u2k();
-	kdebug("3\n");
+	dest->stack = dest->stack - sizeof(context_t) + sizeof(uint64_t);
 
-	writeCR3(dest->cr3);
-	kdebug("4\n");
-
-	memcpy((char*)(dest->stack - sizeof(context_t) + sizeof(uint64_t)), (char*)sig_aux, sizeof(context_t) - sizeof(uint64_t));
-	kdebug("5\n");
-	dest->stack = dest->stack - sizeof(context_t) + sizeof(uint64_t); //Eliminamos context->base que no sirve para el contexto
-	kdebug("6\n");
-
-	writeCR3(sig_cr3);
-	kdebug("7\n");
-	switch_k2u();
-
+	signal_push(dest->stack, sizeof(context_t) - sizeof(uint64_t), dest->cr3, sig_aux);
 
 	task_ready(dest);
 }

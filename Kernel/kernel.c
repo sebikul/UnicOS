@@ -126,7 +126,7 @@ void main() {
 
 	// intson();
 
-	//fs_test();
+	fs_test();
 
 	//while(TRUE);
 

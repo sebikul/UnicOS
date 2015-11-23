@@ -41,6 +41,8 @@ extern 		pit_timer
 extern 		scheduler_u2k
 extern 		scheduler_k2u
 global 		kbd_run_handler
+extern 		memcpy
+global 		signal_push
 
 %macro pusha 0
 		push		rax
@@ -320,6 +322,35 @@ kbd_handler_ret:
 		call  		switch_k2u
 		ret
 
+signal_push:
+		mov 		QWORD[tstack], rdi
+		mov 		QWORD[tsize], 	rsi
+		mov 		QWORD[cr3_reg], rdx
+		mov 		QWORD[cont_addr], rcx
+
+; Cambiamos al stack del kernel
+		call 		switch_u2k
+
+		call 		readCR3
+		mov 		QWORD[cr3_bak], rax
+
+		mov 		rdi, 	QWORD[cr3_reg]
+		call 		writeCR3
+
+		; Ya esta la tarea mapeada en memoria, falta ejecutar el handler
+
+		mov 		rdi, 	QWORD[tstack]
+		mov 		rsi, 	QWORD[cont_addr]
+		mov 		rdx, 	QWORD[tsize]
+
+		call 		memcpy
+
+		mov 		rdi, 	QWORD[cr3_bak]
+		call 		writeCR3
+
+		call  		switch_k2u
+		ret
+
 init_pic:										; Enable specific interrupts
 		in 			al, 	0x21
 		mov 		al, 	11111000b			; Enable Cascade, Keyboard
@@ -402,13 +433,18 @@ ret_addr:
 		resq 1
 cs_addr:
 		resq 1
+
+cont_addr:
 ss_addr:
 		resq 1
 task_stack:
 		resq 1
 
+tstack:
 kbdhandler:
 		resq 1
+
+tsize:
 scode:
 		resq 1
 cr3_reg:

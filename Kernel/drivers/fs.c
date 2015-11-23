@@ -464,6 +464,11 @@ int32_t fs_write(file_t *file, const char* data, uint32_t size, uint32_t offset)
 void fs_dump() {
 	kdebug("Dumping filesystem!\n");
 
+	if (rootdevice == NULL) {
+		kdebug("Filesystem no inicializado!\n");
+		return;
+	}
+
 	dumpdir(rootdevice->rootdir, 0);
 }
 

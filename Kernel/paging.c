@@ -3,6 +3,7 @@
 #include "mem.h"
 #include "task.h"
 #include "kernel.h"
+#include "string.h"
 
 #define NEGATE(x) (x == 0 ? 1 : 0)
 #define PAGE_SIZE 0x1000
@@ -19,8 +20,8 @@ static PM_L1_TABLE* k_6_8_MB;
 static PM_L1_TABLE* k_8_10_MB;
 static PM_L1_TABLE* k_10_12_MB;
 
-void wait(int i){
-  while(i--);
+void wait(int i) {
+  while (i--);
 }
 
 void vmm_initialize() {
@@ -60,12 +61,12 @@ PM_L4_TABLE* all_memory_identity() {
   k_pml4->table[0].p = 1;
   k_pml4->table[0].rw = 1;
   k_pml4->table[0].us = 0;
-  k_pml4->table[0].address = (uint64_t)((uint64_t)k_pml3/PAGE_SIZE);
+  k_pml4->table[0].address = (uint64_t)((uint64_t)k_pml3 / PAGE_SIZE);
   /* Make L3 point to L2 */
   k_pml3->table[0].p = 1;
   k_pml3->table[0].rw = 1;
   k_pml3->table[0].us = 0;
-  k_pml3->table[0].address = (uint64_t)((uint64_t)k_pml2/PAGE_SIZE);
+  k_pml3->table[0].address = (uint64_t)((uint64_t)k_pml2 / PAGE_SIZE);
   video_write_string(KERNEL_CONSOLE, "CREATING KERNEL PAGE LEVEL 4 DIRECTORY");
   for (int i = 0; i < 257; i++) {
     //video_write_string(KERNEL_CONSOLE, ".");
@@ -73,13 +74,13 @@ PM_L4_TABLE* all_memory_identity() {
     k_pml2->table[i].p = 1;
     k_pml2->table[i].us = 0;
     k_pml2->table[i].rw = 0;
-    k_pml2->table[i].address = (l1_current/PAGE_SIZE);
+    k_pml2->table[i].address = (l1_current / PAGE_SIZE);
     for (int j = 0; j < 512; j++) {
       PM_L1_TABLE* l1 = (PM_L1_TABLE*)l1_current;
       l1->table[j].p = 1;
       l1->table[j].us = 0;
       l1->table[j].rw = 0;
-      l1->table[j].address = (uint64_t)(((i*2*MEGA_BYTE)+(j*PAGE_SIZE))/PAGE_SIZE);
+      l1->table[j].address = (uint64_t)(((i * 2 * MEGA_BYTE) + (j * PAGE_SIZE)) / PAGE_SIZE);
       //kdebug("ALLOCATED ID PAGE AT: 0x");
       //kdebug_base((uint64_t)(i*2*MEGA_BYTE)+(j*PAGE_SIZE), 16);
       //kdebug_nl();
@@ -98,12 +99,12 @@ PM_L4_TABLE* create_pml4() {
   k_pml4->table[0].p = 1;
   k_pml4->table[0].rw = 1;
   k_pml4->table[0].us = 0;
-  k_pml4->table[0].address = (uint64_t)((uint64_t)k_pml3/PAGE_SIZE);
+  k_pml4->table[0].address = (uint64_t)((uint64_t)k_pml3 / PAGE_SIZE);
   /* Make L3 point to L2 */
   k_pml3->table[0].p = 1;
   k_pml3->table[0].rw = 1;
   k_pml3->table[0].us = 0;
-  k_pml3->table[0].address = (uint64_t)((uint64_t)k_pml2/PAGE_SIZE);
+  k_pml3->table[0].address = (uint64_t)((uint64_t)k_pml2 / PAGE_SIZE);
   generic_l2_table(k_pml2);
   return k_pml4;
 }
@@ -114,13 +115,13 @@ void generic_l2_table(PM_L2_TABLE* table) {
     table->table[i].rw = 1;
     table->table[i].us = 0;
   }
-  table->table[0].address = (uint64_t)k_0_2_MB/PAGE_SIZE;
-  table->table[1].address = (uint64_t)k_2_4_MB/PAGE_SIZE;
+  table->table[0].address = (uint64_t)k_0_2_MB / PAGE_SIZE;
+  table->table[1].address = (uint64_t)k_2_4_MB / PAGE_SIZE;
   table->table[2].us = 1;
-  table->table[2].address = (uint64_t)k_4_6_MB/PAGE_SIZE;
-  table->table[3].address = (uint64_t)k_6_8_MB/PAGE_SIZE;
-  table->table[4].address = (uint64_t)k_8_10_MB/PAGE_SIZE;
-  table->table[5].address = (uint64_t)k_10_12_MB/PAGE_SIZE;
+  table->table[2].address = (uint64_t)k_4_6_MB / PAGE_SIZE;
+  table->table[3].address = (uint64_t)k_6_8_MB / PAGE_SIZE;
+  table->table[4].address = (uint64_t)k_8_10_MB / PAGE_SIZE;
+  table->table[5].address = (uint64_t)k_10_12_MB / PAGE_SIZE;
 }
 
 /* Given a level 2 table, identity page the 2mb that corresponds to that table */
@@ -131,7 +132,7 @@ PM_L1_TABLE* identity_l1_map(int first_l2_table_idx, int rw, int us) {
     l1_table->table[i].p = 1;
     l1_table->table[i].rw = rw;
     l1_table->table[i].us = us;
-    l1_table->table[i].address = ((first_l2_table_idx*0x200000) + (i*PAGE_SIZE))/PAGE_SIZE;
+    l1_table->table[i].address = ((first_l2_table_idx * 0x200000) + (i * PAGE_SIZE)) / PAGE_SIZE;
   }
   return l1_table;
 }
@@ -216,7 +217,7 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
       aux->pm_l2_offset = i;
       aux->pm_l1_offset = j;
       current_page = add_page((uint64_t)l4_table, aux, 1, 1);
-      if ( i == 14 && j == 511 ){
+      if ( i == 14 && j == 511 ) {
         first_stack_page = current_page;
       }
       else if ( i == 15 && j == 0 ) {
@@ -249,7 +250,7 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
   context->rip =  (uint64_t)wrapper;
   context->cs = 0x008;
   context->rflags = 0x202;
-  context->rsp = (30*MEGA_BYTE);
+  context->rsp = (30 * MEGA_BYTE);
   context->ss = 0x000;
   context->base = 0x000;
 
@@ -260,27 +261,35 @@ uint64_t alloc_new_process_stack(PM_L4_TABLE* l4_table, task_entry_point func, c
   kset_ints(ints);
   //return addr;
   //pmm_page_free((void*)back_up);
-  return (30*MEGA_BYTE) - sizeof(context_t);
+  return (30 * MEGA_BYTE) - sizeof(context_t);
 }
 
 void* back_up_argv(char** argv, int argc) {
-  char** argv_b = (char**)malloc(sizeof(char*)*argc);
-  char *arg_1, *arg_2, *arg_3;
-  if (argc >= 1){
-    arg_1 = (char*)malloc(50);
-    strcpy(arg_1, argv[0]);
-    argv_b[0] = arg_1;
+  char** newargv = (char**)malloc(argc * sizeof(char*));
+
+  kdebug("Copiando argv\n");
+
+  for (int i = 0; i < argc; i++) {
+    newargv[i] = malloc(strlen(argv[i]) + 1);
+    strcpy(newargv[i], argv[i]);
   }
-  if (argc >= 2){
-    arg_2 = (char*)malloc(50);
-    strcpy(arg_2, argv[1]);
-    argv_b[1] = arg_2;
-  }
-  if (argc >= 3){
-    arg_3 = (char*)malloc(50);
-    strcpy(arg_3, argv[2]);
-    argv_b[2] = arg_3;
-  }
+
+  // char *arg_1, *arg_2, *arg_3;
+  // if (argc >= 1) {
+  //   arg_1 = (char*)malloc(50);
+  //   strcpy(arg_1, argv[0]);
+  //   argv_b[0] = arg_1;
+  // }
+  // if (argc >= 2) {
+  //   arg_2 = (char*)malloc(50);
+  //   strcpy(arg_2, argv[1]);
+  //   argv_b[1] = arg_2;
+  // }
+  // if (argc >= 3) {
+  //   arg_3 = (char*)malloc(50);
+  //   strcpy(arg_3, argv[2]);
+  //   argv_b[2] = arg_3;
+  // }
   // int count = 0;
   // int i = 0;
   // int to_idx = 0;
@@ -295,7 +304,7 @@ void* back_up_argv(char** argv, int argc) {
   //   count++;
   //   i++;
   // }
-  return (void*)argv_b;
+  return (void*)newargv;
 }
 
 /*
@@ -330,12 +339,12 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
 
   aux = translate(cr2);
 
-  if (cr2 < (22*MEGA_BYTE)) {
+  if (cr2 < (22 * MEGA_BYTE)) {
     // KEEL DAT PROCESS
     video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA STACK ------------\n");
     signal_send(task_get_current(), SIGKILL);
   }
-  else if (cr2 >= (22*MEGA_BYTE) && cr2 < (30*MEGA_BYTE)) {
+  else if (cr2 >= (22 * MEGA_BYTE) && cr2 < (30 * MEGA_BYTE)) {
     //video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN STACK ----------------------");
     //video_write_nl(KERNEL_CONSOLE);
     switch_u2k();
@@ -344,7 +353,7 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
     writeCR3(faulty_cr3);
     switch_k2u();
   }
-  else if (cr2 >= (30*MEGA_BYTE) && cr2 < (32*MEGA_BYTE)) {
+  else if (cr2 >= (30 * MEGA_BYTE) && cr2 < (32 * MEGA_BYTE)) {
     //video_write_string(KERNEL_CONSOLE, "---------------------- PROCESO REQUIERE MEMORIA EN HEAP -----------------------");
     //video_write_nl(KERNEL_CONSOLE);
     switch_u2k();
@@ -353,7 +362,7 @@ void page_fault_handler(uint64_t error_code, uint64_t cr2) {
     writeCR3(faulty_cr3);
     switch_k2u();
   }
-  else if (cr2 >= (32*MEGA_BYTE)) {
+  else if (cr2 >= (32 * MEGA_BYTE)) {
     // KEEL DAT PROCESS
     video_write_string(KERNEL_CONSOLE, "----------- PROCESO PIDIO MEMORIA FUERA DE LO PERMITIDO PARA HEAP -------------\n");
     signal_send(task_get_current(), SIGKILL);
@@ -379,11 +388,11 @@ PM_L3_TABLE* get_l3_table(PM_L4_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].p = 1;
     table->table[idx].rw = rw;
     table->table[idx].us = us;
-    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/PAGE_SIZE);
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc() / PAGE_SIZE);
     //video_write_string(KERNEL_CONSOLE, "*** PAGINA ALOCADA EN L4");
     //hex_log(" PHYSICAL: ", (uint64_t)(table->table[idx].address*PAGE_SIZE));
   }
-  return (PM_L3_TABLE*)((uint64_t)(table->table[idx].address*PAGE_SIZE));
+  return (PM_L3_TABLE*)((uint64_t)(table->table[idx].address * PAGE_SIZE));
 }
 
 /* Given a level 3 table, returns the level 2 table indicated by idx, if it is not present it creates one */
@@ -392,11 +401,11 @@ PM_L2_TABLE* get_l2_table(PM_L3_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].p = 1;
     table->table[idx].rw = rw;
     table->table[idx].us = us;
-    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/PAGE_SIZE);
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc() / PAGE_SIZE);
     //video_write_string(KERNEL_CONSOLE, "*** PAGINA ALOCADA EN L3");
     //hex_log(" PHYSICAL: ", (uint64_t)(table->table[idx].address*PAGE_SIZE));
   }
-  return (PM_L2_TABLE*)((uint64_t)(table->table[idx].address*PAGE_SIZE));
+  return (PM_L2_TABLE*)((uint64_t)(table->table[idx].address * PAGE_SIZE));
 }
 
 /* Given a level 2 table, returns the level 1 table indicated by idx, if it is not present it creates one */
@@ -408,11 +417,11 @@ PM_L1_TABLE* get_l1_table(PM_L2_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].p = 1;
     table->table[idx].rw = rw;
     table->table[idx].us = us;
-    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/PAGE_SIZE);
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc() / PAGE_SIZE);
     //video_write_string(KERNEL_CONSOLE, "*** PAGINA ALOCADA EN L2");
     //hex_log(" PHYSICAL: ", (uint64_t)(table->table[idx].address*PAGE_SIZE));
   }
-  return (PM_L1_TABLE*)((uint64_t)(table->table[idx].address*PAGE_SIZE));
+  return (PM_L1_TABLE*)((uint64_t)(table->table[idx].address * PAGE_SIZE));
 }
 
 /* Given a level 1 table, returns the physical page indicated by idx, if it is not present it creates one */
@@ -424,11 +433,11 @@ uint64_t add_to_l1_table(PM_L1_TABLE* table, uint64_t idx, int us, int rw) {
     table->table[idx].p = 1;
     table->table[idx].rw = rw;
     table->table[idx].us = us;
-    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc()/PAGE_SIZE);
+    table->table[idx].address = (uint64_t)((uint64_t)pmm_page_alloc() / PAGE_SIZE);
     //video_write_string(KERNEL_CONSOLE, "*** PAGINA ALOCADA EN L1");
     //hex_log(" PHYSICAL: ", (uint64_t)(table->table[idx].address*PAGE_SIZE));
   }
-  return (uint64_t)(table->table[idx].address*PAGE_SIZE);
+  return (uint64_t)(table->table[idx].address * PAGE_SIZE);
 }
 
 /* Given a level 4 directory, frees every page used AND THE LEVEL 4 DIRECTORY TOO */
@@ -442,9 +451,9 @@ uint64_t free_l4_table(PM_L4_TABLE* l4_table) {
   for (i = 0; i < 512; i++) {
     PM_L4 current_l4 = l4_table->table[i];
     if (current_l4.p == 1) {
-      pages_freed += free_l3_table((PM_L3_TABLE*)(current_l4.address*PAGE_SIZE));
+      pages_freed += free_l3_table((PM_L3_TABLE*)(current_l4.address * PAGE_SIZE));
       current_l4.p = 0;
-      pmm_page_free((void*)(current_l4.address*PAGE_SIZE));
+      pmm_page_free((void*)(current_l4.address * PAGE_SIZE));
       pages_freed++;
     }
   }
@@ -462,9 +471,9 @@ uint64_t free_l3_table(PM_L3_TABLE* l3_table) {
   for (i = 0; i < 512; i++) {
     PM_L3 current_l3 = l3_table->table[i];
     if (current_l3.p == 1) {
-      pages_freed += free_l2_table((PM_L2_TABLE*)(current_l3.address*PAGE_SIZE));
+      pages_freed += free_l2_table((PM_L2_TABLE*)(current_l3.address * PAGE_SIZE));
       current_l3.p = 0;
-      pmm_page_free((void*)(current_l3.address*PAGE_SIZE));
+      pmm_page_free((void*)(current_l3.address * PAGE_SIZE));
       pages_freed++;
     }
   }
@@ -479,9 +488,9 @@ uint64_t free_l2_table(PM_L2_TABLE* l2_table) {
   for (i = 6; i < 512; i++) {
     PM_L2 current_l2 = l2_table->table[i];
     if (current_l2.p == 1) {
-      pages_freed += free_l1_table((PM_L1_TABLE*)(current_l2.address*PAGE_SIZE));
+      pages_freed += free_l1_table((PM_L1_TABLE*)(current_l2.address * PAGE_SIZE));
       current_l2.p = 0;
-      pmm_page_free((void*)(current_l2.address*PAGE_SIZE));
+      pmm_page_free((void*)(current_l2.address * PAGE_SIZE));
       pages_freed++;
     }
   }
@@ -496,9 +505,9 @@ uint64_t free_l1_table(PM_L1_TABLE* l1_table) {
     PM_L1 current_l1 = l1_table->table[i];
     if (current_l1.p == 1) {
       current_l1.p = 0;
-      if ((current_l1.address*PAGE_SIZE) > (12*MEGA_BYTE)) {
+      if ((current_l1.address * PAGE_SIZE) > (12 * MEGA_BYTE)) {
         /* WE DON'T WANT TO FREE PAGES THAT BELONGS TO THE KERNEL */
-        pmm_page_free((void*)(current_l1.address*PAGE_SIZE));
+        pmm_page_free((void*)(current_l1.address * PAGE_SIZE));
         pages_freed++;
       }
     }
@@ -517,14 +526,14 @@ void hex_log(char* pre, uint64_t num) {
 /* This function tests the creation of a new level 4 directory */
 void l4_table_test() {
   PM_L4_TABLE* l4_table = create_pml4();
-  PM_L3_TABLE* l3_table = (PM_L3_TABLE*)((l4_table->table[0].address)*PAGE_SIZE);
-  PM_L2_TABLE* l2_table = (PM_L2_TABLE*)((l3_table->table[0].address)*PAGE_SIZE);
-  PM_L1_TABLE* _0_to_2_mb = (PM_L1_TABLE*)((l2_table->table[0].address)*PAGE_SIZE);
-  PM_L1_TABLE* _2_to_4_mb = (PM_L1_TABLE*)((l2_table->table[1].address)*PAGE_SIZE);
-  PM_L1_TABLE* _4_to_6_mb = (PM_L1_TABLE*)((l2_table->table[2].address)*PAGE_SIZE);
-  PM_L1_TABLE* _6_to_8_mb = (PM_L1_TABLE*)((l2_table->table[3].address)*PAGE_SIZE);
-  PM_L1_TABLE* _8_to_10_mb = (PM_L1_TABLE*)((l2_table->table[4].address)*PAGE_SIZE);
-  PM_L1_TABLE* _10_to_12_mb = (PM_L1_TABLE*)((l2_table->table[5].address)*PAGE_SIZE);
+  PM_L3_TABLE* l3_table = (PM_L3_TABLE*)((l4_table->table[0].address) * PAGE_SIZE);
+  PM_L2_TABLE* l2_table = (PM_L2_TABLE*)((l3_table->table[0].address) * PAGE_SIZE);
+  PM_L1_TABLE* _0_to_2_mb = (PM_L1_TABLE*)((l2_table->table[0].address) * PAGE_SIZE);
+  PM_L1_TABLE* _2_to_4_mb = (PM_L1_TABLE*)((l2_table->table[1].address) * PAGE_SIZE);
+  PM_L1_TABLE* _4_to_6_mb = (PM_L1_TABLE*)((l2_table->table[2].address) * PAGE_SIZE);
+  PM_L1_TABLE* _6_to_8_mb = (PM_L1_TABLE*)((l2_table->table[3].address) * PAGE_SIZE);
+  PM_L1_TABLE* _8_to_10_mb = (PM_L1_TABLE*)((l2_table->table[4].address) * PAGE_SIZE);
+  PM_L1_TABLE* _10_to_12_mb = (PM_L1_TABLE*)((l2_table->table[5].address) * PAGE_SIZE);
   print_l1(_0_to_2_mb, 1);
   print_l1(_2_to_4_mb, 1);
   print_l1(_4_to_6_mb, 1);

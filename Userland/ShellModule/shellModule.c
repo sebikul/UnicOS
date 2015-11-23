@@ -177,7 +177,7 @@ static uint64_t _main(int argc, char** argv) {
 	void command_dispatcher(char* command) {
 
 		int argc = 0;
-		char** argv = calloc(MAX_ARGS * sizeof(char*));
+		char** newargv = calloc(MAX_ARGS * sizeof(char*));
 
 		ksysdebug("Adding to history\n");
 
@@ -200,10 +200,10 @@ static uint64_t _main(int argc, char** argv) {
 		while (*command != 0) {
 
 			//alocamos espacio para el argumento que estamos parseando
-			argv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
+			newargv[argc] = calloc(CMD_BUFFER_SIZE * sizeof(char));
 
 			//copiamos el puntero a la cadena por comodidad, para poder modificarlo
-			char* pos = argv[argc];
+			char* pos = newargv[argc];
 
 			bool comillas = (*command == '"');
 
@@ -238,17 +238,17 @@ static uint64_t _main(int argc, char** argv) {
 		ksysdebug("Dispatching\n");
 
 		for (int cmd = 0; cmd < cmdlist->count; cmd++) {
-			// ksysdebug("Comparando ");
-			// ksysdebugs(cmdlist->commands[cmd]->name);
-			// ksysdebug(" con ");
-			// ksysdebugs(argv[0]);
+			ksysdebug("Comparando ");
+			ksysdebugs(cmdlist->commands[cmd]->name);
+			ksysdebug(" con ");
+			ksysdebugs(newargv[0]);
 
-			if (strcmp(cmdlist->commands[cmd]->name, argv[0]) == 0) {
+			if (strcmp(cmdlist->commands[cmd]->name, newargv[0]) == 0) {
 				pid_t shellpid = sys_task_get_pid();
 
 				ksysdebug("Creating task!\n");
 
-				pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, argv);
+				pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, newargv);
 
 				ksysdebug("Task created!\n");
 
