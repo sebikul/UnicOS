@@ -394,7 +394,7 @@ void task_next() {
 	_kdebug(" CR3 is 0x");
 	kdebug_base(task->cr3, 16);
 	_kdebug(" malloc is 0x");
-	kdebug_base(task->malloc_current, 16);
+	kdebug_base((uint64_t)task->malloc_current, 16);
 	kdebug_nl();
 }
 
