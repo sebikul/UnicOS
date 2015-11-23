@@ -8,6 +8,7 @@ COMMAND_START(sigsend) {
 
 	if (argc != 3) {
 		fprintf(stderr, "Comando invalido. Debe ingresar un pid.\n");
+		return -1;
 	} else {
 		pid_t pid = ctoi(argv[1]);
 		signal_t sig;

@@ -73,7 +73,7 @@ void sys_unatomic();
 
 pid_t sys_task_create(task_entry_point func, task_mode_t mode, const char* name, int argc, char** argv);
 void sys_task_ready(pid_t pid);
-uint64_t sys_task_join(pid_t pid,  pid_t otherpid);
+int64_t sys_task_join(pid_t pid,  pid_t otherpid);
 pid_t sys_task_get_pid();
 void sys_task_yield();
 task_t* sys_task_getall();

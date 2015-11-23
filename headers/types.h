@@ -116,7 +116,7 @@ typedef struct task_t {
 	char* name;
 	pid_t pid;
 	uint64_t sleep_limit;
-	uint64_t retval;
+	int64_t retval;
 	uint64_t atomic_level;
 	uint64_t quantum;
 	sighandler_t sighandlers[SIGCOUNT];

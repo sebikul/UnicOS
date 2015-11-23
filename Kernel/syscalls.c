@@ -282,7 +282,7 @@ void sys_task_ready(pid_t pid) {
 }
 
 //todo convertir a int64_t
-uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
+int64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	task_t *task = task_find_by_pid(pid);
 	task_t *other = task_find_by_pid(otherpid);
 

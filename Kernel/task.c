@@ -353,7 +353,7 @@ uint64_t task_getquantum() {
 
 uint64_t task_join(task_t *task, task_t *other) {
 
-	uint64_t retval;
+	int64_t retval;
 
 	kdebug("Sending task with pid=");
 	kdebug_base(other->pid, 10);

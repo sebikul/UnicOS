@@ -239,7 +239,7 @@ static uint64_t _main(int argc, char** argv) {
 				pid_t taskpid = sys_task_create(cmdlist->commands[cmd]->func, TASK_FOREGROUND, cmdlist->commands[cmd]->name, argc, argv);
 
 				sys_task_ready(taskpid);
-				uint64_t retval = sys_task_join(taskpid, shellpid);
+				int64_t retval = sys_task_join(taskpid, shellpid);
 
 				printf("RETVAL: %ld\n", retval);
 				return;

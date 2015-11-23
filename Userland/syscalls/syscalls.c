@@ -85,7 +85,7 @@ void sys_task_ready(pid_t pid) {
 	syscall((uint64_t)SYSCALL_TASK_READY, pid);
 }
 
-uint64_t sys_task_join(pid_t pid, pid_t otherpid) {
+int64_t sys_task_join(pid_t pid, pid_t otherpid) {
 	return syscall((uint64_t) SYSCALL_TASK_JOIN, pid, otherpid);
 }
 
