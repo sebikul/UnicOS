@@ -31,6 +31,10 @@ extern 		task_decquantum
 extern 		stack_init
 extern 		kdebug_base
 extern 		kdebug_nl
+extern 		kernel_stack
+
+global 		switch_u2k
+global 		switch_k2u
 
 extern 		pit_timer
 
@@ -195,6 +199,26 @@ _eoi:
 
 		iretq
 
+switch_u2k:
+		pop 		QWORD[ret_addr] 			;Direccion de retorno
+
+		mov 		QWORD[task_stack], rsp
+		mov 		rsp, QWORD[kernel_stack]
+
+		push 		QWORD[ret_addr]
+		ret
+
+
+switch_k2u:
+		pop 		QWORD[ret_addr] 			;Direccion de retorno
+
+		mov 		QWORD[kernel_stack], rsp
+		mov 		rsp, QWORD[task_stack]
+
+		push 		QWORD[ret_addr]
+		ret
+
+
 reschedule:
 		;Simulamos una interrpucion
 		pop 		QWORD[ret_addr] 			;Direccion de retorno
@@ -332,4 +356,6 @@ ret_addr:
 cs_addr:
 		resq 1
 ss_addr:
+		resq 1
+task_stack:
 		resq 1

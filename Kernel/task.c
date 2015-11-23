@@ -129,9 +129,14 @@ void task_remove(task_t *task) {
 	free(task->name);
 	//free(task->stack);
 	PM_L4_TABLE* task_l4 = (PM_L4_TABLE*)task->cr3;
+
+	switch_u2k();
+
 	free_l4_table(task_l4);
 	free(task);
 	writeCR3(get_kernel_cr3());
+
+	switch_k2u();
 
 	kset_ints(ints);
 }
